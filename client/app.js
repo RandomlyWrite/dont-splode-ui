@@ -145,7 +145,7 @@ class SFXEngine {
           <section class="latest-ticket" id="latest-ticket" aria-label="Latest round record" hidden><header class="latest-ticket-head"><span>LAST CABINET INCIDENT</span><span>ON FILE</span></header><dl class="latest-ticket-stats"><div><dt>CRASH</dt><dd id="latest-multiplier">—</dd></div><div><dt>SPLIT</dt><dd id="latest-payout">—</dd></div><div><dt>ESCAPED</dt><dd id="latest-survivors">—</dd></div></dl></section>
         </section>
         <aside class="side-docket" aria-label="Game information"></aside>
-        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>INVITE VICTIMS <span aria-hidden="true">↗</span></button><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
+        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>POST LOBBY CARD <span aria-hidden="true">↗</span></button><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
         <p class="safety-note"><strong>Virtual chips only.</strong> This is a theatrical exercise in probability, not financial advice.</p>
       </section>
       <section class="summary-overlay" id="summary-overlay" role="dialog" aria-modal="true" aria-labelledby="summary-title" aria-describedby="summary-copy" hidden>
@@ -269,10 +269,10 @@ class SFXEngine {
 
   async function inviteVictims() {
     const pageUrl = `${window.location.origin}${window.location.pathname}`;
-    const inviteText = "Enter the DON’T SPLODE cabinet: 100 virtual chips, one lit fuse, and an excellent chance of embarrassment.";
+    const inviteText = "DON’T SPLODE lobby is open: 100 virtual chips, one lit fuse, and an excellent chance of embarrassment.";
     try {
       if (telegram?.switchInlineQuery) {
-        telegram.switchInlineQuery("Invite victims to DON'T SPLODE", ["groups", "supergroups"]);
+        telegram.switchInlineQuery("lobby", ["groups", "supergroups"]);
         return;
       }
       if (navigator.share) {
