@@ -153,6 +153,10 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
   text-align: right;
   text-transform: uppercase;
 }
+.marquee-tools { display: flex; align-items: center; justify-content: flex-end; gap: 8px; min-width: 0; }
+.sfx-toggle { min-height: 25px; border: 1px solid rgba(216,168,75,.35); padding: 5px 7px 4px; background: #0f0d0a; color: var(--brass); box-shadow: inset 0 1px rgba(255,255,255,.06), inset 0 -2px rgba(0,0,0,.42); clip-path: polygon(0 4px, 4px 0, calc(100% - 4px) 0, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0 calc(100% - 4px)); cursor: pointer; font-size: 8px; font-weight: 700; letter-spacing: .11em; line-height: 1; text-transform: uppercase; transition: transform 140ms var(--ease-out), color 140ms var(--ease-out), background 140ms var(--ease-out); }
+.sfx-toggle[aria-pressed="false"] { color: #8d8370; background: #181510; }
+.sfx-toggle:active { transform: translateY(1px) scale(.97); }
 .lamp { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); box-shadow: 0 0 0 2px rgba(0,0,0,.35); }
 .system-pill[data-status="online"] .lamp { background: var(--mint); box-shadow: 0 0 8px rgba(158,224,107,.72), 0 0 0 2px rgba(0,0,0,.35); }
 .system-pill[data-status="offline"] .lamp { background: var(--fuse); box-shadow: 0 0 8px rgba(225,59,50,.65), 0 0 0 2px rgba(0,0,0,.35); }
@@ -247,6 +251,26 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
 .safety-note { margin: 13px 7px 0; color: var(--muted); font-size: 9px; line-height: 1.45; letter-spacing: .06em; text-align: center; text-transform: uppercase; }
 .safety-note strong { color: var(--ash); }
 
+.summary-overlay { position: fixed; z-index: 20; inset: 0; display: grid; place-items: center; padding: 22px; background: rgba(4,3,2,.78); backdrop-filter: blur(5px); opacity: 0; transition: opacity 180ms var(--ease-out); }
+.summary-overlay[hidden] { display: none; }
+.summary-overlay.is-visible { opacity: 1; }
+.summary-ticket { width: min(100%, 362px); position: relative; padding: 25px 22px 20px; background: #ebdfbe; color: #211b12; box-shadow: 0 25px 60px rgba(0,0,0,.56), inset 0 0 0 1px rgba(61,39,16,.32); clip-path: polygon(0 8px, 5% 4px, 11% 7px, 19% 2px, 29% 6px, 41% 0, 55% 5px, 66% 2px, 79% 6px, 91% 1px, 100% 8px, 99% 93%, 93% 100%, 81% 96%, 70% 100%, 59% 96%, 48% 100%, 35% 95%, 23% 100%, 12% 96%, 0 92%); transform: translateY(12px) scale(.97); transition: transform 180ms var(--ease-out); }
+.summary-overlay.is-visible .summary-ticket { transform: translateY(0) scale(1); }
+.summary-ticket::before { content: ""; position: absolute; inset: 9px; border: 1px dashed rgba(81,48,20,.42); pointer-events: none; }
+.summary-kicker { display: block; position: relative; color: #8f3329; font-size: 9px; font-weight: 700; letter-spacing: .15em; text-align: center; }
+.summary-ticket h2 { position: relative; margin: 7px 0 5px; color: #84231d; font-family: "Bowlby One SC", Impact, sans-serif; font-size: 29px; letter-spacing: .02em; line-height: 1; text-align: center; text-shadow: 1px 1px 0 rgba(255,255,255,.36); }
+.summary-copy { position: relative; margin: 0 auto 16px; max-width: 262px; color: #615139; font-size: 11px; line-height: 1.45; text-align: center; }
+.summary-stats { position: relative; margin: 0; padding: 0; background: #17130e; color: var(--paper); }
+.summary-stats div { display: flex; justify-content: space-between; gap: 14px; padding: 10px 11px; border-bottom: 1px dashed rgba(240,228,195,.22); }
+.summary-stats div:last-child { border-bottom: 0; }
+.summary-stats dt { color: var(--ash); font-size: 9px; font-weight: 700; letter-spacing: .1em; }
+.summary-stats dd { margin: 0; color: var(--brass); font-size: 12px; font-weight: 700; text-align: right; }
+.summary-stats div:first-child dd { color: var(--danger); }
+.summary-stats div:last-child dd { color: var(--mint); }
+.summary-close { width: 100%; position: relative; margin-top: 15px; border: 0; padding: 13px 16px; background: #b7332a; color: #fff8e7; box-shadow: inset 0 2px rgba(255,255,255,.18), inset 0 -3px rgba(74,18,14,.35); clip-path: polygon(0 5px, 5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px)); cursor: pointer; font-family: "Bowlby One SC", Impact, sans-serif; font-size: 14px; letter-spacing: .025em; text-align: left; }
+.summary-close span { float: right; font-family: "IBM Plex Mono", monospace; font-size: 19px; line-height: .65; }
+.summary-close:active { transform: translateY(2px) scale(.98); }
+
 @keyframes holder-shake { 0%, 100% { transform: translate(0,0) rotate(0deg); } 20% { transform: translate(-2px, 1px) rotate(-1deg); } 40% { transform: translate(2px, -1px) rotate(1deg); } 60% { transform: translate(-1px, 2px) rotate(-.5deg); } 80% { transform: translate(2px, 1px) rotate(.5deg); } }
 @keyframes fuse-glow { from { transform: translate(-50%, -50%) scale(.52); filter: blur(3px); } to { transform: translate(-50%, -50%) scale(1.1); filter: blur(5px); } }
 @keyframes fuse-spark { 0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(.58); } 24% { transform: translate(-42%, -63%) rotate(22deg) scale(1.12); } 52% { transform: translate(-63%, -42%) rotate(-16deg) scale(.76); } 76% { transform: translate(-48%, -56%) rotate(14deg) scale(1.06); } }
@@ -260,5 +284,5 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
   .side-docket::before { content: "RISK TICKET\A\A• LIVE WEBSOCKET ENGINE\A• 12 PLAYER CABIN\A• PASS THE BOMB\A• BLAME PROBABILITY\A\A\AALL CHIPS ARE VIRTUAL\A\A— DON'T SPLODE"; white-space: pre-wrap; color: var(--ash); font-size: 10px; line-height: 1.8; letter-spacing: .05em; }
 }
 @media (max-width: 759px) { .side-docket { display: none; } }
-@media (max-width: 370px) { .shell { padding-inline: 8px; } .marquee { grid-template-columns: 45px 1fr; } .brand-mark { width: 42px; height: 42px; } .system-pill { grid-column: 2; justify-self: start; } .chamber { min-height: 480px; padding-inline: 14px; } .bomb-stage { min-height: 218px; } .bomb-mascot { width: 194px; height: 210px; } }
+@media (max-width: 370px) { .shell { padding-inline: 8px; } .marquee { grid-template-columns: 45px 1fr; } .brand-mark { width: 42px; height: 42px; } .marquee-tools { grid-column: 2; justify-content: flex-start; } .system-pill { justify-self: start; } .chamber { min-height: 480px; padding-inline: 14px; } .bomb-stage { min-height: 218px; } .bomb-mascot { width: 194px; height: 210px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }

@@ -3,6 +3,11 @@ class SFXEngine {
   constructor() {
     this.ctx = null;
     this.armed = false;
+    this.muted = false;
+  }
+
+  setMuted(muted) {
+    this.muted = Boolean(muted);
   }
 
   init() {
@@ -19,7 +24,7 @@ class SFXEngine {
   }
 
   canPlay() {
-    return Boolean(this.armed && this.ctx && this.ctx.state === "running");
+    return Boolean(!this.muted && this.armed && this.ctx && this.ctx.state === "running");
   }
 
   tone({ frequency, duration, volume = 0.05, type = "sine", endFrequency = null, delay = 0 }) {
@@ -76,7 +81,7 @@ class SFXEngine {
 (() => {
   const ENDPOINT = "wss://dont-splode-backend.onrender.com/ws";
   const ASSETS = {
-    mascot: "/manus-storage/dont-splode-hands-of-calamity_c1f4302f.png",
+    mascot: "./assets/hands-of-calamity.png",
     logo: "/manus-storage/dont-splode-logo_8863a007.png",
   };
 
@@ -109,6 +114,10 @@ class SFXEngine {
   let state = null;
   let lastEvent = null;
   const sfx = new SFXEngine();
+  const soundPreferenceKey = "dont-splode-sfx-muted";
+  let sfxMuted = localStorage.getItem(soundPreferenceKey) === "true";
+  sfx.setMuted(sfxMuted);
+  let lastHolderHapticAt = 0;
 
   root.innerHTML = `
     <div class="shell">
@@ -117,7 +126,7 @@ class SFXEngine {
         <header class="marquee">
           <span class="brand-mark" aria-label="Dont Splode bomb emblem"></span>
           <div><span class="eyebrow">GROUP GAME / 100 VIRTUAL CHIPS</span><h1 class="wordmark">DON'T SPLODE</h1></div>
-          <div class="system-pill" id="connection" data-status="connecting"><span class="lamp"></span><span>Waking engine</span></div>
+          <div class="marquee-tools"><button class="sfx-toggle" id="sfx-toggle" type="button" aria-pressed="false" title="Mute sound effects">SFX ON</button><div class="system-pill" id="connection" data-status="connecting"><span class="lamp"></span><span>Waking engine</span></div></div>
         </header>
         <section class="status-rail" aria-label="Round status">
           <div class="rail-item"><span class="rail-label">Pot</span><strong class="rail-value accent" id="pot-value">—</strong></div>
@@ -135,6 +144,19 @@ class SFXEngine {
         <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
         <p class="safety-note"><strong>Virtual chips only.</strong> This is a theatrical exercise in probability, not financial advice.</p>
       </section>
+      <section class="summary-overlay" id="summary-overlay" role="dialog" aria-modal="true" aria-labelledby="summary-title" aria-describedby="summary-copy" hidden>
+        <div class="summary-ticket">
+          <span class="summary-kicker">CABINET INCIDENT REPORT</span>
+          <h2 id="summary-title">DETONATION REPORT</h2>
+          <p class="summary-copy" id="summary-copy">A bad decision has concluded its service.</p>
+          <dl class="summary-stats">
+            <div><dt>VAPORIZED</dt><dd id="summary-loser">UNKNOWN</dd></div>
+            <div><dt>CRASH POINT</dt><dd id="summary-multiplier">1.00×</dd></div>
+            <div><dt>SURVIVOR SPLIT</dt><dd id="summary-payout">0 ◉</dd></div>
+          </dl>
+          <button class="summary-close" id="summary-close" type="button">ACCEPT FATE <span aria-hidden="true">→</span></button>
+        </div>
+      </section>
     </div>`;
 
   const ui = {
@@ -142,17 +164,70 @@ class SFXEngine {
     pot: root.querySelector("#pot-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
     stage: root.querySelector("#bomb-stage"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
-    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), action: root.querySelector("#action"), reconnect: root.querySelector("#reconnect"),
+    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), action: root.querySelector("#action"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryClose: root.querySelector("#summary-close"),
   };
 
   ui.mascot.addEventListener("error", () => ui.stage.classList.add("fallback"));
   ui.reconnect.addEventListener("click", () => connect(true));
   ui.action.addEventListener("click", handleAction);
+  ui.soundToggle.addEventListener("click", toggleSfx);
+  ui.summaryClose.addEventListener("click", closeRoundSummary);
+  ui.summary.addEventListener("pointerdown", (event) => { if (event.target === ui.summary) closeRoundSummary(); });
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !ui.summary.hidden) closeRoundSummary(); });
+  updateSoundToggle();
 
   function setConnection(status, text) {
     ui.connection.dataset.status = status;
     ui.connection.lastElementChild.textContent = text;
     ui.reconnect.classList.toggle("is-visible", status === "offline");
+  }
+
+  function updateSoundToggle() {
+    ui.soundToggle.textContent = sfxMuted ? "SFX OFF" : "SFX ON";
+    ui.soundToggle.setAttribute("aria-pressed", String(!sfxMuted));
+    ui.soundToggle.title = sfxMuted ? "Enable sound effects" : "Mute sound effects";
+  }
+
+  function toggleSfx() {
+    sfxMuted = !sfxMuted;
+    sfx.setMuted(sfxMuted);
+    try { localStorage.setItem(soundPreferenceKey, String(sfxMuted)); } catch {}
+    updateSoundToggle();
+  }
+
+  function triggerHaptic(kind) {
+    const haptic = telegram?.HapticFeedback;
+    if (!haptic) return;
+    try {
+      if (kind === "tick_holder") {
+        const now = Date.now();
+        if (now - lastHolderHapticAt < 1200) return;
+        lastHolderHapticAt = now;
+        haptic.impactOccurred("medium");
+      } else if (kind === "pass") haptic.notificationOccurred("success");
+      else if (kind === "sploded") haptic.notificationOccurred("error");
+    } catch {}
+  }
+
+  function showRoundSummary(event) {
+    const roundState = event.state || {};
+    const players = Array.isArray(roundState.players) ? roundState.players : [];
+    const loser = players.find((player) => String(player.id) === String(event.loser));
+    const localLoss = String(event.loser) === identity.id;
+    ui.summaryTitle.textContent = localLoss ? "YOU SPLODED" : "DETONATION REPORT";
+    ui.summaryCopy.textContent = localLoss ? "The cabinet regrets nothing. Your virtual chips have become a cautionary tale." : "Somebody met the fuse. The survivors receive their suspiciously tidy split.";
+    ui.summaryLoser.textContent = loser?.name || "UNKNOWN VICTIM";
+    ui.summaryMultiplier.textContent = `${safeNumber(roundState.multiplier, 1).toFixed(2)}×`;
+    ui.summaryPayout.textContent = `${safeNumber(event.payout)} ◉`;
+    ui.summary.hidden = false;
+    window.requestAnimationFrame(() => ui.summary.classList.add("is-visible"));
+    ui.summaryClose.focus({ preventScroll: true });
+  }
+
+  function closeRoundSummary() {
+    if (ui.summary.hidden) return;
+    ui.summary.classList.remove("is-visible");
+    window.setTimeout(() => { if (!ui.summary.classList.contains("is-visible")) ui.summary.hidden = true; }, 180);
   }
 
   function safeNumber(value, fallback = 0) { return Number.isFinite(Number(value)) ? Number(value) : fallback; }
@@ -239,12 +314,20 @@ class SFXEngine {
     const nextState = event.state;
     const localHolder = String(nextState.current_holder) === identity.id;
     if (event.type === "start") sfx.playAlarm();
-    if (event.type === "tick") sfx.playTick(localHolder);
+    if (event.type === "tick") {
+      sfx.playTick(localHolder);
+      if (localHolder) triggerHaptic("tick_holder");
+    }
     if (event.type === "sploded") {
       sfx.playExplosion();
       if (String(event.loser) !== identity.id) sfx.playPayout();
+      triggerHaptic("sploded");
+      showRoundSummary(event);
     }
-    if (event.type === "update" && previousState?.phase === "running" && nextState.phase === "running" && String(previousState.current_holder) !== String(nextState.current_holder)) sfx.playPass();
+    if (event.type === "update" && previousState?.phase === "running" && nextState.phase === "running" && String(previousState.current_holder) !== String(nextState.current_holder)) {
+      sfx.playPass();
+      if (String(previousState.current_holder) === identity.id) triggerHaptic("pass");
+    }
   }
 
   function connect(manual = false) {
