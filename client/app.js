@@ -142,7 +142,7 @@ class SFXEngine {
           <section class="roster" aria-label="Players in the lobby"><header class="roster-head"><span>Victim manifest</span><span id="roster-count">00 active</span></header><div class="roster-list" id="roster"><div class="roster-empty">The lobby is making eye contact with nobody.</div></div></section>
         </section>
         <aside class="side-docket" aria-label="Game information"></aside>
-        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
+        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>INVITE VICTIMS <span aria-hidden="true">↗</span></button><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
         <p class="safety-note"><strong>Virtual chips only.</strong> This is a theatrical exercise in probability, not financial advice.</p>
       </section>
       <section class="summary-overlay" id="summary-overlay" role="dialog" aria-modal="true" aria-labelledby="summary-title" aria-describedby="summary-copy" hidden>
@@ -150,6 +150,7 @@ class SFXEngine {
           <span class="summary-kicker">CABINET INCIDENT REPORT</span>
           <h2 id="summary-title">DETONATION REPORT</h2>
           <p class="summary-copy" id="summary-copy">A bad decision has concluded its service.</p>
+          <div class="defeat-emblem" aria-hidden="true"><span class="dead-bomb"><i></i></span></div>
           <dl class="summary-stats">
             <div><dt>VAPORIZED</dt><dd id="summary-loser">UNKNOWN</dd></div>
             <div><dt>CRASH POINT</dt><dd id="summary-multiplier">1.00×</dd></div>
@@ -166,12 +167,13 @@ class SFXEngine {
     pot: root.querySelector("#pot-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
     stage: root.querySelector("#bomb-stage"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
-    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), action: root.querySelector("#action"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
+    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), action: root.querySelector("#action"), invite: root.querySelector("#lobby-invite"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
   };
 
   ui.mascot.addEventListener("error", () => ui.stage.classList.add("fallback"));
   ui.reconnect.addEventListener("click", () => connect(true));
   ui.action.addEventListener("click", handleAction);
+  ui.invite.addEventListener("click", inviteVictims);
   ui.soundToggle.addEventListener("click", toggleSfx);
   ui.summaryShare.addEventListener("click", shareSurvival);
   ui.summaryClose.addEventListener("click", closeRoundSummary);
@@ -221,8 +223,9 @@ class SFXEngine {
     const localSurvived = localPlayed && !localLoss;
     const multiplier = safeNumber(roundState.multiplier, 1).toFixed(2);
     const payout = safeNumber(event.payout);
-    ui.summaryTitle.textContent = localLoss ? "YOU SPLODED" : "DETONATION REPORT";
-    ui.summaryCopy.textContent = localLoss ? "The cabinet regrets nothing. Your virtual chips have become a cautionary tale." : "Somebody met the fuse. The survivors receive their suspiciously tidy split.";
+    ui.summary.classList.toggle("is-defeat", localLoss);
+    ui.summaryTitle.textContent = localLoss ? "VAPORIZED!" : "DETONATION REPORT";
+    ui.summaryCopy.textContent = localLoss ? "(AND IT WAS YOU.) The cabinet regrets nothing. Your virtual chips have become a cautionary tale." : "Somebody met the fuse. The survivors receive their suspiciously tidy split.";
     ui.summaryLoser.textContent = loser?.name || "UNKNOWN VICTIM";
     ui.summaryMultiplier.textContent = `${multiplier}×`;
     ui.summaryPayout.textContent = `${payout} ◉`;
@@ -258,6 +261,26 @@ class SFXEngine {
       }
       const shareWindow = window.open(telegramShareUrl, "dont-splode-share", "noopener,noreferrer");
       if (!shareWindow && navigator.clipboard) await navigator.clipboard.writeText(`${shareMessage} ${pageUrl}`);
+    } catch {}
+  }
+
+  async function inviteVictims() {
+    const pageUrl = `${window.location.origin}${window.location.pathname}`;
+    const inviteText = "Enter the DON’T SPLODE cabinet: 100 virtual chips, one lit fuse, and an excellent chance of embarrassment.";
+    try {
+      if (telegram?.switchInlineQuery) {
+        telegram.switchInlineQuery("Invite victims to DON'T SPLODE", ["groups", "supergroups"]);
+        return;
+      }
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: "DON'T SPLODE", text: inviteText, url: pageUrl });
+          return;
+        } catch (error) {
+          if (error?.name === "AbortError") return;
+        }
+      }
+      window.open(`https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(inviteText)}`, "dont-splode-invite", "noopener,noreferrer");
     } catch {}
   }
 
@@ -321,6 +344,7 @@ class SFXEngine {
 
     ui.action.className = "action-button";
     ui.action.disabled = false;
+    ui.invite.hidden = phase !== "lobby";
     if (phase === "lobby" && !isInLobby) ui.action.textContent = "SIGN THE WAIVER — 100 ◉";
     else if (phase === "lobby" && players.length >= 2) { ui.action.textContent = "LOCK THE DOORS"; ui.action.classList.add("is-start"); }
     else if (phase === "lobby") { ui.action.textContent = "AWAITING ANOTHER VICTIM"; ui.action.classList.add("is-neutral"); ui.action.disabled = true; }
