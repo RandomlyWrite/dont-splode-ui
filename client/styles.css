@@ -69,7 +69,11 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
   width: min(85vw, 520px);
   height: 180px;
   opacity: .21;
-  background: url("/manus-storage/dont-splode-smoke-decal_8294c31e.png") center / contain no-repeat;
+  background:
+    radial-gradient(ellipse at 18% 78%, rgba(191, 174, 139, .28) 0 6%, transparent 28%),
+    radial-gradient(ellipse at 42% 54%, rgba(191, 174, 139, .2) 0 9%, transparent 36%),
+    radial-gradient(ellipse at 76% 36%, rgba(191, 174, 139, .14) 0 10%, transparent 42%);
+  filter: blur(13px);
   transform: rotate(-8deg);
 }
 
