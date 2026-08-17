@@ -2,7 +2,7 @@
 (() => {
   const ENDPOINT = "wss://dont-splode-backend.onrender.com/ws";
   const ASSETS = {
-    mascot: "/manus-storage/dont-splode-bomb-mascot_3e8fa59b.png",
+    mascot: "./assets/hands-of-calamity.png",
     logo: "/manus-storage/dont-splode-logo_8863a007.png",
   };
 
@@ -51,7 +51,7 @@
         </section>
         <section class="chamber" id="chamber" data-phase="lobby">
           <div class="deck-head"><span class="round-tag" id="round-tag">CABINET AWAITS</span><span class="live-tag" id="live-tag" data-urgent="false">SAFE(ISH)</span></div>
-          <div class="bomb-stage fallback" id="bomb-stage"><span class="bomb-halo"></span><img class="bomb-mascot" id="bomb-mascot" src="/manus-storage/dont-splode-bomb-mascot-v2_884de318.png" alt="A worried cartoon bomb with a lit fuse" /><span class="bomb-fallback" aria-hidden="true"></span></div>
+          <div class="bomb-stage" id="bomb-stage"><span class="bomb-halo"></span><img class="bomb-mascot" id="bomb-mascot" src="${ASSETS.mascot}" alt="A worried cartoon bomb with a lit fuse, cradled by distressed cartoon gloves" /><span class="bomb-fallback" aria-hidden="true"></span></div>
           <div class="multiplier-wrap"><strong class="multiplier" id="multiplier">1.00×</strong><span class="multiplier-caption">Survival multiplier</span></div>
           <p class="message-board" id="message">Waking the engine room. Please retain all fingers.</p>
           <section class="roster" aria-label="Players in the lobby"><header class="roster-head"><span>Victim manifest</span><span id="roster-count">00 active</span></header><div class="roster-list" id="roster"><div class="roster-empty">The lobby is making eye contact with nobody.</div></div></section>

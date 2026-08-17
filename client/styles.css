@@ -193,9 +193,9 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
 .live-tag { color: var(--mint); font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
 .live-tag[data-urgent="true"] { color: var(--fuse); }
 
-.bomb-stage { position: relative; z-index: 1; display: grid; place-items: center; min-height: 230px; margin-top: 4px; }
-.bomb-halo { position: absolute; width: 190px; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgba(216,168,75,.18), rgba(216,168,75,.03) 47%, transparent 70%); filter: blur(2px); }
-.bomb-mascot { position: relative; width: 188px; aspect-ratio: 1; object-fit: contain; filter: drop-shadow(0 18px 10px rgba(0,0,0,.47)); transition: transform 180ms var(--ease-out), filter 180ms var(--ease-out); }
+.bomb-stage { position: relative; z-index: 1; display: grid; place-items: center; min-height: 246px; margin-top: 4px; }
+.bomb-halo { position: absolute; width: 216px; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgba(216,168,75,.18), rgba(216,168,75,.03) 47%, transparent 70%); filter: blur(2px); }
+.bomb-mascot { position: relative; width: min(244px, 78vw); height: 245px; object-fit: contain; filter: drop-shadow(0 18px 10px rgba(0,0,0,.47)); transition: transform 180ms var(--ease-out), filter 180ms var(--ease-out); }
 .bomb-fallback { position: absolute; display: none; width: 130px; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 33% 26%, #5d5952, #201d18 52%, #050504 76%); box-shadow: inset 9px 10px rgba(255,255,255,.08), inset -12px -16px rgba(0,0,0,.4), 0 16px 14px rgba(0,0,0,.42); }
 .bomb-fallback::before { content: "●  ●\A   ﹀"; white-space: pre; display: grid; place-items: center; height: 100%; padding-top: 17px; color: var(--bone); font-family: Georgia, serif; font-size: 25px; font-weight: 700; line-height: .76; letter-spacing: 7px; text-shadow: 0 2px #070605; }
 .bomb-fallback::after { content: ""; position: absolute; width: 41px; height: 38px; left: 91px; top: -22px; border-top: 7px solid #2a2219; border-right: 7px solid #2a2219; border-radius: 0 22px 0 0; transform: rotate(-18deg); filter: drop-shadow(9px -11px 0 var(--fuse)) drop-shadow(15px -13px 0 #f6c85c); }
@@ -252,5 +252,5 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
   .side-docket::before { content: "RISK TICKET\A\A• LIVE WEBSOCKET ENGINE\A• 12 PLAYER CABIN\A• PASS THE BOMB\A• BLAME PROBABILITY\A\A\AALL CHIPS ARE VIRTUAL\A\A— DON'T SPLODE"; white-space: pre-wrap; color: var(--ash); font-size: 10px; line-height: 1.8; letter-spacing: .05em; }
 }
 @media (max-width: 759px) { .side-docket { display: none; } }
-@media (max-width: 370px) { .shell { padding-inline: 8px; } .marquee { grid-template-columns: 45px 1fr; } .brand-mark { width: 42px; height: 42px; } .system-pill { grid-column: 2; justify-self: start; } .chamber { min-height: 460px; padding-inline: 14px; } .bomb-stage { min-height: 202px; } .bomb-mascot { width: 164px; } }
+@media (max-width: 370px) { .shell { padding-inline: 8px; } .marquee { grid-template-columns: 45px 1fr; } .brand-mark { width: 42px; height: 42px; } .system-pill { grid-column: 2; justify-self: start; } .chamber { min-height: 480px; padding-inline: 14px; } .bomb-stage { min-height: 218px; } .bomb-mascot { width: 194px; height: 210px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
