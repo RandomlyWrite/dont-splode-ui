@@ -120,6 +120,7 @@ class SFXEngine {
   let lastHolderHapticAt = 0;
   let shareMessage = "";
   let playerBalance = null;
+  let actionPending = false;
 
   root.innerHTML = `
     <div class="shell">
@@ -293,6 +294,7 @@ class SFXEngine {
     if (!state) return "Waking the engine room. Please retain all fingers.";
     const players = Array.isArray(state.players) ? state.players : [];
     const inLobby = players.some((player) => String(player.id) === identity.id);
+    if (event?.type === "action_rejected") return event.reason || "The cabinet rejected that particular decision.";
     if (event?.type === "reset") return "The cabinet swept the ash aside. Volunteer for virtual peril.";
     if (state.phase === "ended") {
       if (event?.type === "sploded") return `BOOM. ${event?.payout ?? 0} virtual chips were divided among the survivors.`;
@@ -361,10 +363,13 @@ class SFXEngine {
     renderLatestRound(state.latest_round, phase);
     if (event?.type === "reset") closeRoundSummary();
 
+    if (event?.type === "action_rejected" || isInLobby || phase !== "lobby") actionPending = false;
+
     ui.action.className = "action-button";
-    ui.action.disabled = false;
+    ui.action.disabled = actionPending;
     ui.invite.hidden = phase !== "lobby";
-    if (phase === "lobby" && !isInLobby) ui.action.textContent = "SIGN THE WAIVER — 100 ◉";
+    if (phase === "lobby" && !isInLobby && actionPending) { ui.action.textContent = "SIGNING THE WAIVER…"; ui.action.classList.add("is-neutral"); }
+    else if (phase === "lobby" && !isInLobby) ui.action.textContent = "SIGN THE WAIVER — 100 ◉";
     else if (phase === "lobby" && players.length >= 2) { ui.action.textContent = "LOCK THE DOORS"; ui.action.classList.add("is-start"); }
     else if (phase === "lobby") { ui.action.textContent = "AWAITING ANOTHER VICTIM"; ui.action.classList.add("is-neutral"); ui.action.disabled = true; }
     else if (phase === "running" && localHolder) { ui.action.textContent = "PASS THE BOMB — 5 ◉"; ui.action.classList.add("is-pass"); }
@@ -374,12 +379,17 @@ class SFXEngine {
 
   function handleAction() {
     sfx.init();
-    if (!socket || socket.readyState !== WebSocket.OPEN || !state) return;
+    if (!socket || socket.readyState !== WebSocket.OPEN || !state || actionPending) return;
     const players = Array.isArray(state.players) ? state.players : [];
     const isInLobby = players.some((player) => String(player.id) === identity.id);
     if (state.phase === "lobby") {
-      if (!isInLobby) sfx.playChip();
-      socket.send(JSON.stringify({ action: isInLobby ? "force_start" : "join" }));
+      if (!isInLobby) {
+        actionPending = true;
+        ui.action.disabled = true;
+        ui.action.textContent = "SIGNING THE WAIVER…";
+        sfx.playChip();
+      }
+      try { socket.send(JSON.stringify({ action: isInLobby ? "force_start" : "join" })); } catch { actionPending = false; render(state); }
     }
     if (state.phase === "running" && String(state.current_holder) === identity.id) socket.send(JSON.stringify({ action: "pass" }));
   }
