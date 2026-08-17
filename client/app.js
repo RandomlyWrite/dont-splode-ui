@@ -118,6 +118,7 @@ class SFXEngine {
   let sfxMuted = localStorage.getItem(soundPreferenceKey) === "true";
   sfx.setMuted(sfxMuted);
   let lastHolderHapticAt = 0;
+  let shareMessage = "";
 
   root.innerHTML = `
     <div class="shell">
@@ -154,6 +155,7 @@ class SFXEngine {
             <div><dt>CRASH POINT</dt><dd id="summary-multiplier">1.00×</dd></div>
             <div><dt>SURVIVOR SPLIT</dt><dd id="summary-payout">0 ◉</dd></div>
           </dl>
+          <button class="summary-share" id="summary-share" type="button" hidden>BRAG TO THE GROUP <span aria-hidden="true">↗</span></button>
           <button class="summary-close" id="summary-close" type="button">ACCEPT FATE <span aria-hidden="true">→</span></button>
         </div>
       </section>
@@ -164,13 +166,14 @@ class SFXEngine {
     pot: root.querySelector("#pot-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
     stage: root.querySelector("#bomb-stage"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
-    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), action: root.querySelector("#action"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryClose: root.querySelector("#summary-close"),
+    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), action: root.querySelector("#action"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
   };
 
   ui.mascot.addEventListener("error", () => ui.stage.classList.add("fallback"));
   ui.reconnect.addEventListener("click", () => connect(true));
   ui.action.addEventListener("click", handleAction);
   ui.soundToggle.addEventListener("click", toggleSfx);
+  ui.summaryShare.addEventListener("click", shareSurvival);
   ui.summaryClose.addEventListener("click", closeRoundSummary);
   ui.summary.addEventListener("pointerdown", (event) => { if (event.target === ui.summary) closeRoundSummary(); });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !ui.summary.hidden) closeRoundSummary(); });
@@ -214,11 +217,17 @@ class SFXEngine {
     const players = Array.isArray(roundState.players) ? roundState.players : [];
     const loser = players.find((player) => String(player.id) === String(event.loser));
     const localLoss = String(event.loser) === identity.id;
+    const localPlayed = players.some((player) => String(player.id) === identity.id);
+    const localSurvived = localPlayed && !localLoss;
+    const multiplier = safeNumber(roundState.multiplier, 1).toFixed(2);
+    const payout = safeNumber(event.payout);
     ui.summaryTitle.textContent = localLoss ? "YOU SPLODED" : "DETONATION REPORT";
     ui.summaryCopy.textContent = localLoss ? "The cabinet regrets nothing. Your virtual chips have become a cautionary tale." : "Somebody met the fuse. The survivors receive their suspiciously tidy split.";
     ui.summaryLoser.textContent = loser?.name || "UNKNOWN VICTIM";
-    ui.summaryMultiplier.textContent = `${safeNumber(roundState.multiplier, 1).toFixed(2)}×`;
-    ui.summaryPayout.textContent = `${safeNumber(event.payout)} ◉`;
+    ui.summaryMultiplier.textContent = `${multiplier}×`;
+    ui.summaryPayout.textContent = `${payout} ◉`;
+    shareMessage = localSurvived ? `I dodged the fuse in DON'T SPLODE — ${multiplier}× and ${payout} virtual chips. The cabinet picked somebody else.` : "";
+    ui.summaryShare.hidden = !localSurvived;
     ui.summary.hidden = false;
     window.requestAnimationFrame(() => ui.summary.classList.add("is-visible"));
     ui.summaryClose.focus({ preventScroll: true });
@@ -228,6 +237,28 @@ class SFXEngine {
     if (ui.summary.hidden) return;
     ui.summary.classList.remove("is-visible");
     window.setTimeout(() => { if (!ui.summary.classList.contains("is-visible")) ui.summary.hidden = true; }, 180);
+  }
+
+  async function shareSurvival() {
+    if (!shareMessage) return;
+    const pageUrl = `${window.location.origin}${window.location.pathname}`;
+    const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(shareMessage)}`;
+    try {
+      if (telegram?.openTelegramLink) {
+        telegram.openTelegramLink(telegramShareUrl);
+        return;
+      }
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: "DON'T SPLODE", text: shareMessage, url: pageUrl });
+          return;
+        } catch (error) {
+          if (error?.name === "AbortError") return;
+        }
+      }
+      const shareWindow = window.open(telegramShareUrl, "dont-splode-share", "noopener,noreferrer");
+      if (!shareWindow && navigator.clipboard) await navigator.clipboard.writeText(`${shareMessage} ${pageUrl}`);
+    } catch {}
   }
 
   function safeNumber(value, fallback = 0) { return Number.isFinite(Number(value)) ? Number(value) : fallback; }
