@@ -1,8 +1,82 @@
 /* Brass-Hinge Calamity — static Telegram Mini App client. The backend remains authoritative for game state. */
+class SFXEngine {
+  constructor() {
+    this.ctx = null;
+    this.armed = false;
+  }
+
+  init() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return false;
+    try {
+      this.ctx = this.ctx || new AudioContext();
+      this.armed = true;
+      if (this.ctx.state === "suspended") this.ctx.resume().catch(() => {});
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  canPlay() {
+    return Boolean(this.armed && this.ctx && this.ctx.state === "running");
+  }
+
+  tone({ frequency, duration, volume = 0.05, type = "sine", endFrequency = null, delay = 0 }) {
+    if (!this.canPlay()) return;
+    const start = this.ctx.currentTime + delay;
+    const oscillator = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, start);
+    if (endFrequency) oscillator.frequency.exponentialRampToValueAtTime(endFrequency, start + duration);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(volume, start + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+    oscillator.connect(gain);
+    gain.connect(this.ctx.destination);
+    oscillator.start(start);
+    oscillator.stop(start + duration + 0.02);
+  }
+
+  playChip() {
+    this.tone({ frequency: 195, endFrequency: 132, duration: 0.09, volume: 0.07, type: "triangle" });
+    this.tone({ frequency: 420, endFrequency: 285, duration: 0.07, volume: 0.035, type: "sine", delay: 0.04 });
+  }
+
+  playAlarm() {
+    this.tone({ frequency: 335, endFrequency: 520, duration: 0.22, volume: 0.06, type: "sawtooth" });
+    this.tone({ frequency: 520, endFrequency: 335, duration: 0.22, volume: 0.045, type: "sawtooth", delay: 0.23 });
+  }
+
+  playTick(isHolder) {
+    if (isHolder) {
+      this.tone({ frequency: 750, endFrequency: 560, duration: 0.11, volume: 0.045, type: "sawtooth" });
+      this.tone({ frequency: 980, endFrequency: 690, duration: 0.065, volume: 0.025, type: "triangle", delay: 0.028 });
+      return;
+    }
+    this.tone({ frequency: 235, endFrequency: 185, duration: 0.065, volume: 0.032, type: "triangle" });
+  }
+
+  playPass() {
+    this.tone({ frequency: 520, endFrequency: 130, duration: 0.18, volume: 0.045, type: "sawtooth" });
+  }
+
+  playExplosion() {
+    this.tone({ frequency: 150, endFrequency: 35, duration: 0.48, volume: 0.11, type: "triangle" });
+    this.tone({ frequency: 72, endFrequency: 34, duration: 0.38, volume: 0.08, type: "sine", delay: 0.025 });
+  }
+
+  playPayout() {
+    this.tone({ frequency: 880, duration: 0.085, volume: 0.045, type: "sine", delay: 0.31 });
+    this.tone({ frequency: 1175, duration: 0.12, volume: 0.04, type: "sine", delay: 0.405 });
+  }
+}
+
 (() => {
   const ENDPOINT = "wss://dont-splode-backend.onrender.com/ws";
   const ASSETS = {
-    mascot: "./assets/hands-of-calamity.png",
+    mascot: "/manus-storage/dont-splode-hands-of-calamity_c1f4302f.png",
     logo: "/manus-storage/dont-splode-logo_8863a007.png",
   };
 
@@ -34,6 +108,7 @@
   let reconnectCount = 0;
   let state = null;
   let lastEvent = null;
+  const sfx = new SFXEngine();
 
   root.innerHTML = `
     <div class="shell">
@@ -149,11 +224,27 @@
   }
 
   function handleAction() {
+    sfx.init();
     if (!socket || socket.readyState !== WebSocket.OPEN || !state) return;
     const players = Array.isArray(state.players) ? state.players : [];
     const isInLobby = players.some((player) => String(player.id) === identity.id);
-    if (state.phase === "lobby") socket.send(JSON.stringify({ action: isInLobby ? "force_start" : "join" }));
+    if (state.phase === "lobby") {
+      if (!isInLobby) sfx.playChip();
+      socket.send(JSON.stringify({ action: isInLobby ? "force_start" : "join" }));
+    }
     if (state.phase === "running" && String(state.current_holder) === identity.id) socket.send(JSON.stringify({ action: "pass" }));
+  }
+
+  function handleSoundEvent(event, previousState) {
+    const nextState = event.state;
+    const localHolder = String(nextState.current_holder) === identity.id;
+    if (event.type === "start") sfx.playAlarm();
+    if (event.type === "tick") sfx.playTick(localHolder);
+    if (event.type === "sploded") {
+      sfx.playExplosion();
+      if (String(event.loser) !== identity.id) sfx.playPayout();
+    }
+    if (event.type === "update" && previousState?.phase === "running" && nextState.phase === "running" && String(previousState.current_holder) !== String(nextState.current_holder)) sfx.playPass();
   }
 
   function connect(manual = false) {
@@ -165,7 +256,14 @@
     try { socket = new WebSocket(socketUrl); } catch { scheduleReconnect(); return; }
     socket.addEventListener("open", () => { reconnectCount = 0; setConnection("online", "Engine online"); });
     socket.addEventListener("message", (message) => {
-      try { const event = JSON.parse(message.data); if (event.state) render(event.state, event); } catch { ui.message.textContent = "The cabinet spat out an unreadable ticket. Reconnecting may help."; }
+      try {
+        const event = JSON.parse(message.data);
+        const previousState = state ? { ...state, players: [...(state.players || [])] } : null;
+        if (event.state) {
+          handleSoundEvent(event, previousState);
+          render(event.state, event);
+        }
+      } catch { ui.message.textContent = "The cabinet spat out an unreadable ticket. Reconnecting may help."; }
     });
     socket.addEventListener("close", () => { setConnection("offline", "Engine asleep"); scheduleReconnect(); });
     socket.addEventListener("error", () => setConnection("offline", "Engine trouble"));
