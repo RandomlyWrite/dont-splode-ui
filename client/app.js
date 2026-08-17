@@ -119,6 +119,7 @@ class SFXEngine {
   sfx.setMuted(sfxMuted);
   let lastHolderHapticAt = 0;
   let shareMessage = "";
+  let playerBalance = null;
 
   root.innerHTML = `
     <div class="shell">
@@ -131,6 +132,7 @@ class SFXEngine {
         </header>
         <section class="status-rail" aria-label="Round status">
           <div class="rail-item"><span class="rail-label">Pot</span><strong class="rail-value accent" id="pot-value">—</strong></div>
+          <div class="rail-item"><span class="rail-label">Balance</span><strong class="rail-value balance" id="balance-value">—</strong></div>
           <div class="rail-item"><span class="rail-label">Occupants</span><strong class="rail-value" id="player-count">0 / 12</strong></div>
           <div class="rail-item"><span class="rail-label">Round</span><strong class="rail-value" id="round-phase">STANDBY</strong></div>
         </section>
@@ -164,7 +166,7 @@ class SFXEngine {
 
   const ui = {
     cabinet: root.querySelector(".cabinet"), chamber: root.querySelector("#chamber"), connection: root.querySelector("#connection"),
-    pot: root.querySelector("#pot-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
+    pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
     stage: root.querySelector("#bomb-stage"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
     roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), action: root.querySelector("#action"), invite: root.querySelector("#lobby-invite"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
@@ -285,10 +287,12 @@ class SFXEngine {
   }
 
   function safeNumber(value, fallback = 0) { return Number.isFinite(Number(value)) ? Number(value) : fallback; }
+  function formatChips(value) { const amount = safeNumber(value); return Number.isInteger(amount) ? amount.toLocaleString() : amount.toFixed(2); }
   function phraseFor(event) {
     if (!state) return "Waking the engine room. Please retain all fingers.";
     const players = Array.isArray(state.players) ? state.players : [];
     const inLobby = players.some((player) => String(player.id) === identity.id);
+    if (event?.type === "reset") return "The cabinet swept the ash aside. Volunteer for virtual peril.";
     if (state.phase === "ended") {
       if (event?.type === "sploded") return `BOOM. ${event?.payout ?? 0} virtual chips were divided among the survivors.`;
       return "Round concluded. The cabinet is cooling its gears.";
@@ -318,10 +322,11 @@ class SFXEngine {
     });
   }
 
-  function render(nextState, event = null) {
+  function render(nextState, event = null, eventBalance = null) {
     state = nextState || state;
     lastEvent = event || lastEvent;
     if (!state) return;
+    if (Number.isFinite(Number(eventBalance))) playerBalance = Math.max(0, Number(eventBalance));
     const players = Array.isArray(state.players) ? state.players : [];
     const phase = state.phase || "lobby";
     const localHolder = String(state.current_holder) === identity.id;
@@ -331,6 +336,7 @@ class SFXEngine {
     ui.cabinet.dataset.localHolder = String(phase === "running" && localHolder);
     ui.chamber.dataset.phase = phase;
     ui.pot.textContent = `${safeNumber(state.pot)} ◉`;
+    ui.balance.textContent = playerBalance === null ? "—" : `${formatChips(playerBalance)} ◉`;
     ui.count.textContent = `${players.length} / 12`;
     ui.rosterCount.textContent = `${String(players.length).padStart(2, "0")} active`;
     ui.phase.textContent = phase === "running" ? "LIVE" : phase === "ended" ? "ENDED" : "LOBBY";
@@ -341,6 +347,7 @@ class SFXEngine {
     ui.multiplier.className = `multiplier${phase === "running" && localHolder ? " is-danger" : ""}${phase === "ended" ? " is-ended" : ""}`;
     ui.message.textContent = phraseFor(event);
     renderRoster(players);
+    if (event?.type === "reset") closeRoundSummary();
 
     ui.action.className = "action-button";
     ui.action.disabled = false;
@@ -399,7 +406,7 @@ class SFXEngine {
         const previousState = state ? { ...state, players: [...(state.players || [])] } : null;
         if (event.state) {
           handleSoundEvent(event, previousState);
-          render(event.state, event);
+          render(event.state, event, event.balance);
         }
       } catch { ui.message.textContent = "The cabinet spat out an unreadable ticket. Reconnecting may help."; }
     });
