@@ -142,6 +142,7 @@ class SFXEngine {
           <div class="multiplier-wrap"><strong class="multiplier" id="multiplier">1.00×</strong><span class="multiplier-caption">Survival multiplier</span></div>
           <p class="message-board" id="message">Waking the engine room. Please retain all fingers.</p>
           <section class="roster" aria-label="Players in the lobby"><header class="roster-head"><span>Victim manifest</span><span id="roster-count">00 active</span></header><div class="roster-list" id="roster"><div class="roster-empty">The lobby is making eye contact with nobody.</div></div></section>
+          <section class="latest-ticket" id="latest-ticket" aria-label="Latest round record" hidden><header class="latest-ticket-head"><span>LAST CABINET INCIDENT</span><span>ON FILE</span></header><dl class="latest-ticket-stats"><div><dt>CRASH</dt><dd id="latest-multiplier">—</dd></div><div><dt>SPLIT</dt><dd id="latest-payout">—</dd></div><div><dt>ESCAPED</dt><dd id="latest-survivors">—</dd></div></dl></section>
         </section>
         <aside class="side-docket" aria-label="Game information"></aside>
         <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>INVITE VICTIMS <span aria-hidden="true">↗</span></button><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
@@ -169,7 +170,7 @@ class SFXEngine {
     pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
     stage: root.querySelector("#bomb-stage"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
-    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), action: root.querySelector("#action"), invite: root.querySelector("#lobby-invite"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
+    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), action: root.querySelector("#action"), invite: root.querySelector("#lobby-invite"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
   };
 
   ui.mascot.addEventListener("error", () => ui.stage.classList.add("fallback"));
@@ -322,6 +323,16 @@ class SFXEngine {
     });
   }
 
+  function renderLatestRound(round, phase) {
+    const hasLatestRound = phase === "lobby" && round && Number.isFinite(Number(round.multiplier));
+    ui.latestTicket.hidden = !hasLatestRound;
+    if (!hasLatestRound) return;
+    ui.latestMultiplier.textContent = `${safeNumber(round.multiplier, 1).toFixed(2)}×`;
+    ui.latestPayout.textContent = `${formatChips(round.payout)} ◉`;
+    const survivors = Math.max(0, Math.floor(safeNumber(round.survivor_count)));
+    ui.latestSurvivors.textContent = `${survivors} ${survivors === 1 ? "SOUL" : "SOULS"}`;
+  }
+
   function render(nextState, event = null, eventBalance = null) {
     state = nextState || state;
     lastEvent = event || lastEvent;
@@ -347,6 +358,7 @@ class SFXEngine {
     ui.multiplier.className = `multiplier${phase === "running" && localHolder ? " is-danger" : ""}${phase === "ended" ? " is-ended" : ""}`;
     ui.message.textContent = phraseFor(event);
     renderRoster(players);
+    renderLatestRound(state.latest_round, phase);
     if (event?.type === "reset") closeRoundSummary();
 
     ui.action.className = "action-button";

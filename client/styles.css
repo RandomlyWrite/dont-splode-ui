@@ -236,6 +236,17 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
 .player-chip { color: #6e5527; font-size: 10px; }
 .player-row.is-holder { background: rgba(225,59,50,.1); color: #7d241e; font-weight: 700; }
 
+.latest-ticket { position: relative; z-index: 1; margin: 13px 2px 0; background: linear-gradient(135deg, #211c14, #12100c); color: var(--paper); box-shadow: inset 0 1px rgba(255,255,255,.08), inset 0 0 0 1px rgba(216,168,75,.2); clip-path: polygon(0 5px, 7px 0, calc(100% - 7px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 5px)); }
+.latest-ticket[hidden] { display: none; }
+.latest-ticket-head { display: flex; justify-content: space-between; gap: 12px; padding: 8px 11px 6px; color: var(--brass); font-size: 8px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+.latest-ticket-head span:last-child { color: var(--ash); }
+.latest-ticket-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; border-top: 1px dashed rgba(240,228,195,.16); }
+.latest-ticket-stats div { min-width: 0; padding: 8px 10px 9px; }
+.latest-ticket-stats div + div { border-left: 1px solid rgba(216,168,75,.14); }
+.latest-ticket-stats dt { color: var(--ash); font-size: 8px; font-weight: 700; letter-spacing: .1em; }
+.latest-ticket-stats dd { margin: 3px 0 0; overflow: hidden; color: var(--mint); font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.latest-ticket-stats div:first-child dd { color: var(--brass); }
+
 .action-bay { position: relative; padding-top: 3px; }
 .action-button { width: 100%; min-height: 66px; border: 0; padding: 14px 58px 14px 18px; position: relative; background: linear-gradient(180deg, #f25549, var(--fuse)); color: #fff9e8; box-shadow: inset 0 2px rgba(255,255,255,.22), inset 0 -5px var(--fuse-dark), 0 10px 0 rgba(0,0,0,.32), 0 16px 30px rgba(0,0,0,.24); cursor: pointer; font-family: "Bowlby One SC", Impact, sans-serif; font-size: clamp(15px, 4.4vw, 18px); letter-spacing: .025em; line-height: 1.05; text-align: left; text-shadow: 1px 2px 0 rgba(87,17,11,.45); transition: transform 150ms var(--ease-out), filter 150ms var(--ease-out), background 180ms var(--ease-out); clip-path: polygon(0 9px, 9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px)); }
 .action-button::after { content: "→"; position: absolute; right: 19px; top: 50%; transform: translateY(-53%); color: #ffe0ae; font-family: "IBM Plex Mono", monospace; font-size: 31px; font-weight: 700; }
@@ -308,5 +319,5 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
   .side-docket::before { content: "RISK TICKET\A\A• LIVE WEBSOCKET ENGINE\A• 12 PLAYER CABIN\A• PASS THE BOMB\A• BLAME PROBABILITY\A\A\AALL CHIPS ARE VIRTUAL\A\A— DON'T SPLODE"; white-space: pre-wrap; color: var(--ash); font-size: 10px; line-height: 1.8; letter-spacing: .05em; }
 }
 @media (max-width: 759px) { .side-docket { display: none; } }
-@media (max-width: 370px) { .shell { padding-inline: 8px; } .marquee { grid-template-columns: 45px 1fr; } .brand-mark { width: 42px; height: 42px; } .marquee-tools { grid-column: 2; justify-content: flex-start; } .system-pill { justify-self: start; } .rail-item { padding: 10px 7px 9px; } .rail-label { font-size: 8px; letter-spacing: .11em; } .rail-value { font-size: 13px; } .chamber { min-height: 480px; padding-inline: 14px; } .bomb-stage { min-height: 218px; } .bomb-mascot { width: 194px; height: 210px; } }
+@media (max-width: 370px) { .shell { padding-inline: 8px; } .marquee { grid-template-columns: 45px 1fr; } .brand-mark { width: 42px; height: 42px; } .marquee-tools { grid-column: 2; justify-content: flex-start; } .system-pill { justify-self: start; } .rail-item { padding: 10px 7px 9px; } .rail-label { font-size: 8px; letter-spacing: .11em; } .rail-value { font-size: 13px; } .latest-ticket-stats div { padding-inline: 7px; } .latest-ticket-stats dd { font-size: 11px; } .chamber { min-height: 480px; padding-inline: 14px; } .bomb-stage { min-height: 218px; } .bomb-mascot { width: 194px; height: 210px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
