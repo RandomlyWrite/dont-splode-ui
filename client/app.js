@@ -1,4 +1,4 @@
-/* Brass-Hinge Calamity — static Telegram Mini App client. The backend remains authoritative for game state. */
+/* Brass-Hinge Calamity — static Telegram Mini App client. The backend remains authoritative for game state; onboarding is a paper-ticket briefing, not a generic app tutorial. */
 class SFXEngine {
   constructor() {
     this.ctx = null;
@@ -133,7 +133,7 @@ class SFXEngine {
         <header class="marquee">
           <span class="brand-mark" aria-label="Dont Splode bomb emblem"></span>
           <div><span class="eyebrow">GROUP GAME / 100 VIRTUAL CHIPS</span><h1 class="wordmark">DON'T SPLODE</h1></div>
-          <div class="marquee-tools"><button class="sfx-toggle" id="sfx-toggle" type="button" aria-pressed="false" title="Mute sound effects">SFX ON</button><div class="system-pill" id="connection" data-status="connecting"><span class="lamp"></span><span>Waking engine</span></div></div>
+          <div class="marquee-tools"><button class="briefing-toggle" id="briefing-toggle" type="button" title="How Dont Splode works">HOW?</button><button class="sfx-toggle" id="sfx-toggle" type="button" aria-pressed="false" title="Mute sound effects">SFX ON</button><div class="system-pill" id="connection" data-status="connecting"><span class="lamp"></span><span>Waking engine</span></div></div>
         </header>
         <section class="status-rail" aria-label="Round status">
           <div class="rail-item"><span class="rail-label">Pot</span><strong class="rail-value accent" id="pot-value">—</strong></div>
@@ -169,6 +169,22 @@ class SFXEngine {
           <button class="summary-close" id="summary-close" type="button">ACCEPT FATE <span aria-hidden="true">→</span></button>
         </div>
       </section>
+      <section class="briefing-overlay" id="briefing-overlay" role="dialog" aria-modal="true" aria-labelledby="briefing-title" aria-describedby="briefing-copy" hidden>
+        <article class="briefing-ticket">
+          <header class="briefing-head"><span>CABINET ORIENTATION // 01</span><span>READ THIS FIRST</span></header>
+          <h2 id="briefing-title">WHAT THE HELL<br>IS GOING ON?</h2>
+          <p class="briefing-copy" id="briefing-copy">A group of volunteers passes one lit bomb. The person holding it when the fuse pops is ash. Everyone else keeps the match going until one soul remains.</p>
+          <ol class="briefing-steps">
+            <li><span>01</span><p><b>CHIPS ARE FAKE.</b> You begin with virtual chips. They cannot be bought, cashed out, or used to disappoint a bank.</p></li>
+            <li><span>02</span><p><b>GET SOME.</b> The <em>Daily Chip Cache</em> grants 250 virtual chips once every 24 hours. The Pit Boss may also issue chips in a live lobby.</p></li>
+            <li><span>03</span><p><b>BUY A SEAT.</b> Signing the waiver costs 100 ◉. It joins you to the public group lobby and grows the pot.</p></li>
+            <li><span>04</span><p><b>PASS OR PERISH.</b> The holder pays 5 ◉ to pass the bomb. Each pass adds that fee to the pot. The fuse never asks if you are emotionally ready.</p></li>
+            <li><span>05</span><p><b>LAST SOUL WINS.</b> Each blast eliminates only the holder. Survivors get another fuse; the final survivor receives the whole virtual pot.</p></li>
+          </ol>
+          <p class="briefing-footnote">POST THE LOBBY CARD IN A GROUP, THEN WATCH IT UPDATE AS THE CABINET COLLECTS VICTIMS.</p>
+          <button class="briefing-dismiss" id="briefing-dismiss" type="button">UNDERSTOOD. OPEN THE CABINET <span aria-hidden="true">→</span></button>
+        </article>
+      </section>
     </div>`;
 
   const ui = {
@@ -176,7 +192,7 @@ class SFXEngine {
     pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
     stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
-    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), invite: root.querySelector("#lobby-invite"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
+    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), invite: root.querySelector("#lobby-invite"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), briefingToggle: root.querySelector("#briefing-toggle"), briefing: root.querySelector("#briefing-overlay"), briefingDismiss: root.querySelector("#briefing-dismiss"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
   };
 
   ui.mascot.addEventListener("error", () => ui.stage.classList.add("fallback"));
@@ -186,10 +202,17 @@ class SFXEngine {
   ui.pitGrant.addEventListener("click", grantPitBossChips);
   ui.invite.addEventListener("click", inviteVictims);
   ui.soundToggle.addEventListener("click", toggleSfx);
+  ui.briefingToggle.addEventListener("click", () => openBriefing());
+  ui.briefingDismiss.addEventListener("click", closeBriefing);
+  ui.briefing.addEventListener("pointerdown", (event) => { if (event.target === ui.briefing) closeBriefing(); });
   ui.summaryShare.addEventListener("click", shareSurvival);
   ui.summaryClose.addEventListener("click", closeRoundSummary);
   ui.summary.addEventListener("pointerdown", (event) => { if (event.target === ui.summary) closeRoundSummary(); });
-  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !ui.summary.hidden) closeRoundSummary(); });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (!ui.summary.hidden) closeRoundSummary();
+    else if (!ui.briefing.hidden) closeBriefing();
+  });
   updateSoundToggle();
 
   function setConnection(status, text) {
@@ -209,6 +232,26 @@ class SFXEngine {
     sfx.setMuted(sfxMuted);
     try { localStorage.setItem(soundPreferenceKey, String(sfxMuted)); } catch {}
     updateSoundToggle();
+  }
+
+  const briefingVersionKey = "dont-splode-briefing-v2";
+  function openBriefing() {
+    ui.briefing.hidden = false;
+    window.requestAnimationFrame(() => ui.briefing.classList.add("is-visible"));
+    ui.briefingDismiss.focus({ preventScroll: true });
+  }
+
+  function closeBriefing() {
+    ui.briefing.classList.remove("is-visible");
+    try { localStorage.setItem(briefingVersionKey, "seen"); } catch {}
+    window.setTimeout(() => { if (!ui.briefing.classList.contains("is-visible")) ui.briefing.hidden = true; }, 180);
+  }
+
+  function showBriefingOnFirstOpen() {
+    try {
+      if (localStorage.getItem(briefingVersionKey) === "seen") return;
+    } catch {}
+    window.setTimeout(openBriefing, 300);
   }
 
   function triggerHaptic(kind) {
@@ -533,4 +576,5 @@ class SFXEngine {
   }
 
   connect();
+  showBriefingOnFirstOpen();
 })();
