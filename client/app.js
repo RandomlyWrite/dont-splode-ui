@@ -125,6 +125,9 @@ class SFXEngine {
   let dailyClaimPending = false;
   let isPitBoss = false;
   let pitBossGrant = null;
+  const launchParams = new URLSearchParams(window.location.search);
+  let inlineJoinRequested = (telegram?.initDataUnsafe?.start_param || launchParams.get("tgWebAppStartParam") || launchParams.get("startapp")) === "join";
+  let inlineJoinAttempted = false;
 
   root.innerHTML = `
     <div class="shell">
@@ -496,6 +499,22 @@ class SFXEngine {
     if (state.phase === "running" && String(state.current_holder) === identity.id) socket.send(JSON.stringify({ action: "pass" }));
   }
 
+  function joinFromInlineLobbyCard(nextState) {
+    if (!inlineJoinRequested || inlineJoinAttempted || !socket || socket.readyState !== WebSocket.OPEN) return;
+    const players = Array.isArray(nextState?.players) ? nextState.players : [];
+    const alreadyJoined = players.some((player) => String(player.id) === identity.id);
+    if (nextState?.phase !== "lobby" || alreadyJoined) {
+      inlineJoinRequested = false;
+      return;
+    }
+    inlineJoinAttempted = true;
+    inlineJoinRequested = false;
+    actionPending = true;
+    ui.action.disabled = true;
+    ui.action.textContent = "SIGNING THE WAIVER…";
+    try { socket.send(JSON.stringify({ action: "join" })); } catch { actionPending = false; render(nextState); }
+  }
+
   function claimDailyChips() {
     if (!socket || socket.readyState !== WebSocket.OPEN || !dailyClaim?.available || dailyClaimPending) return;
     dailyClaimPending = true;
@@ -561,6 +580,7 @@ class SFXEngine {
         if (event.state) {
           handleSoundEvent(event, previousState);
           render(event.state, event, event.balance, event.daily_claim, event.pit_boss, event.pit_boss_grant);
+          joinFromInlineLobbyCard(event.state);
         }
       } catch { ui.message.textContent = "The cabinet spat out an unreadable ticket. Reconnecting may help."; }
     });
