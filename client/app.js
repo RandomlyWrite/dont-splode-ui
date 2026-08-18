@@ -145,9 +145,10 @@ class SFXEngine {
           <div class="deck-head"><span class="round-tag" id="round-tag">CABINET AWAITS</span><span class="live-tag" id="live-tag" data-urgent="false">SAFE(ISH)</span></div>
           <div class="bomb-stage" id="bomb-stage"><span class="bomb-halo"></span><img class="bomb-mascot" id="bomb-mascot" src="${ASSETS.mascot}" alt="A worried cartoon bomb with a lit fuse, cradled by distressed cartoon gloves" /><span class="bomb-fallback" aria-hidden="true"></span></div>
           <div class="multiplier-wrap"><strong class="multiplier" id="multiplier">1.00×</strong><span class="multiplier-caption">Survival multiplier</span></div>
+          <section class="match-ledger" id="match-ledger" aria-label="Match progress"><span id="round-count">MATCH NOT STARTED</span><span id="eliminated-count">0 ASHED</span></section>
           <p class="message-board" id="message">Waking the engine room. Please retain all fingers.</p>
           <section class="roster" aria-label="Players in the lobby"><header class="roster-head"><span>Victim manifest</span><span id="roster-count">00 active</span></header><div class="roster-list" id="roster"><div class="roster-empty">The lobby is making eye contact with nobody.</div></div></section>
-          <section class="latest-ticket" id="latest-ticket" aria-label="Latest round record" hidden><header class="latest-ticket-head"><span>LAST CABINET INCIDENT</span><span>ON FILE</span></header><dl class="latest-ticket-stats"><div><dt>CRASH</dt><dd id="latest-multiplier">—</dd></div><div><dt>SPLIT</dt><dd id="latest-payout">—</dd></div><div><dt>ESCAPED</dt><dd id="latest-survivors">—</dd></div></dl></section>
+          <section class="latest-ticket" id="latest-ticket" aria-label="Latest round record" hidden><header class="latest-ticket-head"><span>LAST CABINET INCIDENT</span><span>ON FILE</span></header><dl class="latest-ticket-stats"><div><dt>CRASH</dt><dd id="latest-multiplier">—</dd></div><div><dt>POT</dt><dd id="latest-payout">—</dd></div><div><dt>LAST</dt><dd id="latest-survivors">—</dd></div></dl></section>
         </section>
         <aside class="side-docket" aria-label="Game information"></aside>
         <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>POST INLINE LOBBY CARD <span aria-hidden="true">↗</span></button><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><section class="pit-boss" id="pit-boss" hidden aria-label="Pit Boss controls"><span>PIT BOSS CHIP DRAWER <small>1–10,000 ◉</small></span><select id="pit-target" aria-label="Choose a player to receive virtual chips"></select><input id="pit-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Virtual chips to grant" /><button id="pit-grant" type="button">ISSUE</button></section><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
@@ -162,7 +163,7 @@ class SFXEngine {
           <dl class="summary-stats">
             <div><dt>VAPORIZED</dt><dd id="summary-loser">UNKNOWN</dd></div>
             <div><dt>CRASH POINT</dt><dd id="summary-multiplier">1.00×</dd></div>
-            <div><dt>SURVIVOR SPLIT</dt><dd id="summary-payout">0 ◉</dd></div>
+            <div><dt id="summary-payout-label">POT AT STAKE</dt><dd id="summary-payout">0 ◉</dd></div>
           </dl>
           <button class="summary-share" id="summary-share" type="button" hidden>BRAG TO THE GROUP <span aria-hidden="true">↗</span></button>
           <button class="summary-close" id="summary-close" type="button">ACCEPT FATE <span aria-hidden="true">→</span></button>
@@ -175,7 +176,7 @@ class SFXEngine {
     pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
     stage: root.querySelector("#bomb-stage"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
-    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), invite: root.querySelector("#lobby-invite"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
+    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), invite: root.querySelector("#lobby-invite"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
   };
 
   ui.mascot.addEventListener("error", () => ui.stage.classList.add("fallback"));
@@ -227,19 +228,21 @@ class SFXEngine {
   function showRoundSummary(event) {
     const roundState = event.state || {};
     const players = Array.isArray(roundState.players) ? roundState.players : [];
-    const loser = players.find((player) => String(player.id) === String(event.loser));
+    const eliminated = Array.isArray(roundState.eliminated_players) ? roundState.eliminated_players : [];
+    const loser = [...players, ...eliminated].find((player) => String(player.id) === String(event.loser));
     const localLoss = String(event.loser) === identity.id;
-    const localPlayed = players.some((player) => String(player.id) === identity.id);
-    const localSurvived = localPlayed && !localLoss;
+    const final = event.final === true;
+    const localSurvived = final && players.some((player) => String(player.id) === identity.id) && !localLoss;
     const multiplier = safeNumber(roundState.multiplier, 1).toFixed(2);
     const payout = safeNumber(event.payout);
     ui.summary.classList.toggle("is-defeat", localLoss);
-    ui.summaryTitle.textContent = localLoss ? "VAPORIZED!" : "DETONATION REPORT";
-    ui.summaryCopy.textContent = localLoss ? "(AND IT WAS YOU.) The cabinet regrets nothing. Your virtual chips have become a cautionary tale." : "Somebody met the fuse. The survivors receive their suspiciously tidy split.";
+    ui.summaryTitle.textContent = localLoss ? "VAPORIZED!" : localSurvived ? "LAST SOUL STANDING" : final ? "FINAL DETONATION" : "ANOTHER SOUL GONE";
+    ui.summaryCopy.textContent = localLoss ? "(AND IT WAS YOU.) You are out of this match, but the cabinet keeps counting the ashes." : localSurvived ? "You outlasted the entire incident. The cabinet disgorged the whole pot with visible reluctance." : final ? "The last standing soul claimed the whole pot. Everyone else is now a cautionary tale." : "The ash is settling. The surviving players get another fuse in three seconds.";
     ui.summaryLoser.textContent = loser?.name || "UNKNOWN VICTIM";
     ui.summaryMultiplier.textContent = `${multiplier}×`;
     ui.summaryPayout.textContent = `${payout} ◉`;
-    shareMessage = localSurvived ? `I dodged the fuse in DON'T SPLODE — ${multiplier}× and ${payout} virtual chips. The cabinet picked somebody else.` : "";
+    ui.summaryPayoutLabel.textContent = final ? "FINAL POT" : "POT CARRIES";
+    shareMessage = localSurvived ? `I was the last soul standing in DON'T SPLODE — ${multiplier}× and ${payout} virtual chips. The cabinet ate everybody else.` : "";
     ui.summaryShare.hidden = !localSurvived;
     ui.summary.hidden = false;
     window.requestAnimationFrame(() => ui.summary.classList.add("is-visible"));
@@ -300,14 +303,19 @@ class SFXEngine {
   function phraseFor(event) {
     if (!state) return "Waking the engine room. Please retain all fingers.";
     const players = Array.isArray(state.players) ? state.players : [];
+    const eliminated = Array.isArray(state.eliminated_players) ? state.eliminated_players : [];
     const inLobby = players.some((player) => String(player.id) === identity.id);
+    const locallyEliminated = eliminated.some((player) => String(player.id) === identity.id);
     if (event?.type === "action_rejected") return event.reason || "The cabinet rejected that particular decision.";
     if (event?.type === "daily_claimed") return `Daily chip cache released ${formatChips(event.claim_amount)} ◉. Spend it irresponsibly.`;
     if (event?.type === "pit_boss_granted") return `The Pit Boss slid ${formatChips(event.grant_amount)} ◉ across the felt. Don’t make it weird.`;
     if (event?.type === "pit_boss_grant_sent") return `You issued ${formatChips(event.grant_amount)} ◉ from the chip drawer.`;
     if (event?.type === "reset") return "The cabinet swept the ash aside. Volunteer for virtual peril.";
+    if (event?.type === "eliminated") return String(event.loser) === identity.id ? "You were vaporized. Observe the remaining bad decisions." : `${event.loser_name || "A victim"} was vaporized. The next fuse lights shortly.`;
+    if (event?.type === "next_round") return "The cabinet relit the fuse. The survivors are still not safe.";
+    if (state.phase === "intermission") return locallyEliminated ? "You are ash for this match. The survivors are reassembling their courage." : "Ash is settling. The next fuse is being installed.";
     if (state.phase === "ended") {
-      if (event?.type === "sploded") return `BOOM. ${event?.payout ?? 0} virtual chips were divided among the survivors.`;
+      if (event?.type === "sploded") return `BOOM. ${event?.payout ?? 0} virtual chips went to the last soul standing.`;
       return "Round concluded. The cabinet is cooling its gears.";
     }
     if (state.phase === "running") {
@@ -319,9 +327,9 @@ class SFXEngine {
     return "The doors can be locked whenever you are ready.";
   }
 
-  function renderRoster(players) {
+  function renderRoster(players, eliminatedPlayers) {
     ui.roster.replaceChildren();
-    if (!players.length) {
+    if (!players.length && !eliminatedPlayers.length) {
       const empty = document.createElement("div"); empty.className = "roster-empty"; empty.textContent = "The lobby is making eye contact with nobody."; ui.roster.append(empty); return;
     }
     players.forEach((player, index) => {
@@ -333,6 +341,16 @@ class SFXEngine {
       const chip = document.createElement("span"); chip.className = "player-chip"; chip.textContent = isHolder ? "BOMB" : "READY";
       row.append(number, name, chip); ui.roster.append(row);
     });
+    if (eliminatedPlayers.length) {
+      const divider = document.createElement("div"); divider.className = "roster-divider"; divider.textContent = `ASH BIN — ${eliminatedPlayers.length} OUT`; ui.roster.append(divider);
+      eliminatedPlayers.forEach((player, index) => {
+        const row = document.createElement("div"); row.className = "player-row is-eliminated";
+        const number = document.createElement("span"); number.className = "player-index"; number.textContent = String(index + 1).padStart(2, "0");
+        const name = document.createElement("span"); name.className = "player-name"; name.textContent = player.name || "Anonymous ashes";
+        const chip = document.createElement("span"); chip.className = "player-chip"; chip.textContent = "ASHED";
+        row.append(number, name, chip); ui.roster.append(row);
+      });
+    }
   }
 
   function renderLatestRound(round, phase) {
@@ -354,9 +372,11 @@ class SFXEngine {
     if (typeof eventPitBoss === "boolean") isPitBoss = eventPitBoss;
     if (eventPitBossGrant && typeof eventPitBossGrant === "object") pitBossGrant = eventPitBossGrant;
     const players = Array.isArray(state.players) ? state.players : [];
+    const eliminated = Array.isArray(state.eliminated_players) ? state.eliminated_players : [];
     const phase = state.phase || "lobby";
     const localHolder = String(state.current_holder) === identity.id;
     const isInLobby = players.some((player) => String(player.id) === identity.id);
+    const locallyEliminated = eliminated.some((player) => String(player.id) === identity.id);
     const multiplier = safeNumber(state.multiplier, 1);
 
     ui.cabinet.dataset.localHolder = String(phase === "running" && localHolder);
@@ -365,14 +385,16 @@ class SFXEngine {
     ui.balance.textContent = playerBalance === null ? "—" : `${formatChips(playerBalance)} ◉`;
     ui.count.textContent = `${players.length} / 12`;
     ui.rosterCount.textContent = `${String(players.length).padStart(2, "0")} active`;
-    ui.phase.textContent = phase === "running" ? "LIVE" : phase === "ended" ? "ENDED" : "LOBBY";
-    ui.roundTag.textContent = phase === "running" ? "FUSE IS LIT" : phase === "ended" ? "CABINET RESETTING" : "LOBBY DOORS OPEN";
-    ui.liveTag.textContent = phase === "running" ? "LIVE ROUND" : phase === "ended" ? "COOLING OFF" : "SAFE(ISH)";
+    ui.roundCount.textContent = state.round_number ? `FUSE ${String(state.round_number).padStart(2, "0")}` : "MATCH NOT STARTED";
+    ui.eliminatedCount.textContent = `${eliminated.length} ASHED`;
+    ui.phase.textContent = phase === "running" ? "LIVE" : phase === "intermission" ? "ASHES" : phase === "ended" ? "ENDED" : "LOBBY";
+    ui.roundTag.textContent = phase === "running" ? `FUSE ${state.round_number || 1} IS LIT` : phase === "intermission" ? "ASH SETTLING" : phase === "ended" ? "CABINET RESETTING" : "LOBBY DOORS OPEN";
+    ui.liveTag.textContent = phase === "running" ? "LIVE ROUND" : phase === "intermission" ? "NEXT FUSE" : phase === "ended" ? "COOLING OFF" : "SAFE(ISH)";
     ui.liveTag.dataset.urgent = String(phase === "running");
     ui.multiplier.textContent = `${multiplier.toFixed(2)}×`;
     ui.multiplier.className = `multiplier${phase === "running" && localHolder ? " is-danger" : ""}${phase === "ended" ? " is-ended" : ""}`;
     ui.message.textContent = phraseFor(event);
-    renderRoster(players);
+    renderRoster(players, eliminated);
     renderLatestRound(state.latest_round, phase);
     if (event?.type === "reset") closeRoundSummary();
 
@@ -409,8 +431,9 @@ class SFXEngine {
     else if (phase === "lobby" && players.length >= 2) { ui.action.textContent = "LOCK THE DOORS"; ui.action.classList.add("is-start"); }
     else if (phase === "lobby") { ui.action.textContent = "AWAITING ANOTHER VICTIM"; ui.action.classList.add("is-neutral"); ui.action.disabled = true; }
     else if (phase === "running" && localHolder) { ui.action.textContent = "PASS THE BOMB — 5 ◉"; ui.action.classList.add("is-pass"); }
-    else if (phase === "running") { ui.action.textContent = "PRAYING PROFESSIONALLY"; ui.action.classList.add("is-neutral"); ui.action.disabled = true; }
-    else { ui.action.textContent = "ROUND CONCLUDED"; ui.action.classList.add("is-neutral"); ui.action.disabled = true; }
+    else if (phase === "running") { ui.action.textContent = locallyEliminated ? "VAPORIZED — OBSERVING" : "PRAYING PROFESSIONALLY"; ui.action.classList.add("is-neutral"); ui.action.disabled = true; }
+    else if (phase === "intermission") { ui.action.textContent = locallyEliminated ? "VAPORIZED — OBSERVING" : "ASH SETTLING — STAY READY"; ui.action.classList.add("is-neutral"); ui.action.disabled = true; }
+    else { ui.action.textContent = players.length === 1 && !locallyEliminated ? "LAST SOUL STANDING" : "ROUND CONCLUDED"; ui.action.classList.add("is-neutral"); ui.action.disabled = true; }
   }
 
   function handleAction() {
@@ -448,14 +471,14 @@ class SFXEngine {
   function handleSoundEvent(event, previousState) {
     const nextState = event.state;
     const localHolder = String(nextState.current_holder) === identity.id;
-    if (event.type === "start") sfx.playAlarm();
+    if (event.type === "start" || event.type === "next_round") sfx.playAlarm();
     if (event.type === "tick") {
       sfx.playTick(localHolder);
       if (localHolder) triggerHaptic("tick_holder");
     }
-    if (event.type === "sploded") {
+    if (event.type === "sploded" || event.type === "eliminated") {
       sfx.playExplosion();
-      if (String(event.loser) !== identity.id) sfx.playPayout();
+      if (event.final && String(event.loser) !== identity.id) sfx.playPayout();
       triggerHaptic("sploded");
       showRoundSummary(event);
     }

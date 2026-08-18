@@ -191,6 +191,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
   pointer-events: none;
 }
 .chamber[data-phase="running"] { box-shadow: inset 0 0 0 1px rgba(225,59,50,.54), inset 0 0 46px rgba(225,59,50,.11), 0 22px 46px rgba(0,0,0,.28); }
+.chamber[data-phase="intermission"] { box-shadow: inset 0 0 0 1px rgba(216,168,75,.5), inset 0 0 46px rgba(216,168,75,.12), 0 22px 46px rgba(0,0,0,.28); }
 .chamber[data-phase="ended"] { filter: saturate(.7); }
 
 .deck-head, .deck-footer { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
@@ -219,6 +220,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
 .multiplier.is-danger { color: var(--fuse); text-shadow: 0 0 22px rgba(225,59,50,.22); }
 .multiplier.is-ended { color: var(--brass); }
 .multiplier-caption { color: var(--ash); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
+.match-ledger { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 10px; margin: 12px 2px -4px; padding: 8px 10px; background: rgba(10,8,6,.76); color: var(--brass); box-shadow: inset 0 1px rgba(255,255,255,.05), inset 0 0 0 1px rgba(216,168,75,.15); font-size: 8px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.match-ledger span:last-child { color: var(--ash); }
 
 .message-board { position: relative; z-index: 1; margin: 20px 2px 15px; padding: 10px 13px; min-height: 48px; display: grid; place-items: center; background: #0d0b08; color: var(--paper); text-align: center; font-size: 11px; line-height: 1.4; box-shadow: inset 0 1px rgba(255,255,255,.04); }
 .message-board::before, .message-board::after { content: "✶"; position: absolute; color: var(--brass-dim); font-size: 10px; }
@@ -227,7 +230,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
 
 .roster { position: relative; z-index: 1; margin: 0 2px; background: #ede1c2; color: #231e16; clip-path: polygon(0 4px, 100% 0, 99% 96%, 74% 100%, 54% 98%, 28% 100%, 0 96%); box-shadow: 0 7px 0 rgba(0,0,0,.19); }
 .roster-head { display: flex; justify-content: space-between; gap: 14px; padding: 11px 13px 7px; border-bottom: 1px dashed rgba(35,30,22,.35); color: #6a5531; font-size: 9px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
-.roster-list { min-height: 62px; max-height: 116px; overflow: auto; padding: 5px 8px 11px; }
+.roster-list { min-height: 62px; max-height: 146px; overflow: auto; padding: 5px 8px 11px; }
 .roster-empty { display: grid; min-height: 50px; place-items: center; color: #806f55; font-size: 11px; font-style: italic; }
 .player-row { display: grid; grid-template-columns: 19px 1fr auto; gap: 8px; align-items: center; min-height: 27px; padding: 3px 5px; border-bottom: 1px dashed rgba(35,30,22,.18); font-size: 11px; }
 .player-row:last-child { border-bottom: none; }
@@ -235,6 +238,9 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
 .player-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .player-chip { color: #6e5527; font-size: 10px; }
 .player-row.is-holder { background: rgba(225,59,50,.1); color: #7d241e; font-weight: 700; }
+.roster-divider { margin: 6px 0 3px; padding: 6px 5px 4px; border-top: 1px dashed rgba(125,36,30,.42); color: #8d4a42; font-size: 8px; font-weight: 700; letter-spacing: .12em; }
+.player-row.is-eliminated { color: #81715d; opacity: .7; text-decoration: line-through; }
+.player-row.is-eliminated .player-chip { color: #a4483e; font-size: 8px; font-weight: 700; text-decoration: none; }
 
 .latest-ticket { position: relative; z-index: 1; margin: 13px 2px 0; background: linear-gradient(135deg, #211c14, #12100c); color: var(--paper); box-shadow: inset 0 1px rgba(255,255,255,.08), inset 0 0 0 1px rgba(216,168,75,.2); clip-path: polygon(0 5px, 7px 0, calc(100% - 7px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 5px)); }
 .latest-ticket[hidden] { display: none; }
