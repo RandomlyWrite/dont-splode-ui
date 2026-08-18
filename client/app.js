@@ -72,6 +72,12 @@ class SFXEngine {
     this.tone({ frequency: 72, endFrequency: 34, duration: 0.38, volume: 0.08, type: "sine", delay: 0.025 });
   }
 
+  playElimination() {
+    this.tone({ frequency: 96, endFrequency: 28, duration: 0.72, volume: 0.18, type: "sawtooth" });
+    this.tone({ frequency: 310, endFrequency: 72, duration: 0.38, volume: 0.1, type: "square", delay: 0.03 });
+    this.tone({ frequency: 690, endFrequency: 190, duration: 0.29, volume: 0.07, type: "triangle", delay: 0.07 });
+  }
+
   playPayout() {
     this.tone({ frequency: 880, duration: 0.085, volume: 0.045, type: "sine", delay: 0.31 });
     this.tone({ frequency: 1175, duration: 0.12, volume: 0.04, type: "sine", delay: 0.405 });
@@ -125,6 +131,7 @@ class SFXEngine {
   let dailyClaimPending = false;
   let isPitBoss = false;
   let pitBossGrant = null;
+  let ignitionHolding = false;
   const launchParams = new URLSearchParams(window.location.search);
   let inlineJoinRequested = (telegram?.initDataUnsafe?.start_param || launchParams.get("tgWebAppStartParam") || launchParams.get("startapp")) === "join";
   let inlineJoinAttempted = false;
@@ -168,6 +175,7 @@ class SFXEngine {
             <div><dt>CRASH POINT</dt><dd id="summary-multiplier">1.00×</dd></div>
             <div><dt id="summary-payout-label">POT AT STAKE</dt><dd id="summary-payout">0 ◉</dd></div>
           </dl>
+          <section class="elimination-board" id="elimination-board" aria-live="assertive" hidden><span>WHO STILL HAS A PULSE</span><ol id="elimination-list"></ol></section>
           <button class="summary-share" id="summary-share" type="button" hidden>BRAG TO THE GROUP <span aria-hidden="true">↗</span></button>
           <button class="summary-close" id="summary-close" type="button">ACCEPT FATE <span aria-hidden="true">→</span></button>
         </div>
@@ -181,8 +189,8 @@ class SFXEngine {
             <li><span>01</span><p><b>CHIPS ARE FAKE.</b> You begin with virtual chips. They cannot be bought, cashed out, or used to disappoint a bank.</p></li>
             <li><span>02</span><p><b>GET SOME.</b> The <em>Daily Chip Cache</em> grants 250 virtual chips once every 24 hours. The Pit Boss may also issue chips in a live lobby.</p></li>
             <li><span>03</span><p><b>BUY A SEAT.</b> Signing the waiver costs 100 ◉. It joins you to the public group lobby and grows the pot.</p></li>
-            <li><span>04</span><p><b>PASS OR PERISH.</b> The holder pays 5 ◉ to pass the bomb. Each pass adds that fee to the pot. The fuse never asks if you are emotionally ready.</p></li>
-            <li><span>05</span><p><b>LAST SOUL WINS.</b> Each blast eliminates only the holder. Survivors get another fuse; the final survivor receives the whole virtual pot.</p></li>
+            <li><span>04</span><p><b>LIGHT IT TOGETHER.</b> Once two people join, every signed player holds <em>LIGHT IT UP</em> at the same time to ignite. Let go to cool it down. A full lobby lights instantly; three or more victims light after 45 seconds.</p></li>
+            <li><span>05</span><p><b>PASS OR PERISH.</b> The holder pays 5 ◉ to pass the bomb. Each pass adds that fee to the pot. Each blast eliminates only the holder; the final survivor receives the whole virtual pot.</p></li>
           </ol>
           <p class="briefing-footnote">POST THE LOBBY CARD IN A GROUP, THEN WATCH IT UPDATE AS THE CABINET COLLECTS VICTIMS.</p>
           <button class="briefing-dismiss" id="briefing-dismiss" type="button">UNDERSTOOD. OPEN THE CABINET <span aria-hidden="true">→</span></button>
@@ -199,8 +207,16 @@ class SFXEngine {
   };
 
   ui.mascot.addEventListener("error", () => ui.stage.classList.add("fallback"));
+  ui.eliminationBoard = root.querySelector("#elimination-board");
+  ui.eliminationList = root.querySelector("#elimination-list");
   ui.reconnect.addEventListener("click", () => connect(true));
   ui.action.addEventListener("click", handleAction);
+  ui.action.addEventListener("pointerdown", startIgnitionHold);
+  ui.action.addEventListener("pointerup", stopIgnitionHold);
+  ui.action.addEventListener("pointercancel", stopIgnitionHold);
+  ui.action.addEventListener("pointerleave", stopIgnitionHold);
+  ui.action.addEventListener("keydown", (event) => { if (event.key === " " || event.key === "Enter") startIgnitionHold(event); });
+  ui.action.addEventListener("keyup", (event) => { if (event.key === " " || event.key === "Enter") stopIgnitionHold(event); });
   ui.dailyClaim.addEventListener("click", claimDailyChips);
   ui.pitGrant.addEventListener("click", grantPitBossChips);
   ui.invite.addEventListener("click", inviteVictims);
@@ -282,12 +298,29 @@ class SFXEngine {
     const multiplier = safeNumber(roundState.multiplier, 1).toFixed(2);
     const payout = safeNumber(event.payout);
     ui.summary.classList.toggle("is-defeat", localLoss);
+    ui.summary.classList.toggle("is-elimination", !final);
     ui.summaryTitle.textContent = localLoss ? "VAPORIZED!" : localSurvived ? "LAST SOUL STANDING" : final ? "FINAL DETONATION" : "ANOTHER SOUL GONE";
     ui.summaryCopy.textContent = localLoss ? "(AND IT WAS YOU.) You are out of this match, but the cabinet keeps counting the ashes." : localSurvived ? "You outlasted the entire incident. The cabinet disgorged the whole pot with visible reluctance." : final ? "The last standing soul claimed the whole pot. Everyone else is now a cautionary tale." : "The ash is settling. The surviving players get another fuse in three seconds.";
     ui.summaryLoser.textContent = loser?.name || "UNKNOWN VICTIM";
     ui.summaryMultiplier.textContent = `${multiplier}×`;
     ui.summaryPayout.textContent = `${payout} ◉`;
     ui.summaryPayoutLabel.textContent = final ? "FINAL POT" : "POT CARRIES";
+    ui.eliminationBoard.hidden = final;
+    ui.eliminationList.replaceChildren();
+    if (!final) {
+      players.forEach((player, index) => {
+        const entry = document.createElement("li");
+        entry.className = "standing-entry";
+        entry.textContent = `${String(index + 1).padStart(2, "0")}  ${player.name || "Anonymous troublemaker"} — STILL BREATHING`;
+        ui.eliminationList.append(entry);
+      });
+      [...eliminated].reverse().forEach((player) => {
+        const entry = document.createElement("li");
+        entry.className = "standing-entry is-ashed";
+        entry.textContent = `✕  ${player.name || "Anonymous ashes"} — ELIMINATED`;
+        ui.eliminationList.append(entry);
+      });
+    }
     shareMessage = localSurvived ? `I was the last soul standing in DON'T SPLODE — ${multiplier}× and ${payout} virtual chips. The cabinet ate everybody else.` : "";
     ui.summaryShare.hidden = !localSurvived;
     ui.summary.hidden = false;
@@ -370,10 +403,13 @@ class SFXEngine {
     }
     if (!inLobby) return "The lobby is open. Volunteer for virtual peril.";
     if (players.length < 2) return "You’re listed. The cabinet requires one more questionable decision.";
-    return "The doors can be locked whenever you are ready.";
+    const readyCount = new Set((state.ready_players || []).map(String)).size;
+    const autoStartAt = Number(state.lobby_auto_start_at || 0);
+    if (autoStartAt && players.length >= 3) return `Hold LIGHT IT UP together (${readyCount}/${players.length}). The cabinet ignites in ${Math.max(0, Math.ceil(autoStartAt - Date.now() / 1000))} seconds.`;
+    return `Hold LIGHT IT UP together (${readyCount}/${players.length}). The full lobby ignites on its own.`;
   }
 
-  function renderRoster(players, eliminatedPlayers) {
+  function renderRoster(players, eliminatedPlayers, readyPlayers) {
     ui.roster.replaceChildren();
     if (!players.length && !eliminatedPlayers.length) {
       const empty = document.createElement("div"); empty.className = "roster-empty"; empty.textContent = "The lobby is making eye contact with nobody."; ui.roster.append(empty); return;
@@ -384,7 +420,7 @@ class SFXEngine {
       row.className = `player-row${isHolder ? " is-holder" : ""}`;
       const number = document.createElement("span"); number.className = "player-index"; number.textContent = String(index + 1).padStart(2, "0");
       const name = document.createElement("span"); name.className = "player-name"; name.textContent = player.name || "Anonymous troublemaker";
-      const chip = document.createElement("span"); chip.className = "player-chip"; chip.textContent = isHolder ? "BOMB" : "READY";
+      const chip = document.createElement("span"); chip.className = "player-chip"; chip.textContent = isHolder ? "BOMB" : readyPlayers.has(String(player.id)) ? "LIT" : "WAITING";
       row.append(number, name, chip); ui.roster.append(row);
     });
     if (eliminatedPlayers.length) {
@@ -423,9 +459,11 @@ class SFXEngine {
     const localHolder = String(state.current_holder) === identity.id;
     const isInLobby = players.some((player) => String(player.id) === identity.id);
     const locallyEliminated = eliminated.some((player) => String(player.id) === identity.id);
+    const readyPlayers = new Set((state.ready_players || []).map(String));
     const multiplier = safeNumber(state.multiplier, 1);
 
     ui.cabinet.dataset.localHolder = String(phase === "running" && localHolder);
+    ui.cabinet.dataset.localReady = String(phase === "lobby" && readyPlayers.has(identity.id));
     ui.chamber.dataset.phase = phase;
     ui.pot.textContent = `${safeNumber(state.pot)} ◉`;
     ui.balance.textContent = playerBalance === null ? "—" : `${formatChips(playerBalance)} ◉`;
@@ -440,7 +478,7 @@ class SFXEngine {
     ui.multiplier.textContent = `${multiplier.toFixed(2)}×`;
     ui.multiplier.className = `multiplier${phase === "running" && localHolder ? " is-danger" : ""}${phase === "ended" ? " is-ended" : ""}`;
     ui.message.textContent = phraseFor(event);
-    renderRoster(players, eliminated);
+    renderRoster(players, eliminated, readyPlayers);
     renderLatestRound(state.latest_round, phase);
     if (event?.type === "reset") closeRoundSummary();
 
@@ -474,7 +512,7 @@ class SFXEngine {
     }
     if (phase === "lobby" && !isInLobby && actionPending) { ui.action.textContent = "SIGNING THE WAIVER…"; ui.action.classList.add("is-neutral"); }
     else if (phase === "lobby" && !isInLobby) ui.action.textContent = "SIGN THE WAIVER — 100 ◉";
-    else if (phase === "lobby" && players.length >= 2) { ui.action.textContent = "LOCK THE DOORS"; ui.action.classList.add("is-start"); }
+    else if (phase === "lobby" && players.length >= 2) { const readyCount = readyPlayers.size; ui.action.textContent = readyPlayers.has(identity.id) ? `HOLDING FLAME — ${readyCount}/${players.length}` : `HOLD LIGHT IT UP — ${readyCount}/${players.length}`; ui.action.classList.add("is-ready"); }
     else if (phase === "lobby") { ui.action.textContent = "AWAITING ANOTHER VICTIM"; ui.action.classList.add("is-neutral"); ui.action.disabled = true; }
     else if (phase === "running" && localHolder) { ui.action.textContent = "PASS THE BOMB — 5 ◉"; ui.action.classList.add("is-pass"); }
     else if (phase === "running") { ui.action.textContent = locallyEliminated ? "VAPORIZED — OBSERVING" : "PRAYING PROFESSIONALLY"; ui.action.classList.add("is-neutral"); ui.action.disabled = true; }
@@ -493,10 +531,31 @@ class SFXEngine {
         ui.action.disabled = true;
         ui.action.textContent = "SIGNING THE WAIVER…";
         sfx.playChip();
+        try { socket.send(JSON.stringify({ action: "join" })); } catch { actionPending = false; render(state); }
       }
-      try { socket.send(JSON.stringify({ action: isInLobby ? "force_start" : "join" })); } catch { actionPending = false; render(state); }
     }
     if (state.phase === "running" && String(state.current_holder) === identity.id) socket.send(JSON.stringify({ action: "pass" }));
+  }
+
+  function canHoldIgnition() {
+    const players = Array.isArray(state?.players) ? state.players : [];
+    return Boolean(socket && socket.readyState === WebSocket.OPEN && state?.phase === "lobby" && players.length >= 2 && players.some((player) => String(player.id) === identity.id));
+  }
+
+  function startIgnitionHold(event) {
+    if (!canHoldIgnition() || ignitionHolding) return;
+    event?.preventDefault?.();
+    ignitionHolding = true;
+    try { event?.currentTarget?.setPointerCapture?.(event.pointerId); } catch {}
+    try { socket.send(JSON.stringify({ action: "light_it_up" })); } catch { ignitionHolding = false; }
+  }
+
+  function stopIgnitionHold(event) {
+    if (!ignitionHolding) return;
+    event?.preventDefault?.();
+    ignitionHolding = false;
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    try { socket.send(JSON.stringify({ action: "cool_it_down" })); } catch {}
   }
 
   function joinFromInlineLobbyCard(nextState) {
@@ -553,7 +612,7 @@ class SFXEngine {
       if (localHolder) triggerHaptic("tick_holder");
     }
     if (event.type === "sploded" || event.type === "eliminated") {
-      sfx.playExplosion();
+      if (event.type === "eliminated") sfx.playElimination(); else sfx.playExplosion();
       if (event.final && String(event.loser) !== identity.id) sfx.playPayout();
       triggerHaptic("sploded");
       showRoundSummary(event);
