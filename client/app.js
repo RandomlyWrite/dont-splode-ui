@@ -143,7 +143,7 @@ class SFXEngine {
         </section>
         <section class="chamber" id="chamber" data-phase="lobby">
           <div class="deck-head"><span class="round-tag" id="round-tag">CABINET AWAITS</span><span class="live-tag" id="live-tag" data-urgent="false">SAFE(ISH)</span></div>
-          <div class="bomb-stage" id="bomb-stage"><span class="bomb-halo"></span><img class="bomb-mascot" id="bomb-mascot" src="${ASSETS.mascot}" alt="A worried cartoon bomb with a lit fuse, cradled by distressed cartoon gloves" /><span class="bomb-fallback" aria-hidden="true"></span></div>
+          <div class="bomb-stage" id="bomb-stage" data-handoff-direction="right"><span class="bomb-halo"></span><span class="handoff-arc" aria-hidden="true"></span><div class="bomb-portrait" id="bomb-portrait"><img class="bomb-mascot" id="bomb-mascot" src="${ASSETS.mascot}" alt="A worried cartoon bomb with a lit fuse, cradled by distressed cartoon gloves" /><span class="eye-mask eye-mask-left" aria-hidden="true"><i></i></span><span class="eye-mask eye-mask-right" aria-hidden="true"><i></i></span></div><span class="bomb-fallback" aria-hidden="true"></span></div>
           <div class="multiplier-wrap"><strong class="multiplier" id="multiplier">1.00×</strong><span class="multiplier-caption">Survival multiplier</span></div>
           <section class="match-ledger" id="match-ledger" aria-label="Match progress"><span id="round-count">MATCH NOT STARTED</span><span id="eliminated-count">0 ASHED</span></section>
           <p class="message-board" id="message">Waking the engine room. Please retain all fingers.</p>
@@ -175,7 +175,7 @@ class SFXEngine {
     cabinet: root.querySelector(".cabinet"), chamber: root.querySelector("#chamber"), connection: root.querySelector("#connection"),
     pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
-    stage: root.querySelector("#bomb-stage"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
+    stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
     roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), invite: root.querySelector("#lobby-invite"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
   };
 
@@ -468,6 +468,20 @@ class SFXEngine {
     try { socket.send(JSON.stringify({ action: "pit_boss_grant", target_id: ui.pitTarget.value, amount: ui.pitAmount.value })); } catch { render(state); }
   }
 
+  function triggerBombHandoff(previousState, nextState) {
+    const previousHolder = String(previousState?.current_holder || "");
+    const nextHolder = String(nextState?.current_holder || "");
+    if (!previousHolder || !nextHolder || previousHolder === nextHolder) return;
+    const previousPlayers = Array.isArray(previousState?.players) ? previousState.players : [];
+    const priorIndex = previousPlayers.findIndex((player) => String(player.id) === previousHolder);
+    const nextIndex = previousPlayers.findIndex((player) => String(player.id) === nextHolder);
+    ui.stage.dataset.handoffDirection = priorIndex === previousPlayers.length - 1 && nextIndex === 0 ? "left" : "right";
+    ui.stage.classList.remove("is-handoff");
+    void ui.stage.offsetWidth;
+    ui.stage.classList.add("is-handoff");
+    window.setTimeout(() => ui.stage.classList.remove("is-handoff"), 760);
+  }
+
   function handleSoundEvent(event, previousState) {
     const nextState = event.state;
     const localHolder = String(nextState.current_holder) === identity.id;
@@ -483,6 +497,7 @@ class SFXEngine {
       showRoundSummary(event);
     }
     if (event.type === "update" && previousState?.phase === "running" && nextState.phase === "running" && String(previousState.current_holder) !== String(nextState.current_holder)) {
+      triggerBombHandoff(previousState, nextState);
       sfx.playPass();
       if (String(previousState.current_holder) === identity.id) triggerHaptic("pass");
     }
