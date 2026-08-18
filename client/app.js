@@ -123,6 +123,8 @@ class SFXEngine {
   let actionPending = false;
   let dailyClaim = null;
   let dailyClaimPending = false;
+  let isPitBoss = false;
+  let pitBossGrant = 0;
 
   root.innerHTML = `
     <div class="shell">
@@ -148,7 +150,7 @@ class SFXEngine {
           <section class="latest-ticket" id="latest-ticket" aria-label="Latest round record" hidden><header class="latest-ticket-head"><span>LAST CABINET INCIDENT</span><span>ON FILE</span></header><dl class="latest-ticket-stats"><div><dt>CRASH</dt><dd id="latest-multiplier">—</dd></div><div><dt>SPLIT</dt><dd id="latest-payout">—</dd></div><div><dt>ESCAPED</dt><dd id="latest-survivors">—</dd></div></dl></section>
         </section>
         <aside class="side-docket" aria-label="Game information"></aside>
-        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>POST LOBBY CARD <span aria-hidden="true">↗</span></button><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
+        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><section class="pit-boss" id="pit-boss" hidden aria-label="Pit Boss controls"><span>PIT BOSS CHIP DRAWER</span><select id="pit-target" aria-label="Choose a player to receive virtual chips"></select><button id="pit-grant" type="button">ISSUE 100 ◉</button></section><button class="lobby-invite" id="lobby-invite" type="button" hidden>POST LOBBY CARD <span aria-hidden="true">↗</span></button><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
         <p class="safety-note"><strong>Virtual chips only.</strong> This is a theatrical exercise in probability, not financial advice.</p>
       </section>
       <section class="summary-overlay" id="summary-overlay" role="dialog" aria-modal="true" aria-labelledby="summary-title" aria-describedby="summary-copy" hidden>
@@ -173,13 +175,14 @@ class SFXEngine {
     pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
     stage: root.querySelector("#bomb-stage"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
-    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), invite: root.querySelector("#lobby-invite"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
+    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitGrant: root.querySelector("#pit-grant"), invite: root.querySelector("#lobby-invite"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
   };
 
   ui.mascot.addEventListener("error", () => ui.stage.classList.add("fallback"));
   ui.reconnect.addEventListener("click", () => connect(true));
   ui.action.addEventListener("click", handleAction);
   ui.dailyClaim.addEventListener("click", claimDailyChips);
+  ui.pitGrant.addEventListener("click", grantPitBossChips);
   ui.invite.addEventListener("click", inviteVictims);
   ui.soundToggle.addEventListener("click", toggleSfx);
   ui.summaryShare.addEventListener("click", shareSurvival);
@@ -300,6 +303,8 @@ class SFXEngine {
     const inLobby = players.some((player) => String(player.id) === identity.id);
     if (event?.type === "action_rejected") return event.reason || "The cabinet rejected that particular decision.";
     if (event?.type === "daily_claimed") return `Daily chip cache released ${formatChips(event.claim_amount)} ◉. Spend it irresponsibly.`;
+    if (event?.type === "pit_boss_granted") return `The Pit Boss slid ${formatChips(event.grant_amount)} ◉ across the felt. Don’t make it weird.`;
+    if (event?.type === "pit_boss_grant_sent") return `You issued ${formatChips(event.grant_amount)} ◉ from the chip drawer.`;
     if (event?.type === "reset") return "The cabinet swept the ash aside. Volunteer for virtual peril.";
     if (state.phase === "ended") {
       if (event?.type === "sploded") return `BOOM. ${event?.payout ?? 0} virtual chips were divided among the survivors.`;
@@ -340,12 +345,14 @@ class SFXEngine {
     ui.latestSurvivors.textContent = `${survivors} ${survivors === 1 ? "SOUL" : "SOULS"}`;
   }
 
-  function render(nextState, event = null, eventBalance = null, eventDailyClaim = null) {
+  function render(nextState, event = null, eventBalance = null, eventDailyClaim = null, eventPitBoss = null, eventPitBossGrant = null) {
     state = nextState || state;
     lastEvent = event || lastEvent;
     if (!state) return;
     if (Number.isFinite(Number(eventBalance))) playerBalance = Math.max(0, Number(eventBalance));
     if (eventDailyClaim && typeof eventDailyClaim === "object") dailyClaim = eventDailyClaim;
+    if (typeof eventPitBoss === "boolean") isPitBoss = eventPitBoss;
+    if (Number.isFinite(Number(eventPitBossGrant))) pitBossGrant = Number(eventPitBossGrant);
     const players = Array.isArray(state.players) ? state.players : [];
     const phase = state.phase || "lobby";
     const localHolder = String(state.current_holder) === identity.id;
@@ -379,6 +386,20 @@ class SFXEngine {
       if (event?.type === "daily_claimed" || event?.type === "action_rejected") dailyClaimPending = false;
       ui.dailyClaim.disabled = dailyClaimPending || !dailyClaim.available;
       ui.dailyClaim.textContent = dailyClaimPending ? "OPENING CHIP CACHE…" : dailyClaim.available ? `DAILY CHIP CACHE — +${formatChips(dailyClaim.amount)} ◉` : `CHIP CACHE RETURNS IN ${formatClaimWait(dailyClaim.seconds_until)}`;
+    }
+    ui.pitBoss.hidden = !isPitBoss;
+    if (isPitBoss) {
+      const previousTarget = ui.pitTarget.value;
+      ui.pitTarget.replaceChildren();
+      players.forEach((player) => {
+        const option = document.createElement("option");
+        option.value = String(player.id);
+        option.textContent = player.name || "Anonymous troublemaker";
+        ui.pitTarget.append(option);
+      });
+      if (previousTarget && players.some((player) => String(player.id) === previousTarget)) ui.pitTarget.value = previousTarget;
+      ui.pitGrant.disabled = !players.length;
+      ui.pitGrant.textContent = `ISSUE ${formatChips(pitBossGrant || 100)} ◉`;
     }
     if (phase === "lobby" && !isInLobby && actionPending) { ui.action.textContent = "SIGNING THE WAIVER…"; ui.action.classList.add("is-neutral"); }
     else if (phase === "lobby" && !isInLobby) ui.action.textContent = "SIGN THE WAIVER — 100 ◉";
@@ -414,6 +435,13 @@ class SFXEngine {
     try { socket.send(JSON.stringify({ action: "claim_daily" })); } catch { dailyClaimPending = false; render(state); }
   }
 
+  function grantPitBossChips() {
+    if (!isPitBoss || !socket || socket.readyState !== WebSocket.OPEN || !ui.pitTarget.value) return;
+    ui.pitGrant.disabled = true;
+    ui.pitGrant.textContent = "OPENING DRAWER…";
+    try { socket.send(JSON.stringify({ action: "pit_boss_grant", target_id: ui.pitTarget.value })); } catch { render(state); }
+  }
+
   function handleSoundEvent(event, previousState) {
     const nextState = event.state;
     const localHolder = String(nextState.current_holder) === identity.id;
@@ -439,7 +467,7 @@ class SFXEngine {
     if (socket && [WebSocket.OPEN, WebSocket.CONNECTING].includes(socket.readyState)) return;
     setConnection("connecting", manual ? "Re-arming engine" : "Waking engine");
     ui.action.textContent = "CONNECTING TO DISASTER"; ui.action.className = "action-button is-neutral"; ui.action.disabled = true;
-    const socketUrl = `${ENDPOINT}/${encodeURIComponent(identity.id)}/${encodeURIComponent(identity.name)}`;
+    const socketUrl = `${ENDPOINT}/${encodeURIComponent(identity.id)}/${encodeURIComponent(identity.name)}?tg_init_data=${encodeURIComponent(telegram?.initData || "")}`;
     try { socket = new WebSocket(socketUrl); } catch { scheduleReconnect(); return; }
     socket.addEventListener("open", () => { reconnectCount = 0; setConnection("online", "Engine online"); });
     socket.addEventListener("message", (message) => {
@@ -448,7 +476,7 @@ class SFXEngine {
         const previousState = state ? { ...state, players: [...(state.players || [])] } : null;
         if (event.state) {
           handleSoundEvent(event, previousState);
-          render(event.state, event, event.balance, event.daily_claim);
+          render(event.state, event, event.balance, event.daily_claim, event.pit_boss, event.pit_boss_grant);
         }
       } catch { ui.message.textContent = "The cabinet spat out an unreadable ticket. Reconnecting may help."; }
     });
