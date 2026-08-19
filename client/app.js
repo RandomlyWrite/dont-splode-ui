@@ -133,6 +133,7 @@ class SFXEngine {
   let pitBossGrant = null;
   let ignitionHolding = false;
   let potCreditTimer = null;
+  let stackDeductionTimer = null;
   const moneyMotion = { balance: { current: null, frame: null, cleanup: null }, pot: { current: null, frame: null, cleanup: null } };
   const launchParams = new URLSearchParams(window.location.search);
   let inlineJoinRequested = (telegram?.initDataUnsafe?.start_param || launchParams.get("tgWebAppStartParam") || launchParams.get("startapp")) === "join";
@@ -148,7 +149,7 @@ class SFXEngine {
           <div class="marquee-tools"><button class="briefing-toggle" id="briefing-toggle" type="button" title="How Dont Splode works">HOW?</button><button class="sfx-toggle" id="sfx-toggle" type="button" aria-pressed="false" title="Mute sound effects">SFX ON</button><div class="system-pill" id="connection" data-status="connecting"><span class="lamp"></span><span>Waking engine</span></div></div>
         </header>
         <section class="financial-console" aria-label="Your virtual chips and the communal pot">
-          <div class="finance-instrument finance-wallet" id="balance-instrument" data-known="false"><div class="instrument-head"><span class="finance-label">YOUR CHIP STACK</span><span class="instrument-lamp">PRIVATE</span></div><strong class="finance-value finance-balance" id="balance-value" aria-live="polite">—</strong><span class="finance-note">YOUR RUNNING VIRTUAL BALANCE</span></div>
+          <div class="finance-instrument finance-wallet" id="balance-instrument" data-known="false"><span class="stack-deduction" id="stack-deduction" aria-hidden="true">−5</span><div class="instrument-head"><span class="finance-label">YOUR CHIP STACK</span><span class="instrument-lamp">PRIVATE</span></div><strong class="finance-value finance-balance" id="balance-value" aria-live="polite">—</strong><span class="finance-note">YOUR RUNNING VIRTUAL BALANCE</span></div>
           <div class="finance-instrument finance-pot" id="pot-instrument" data-phase="lobby"><span class="pot-credit" id="pot-credit" aria-hidden="true">+5 TO POT</span><div class="instrument-head"><span class="finance-label">GROUP POT</span><span class="instrument-lamp">ALL IN</span></div><strong class="finance-value finance-pot-value" id="pot-value" aria-live="polite">—</strong><span class="finance-note">WHAT THE CABINET OWES A SURVIVOR</span></div>
         </section>
         <section class="utility-rail" aria-label="Round status">
@@ -203,7 +204,7 @@ class SFXEngine {
     </div>`;
 
   const ui = {
-    cabinet: root.querySelector(".cabinet"), chamber: root.querySelector("#chamber"), connection: root.querySelector("#connection"), balanceInstrument: root.querySelector("#balance-instrument"), potInstrument: root.querySelector("#pot-instrument"), potCredit: root.querySelector("#pot-credit"),
+    cabinet: root.querySelector(".cabinet"), chamber: root.querySelector("#chamber"), connection: root.querySelector("#connection"), balanceInstrument: root.querySelector("#balance-instrument"), potInstrument: root.querySelector("#pot-instrument"), potCredit: root.querySelector("#pot-credit"), stackDeduction: root.querySelector("#stack-deduction"),
     pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
     stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
@@ -434,6 +435,15 @@ class SFXEngine {
     ui.potCredit.classList.add("is-burst");
     potCreditTimer = window.setTimeout(() => { ui.potCredit.classList.remove("is-burst"); potCreditTimer = null; }, 680);
   }
+  function showStackDeduction(amount) {
+    if (amount <= 0 || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    if (stackDeductionTimer) clearTimeout(stackDeductionTimer);
+    ui.stackDeduction.textContent = `−${formatChips(amount)}`;
+    ui.stackDeduction.classList.remove("is-burst");
+    void ui.stackDeduction.offsetWidth;
+    ui.stackDeduction.classList.add("is-burst");
+    stackDeductionTimer = window.setTimeout(() => { ui.stackDeduction.classList.remove("is-burst"); stackDeductionTimer = null; }, 680);
+  }
   function phraseFor(event) {
     if (!state) return "Waking the engine room. Please retain all fingers.";
     const players = Array.isArray(state.players) ? state.players : [];
@@ -532,6 +542,7 @@ class SFXEngine {
       ui.balance.textContent = "—";
     } else {
       setMoneyInstrument("balance", ui.balance, ui.balanceInstrument, playerBalance, isPassUpdate && previousBalance !== null && playerBalance !== previousBalance);
+      if (isPassUpdate && previousBalance !== null) showStackDeduction(Math.max(0, previousBalance - playerBalance));
     }
     ui.balanceInstrument.dataset.known = String(playerBalance !== null);
     ui.potInstrument.dataset.phase = phase;
