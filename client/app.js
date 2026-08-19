@@ -132,6 +132,7 @@ class SFXEngine {
   let isPitBoss = false;
   let pitBossGrant = null;
   let ignitionHolding = false;
+  let potCreditTimer = null;
   const moneyMotion = { balance: { current: null, frame: null, cleanup: null }, pot: { current: null, frame: null, cleanup: null } };
   const launchParams = new URLSearchParams(window.location.search);
   let inlineJoinRequested = (telegram?.initDataUnsafe?.start_param || launchParams.get("tgWebAppStartParam") || launchParams.get("startapp")) === "join";
@@ -148,7 +149,7 @@ class SFXEngine {
         </header>
         <section class="financial-console" aria-label="Your virtual chips and the communal pot">
           <div class="finance-instrument finance-wallet" id="balance-instrument" data-known="false"><div class="instrument-head"><span class="finance-label">YOUR CHIP STACK</span><span class="instrument-lamp">PRIVATE</span></div><strong class="finance-value finance-balance" id="balance-value" aria-live="polite">—</strong><span class="finance-note">YOUR RUNNING VIRTUAL BALANCE</span></div>
-          <div class="finance-instrument finance-pot" id="pot-instrument" data-phase="lobby"><div class="instrument-head"><span class="finance-label">GROUP POT</span><span class="instrument-lamp">ALL IN</span></div><strong class="finance-value finance-pot-value" id="pot-value" aria-live="polite">—</strong><span class="finance-note">WHAT THE CABINET OWES A SURVIVOR</span></div>
+          <div class="finance-instrument finance-pot" id="pot-instrument" data-phase="lobby"><span class="pot-credit" id="pot-credit" aria-hidden="true">+5 TO POT</span><div class="instrument-head"><span class="finance-label">GROUP POT</span><span class="instrument-lamp">ALL IN</span></div><strong class="finance-value finance-pot-value" id="pot-value" aria-live="polite">—</strong><span class="finance-note">WHAT THE CABINET OWES A SURVIVOR</span></div>
         </section>
         <section class="utility-rail" aria-label="Round status">
           <div class="rail-item"><span class="rail-label">Occupants</span><strong class="rail-value" id="player-count">0 / 12</strong></div>
@@ -202,7 +203,7 @@ class SFXEngine {
     </div>`;
 
   const ui = {
-    cabinet: root.querySelector(".cabinet"), chamber: root.querySelector("#chamber"), connection: root.querySelector("#connection"), balanceInstrument: root.querySelector("#balance-instrument"), potInstrument: root.querySelector("#pot-instrument"),
+    cabinet: root.querySelector(".cabinet"), chamber: root.querySelector("#chamber"), connection: root.querySelector("#connection"), balanceInstrument: root.querySelector("#balance-instrument"), potInstrument: root.querySelector("#pot-instrument"), potCredit: root.querySelector("#pot-credit"),
     pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
     stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
@@ -424,6 +425,15 @@ class SFXEngine {
     };
     motion.frame = requestAnimationFrame(tick);
   }
+  function showPotCredit(amount) {
+    if (amount <= 0 || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    if (potCreditTimer) clearTimeout(potCreditTimer);
+    ui.potCredit.textContent = `+${formatChips(amount)} TO POT`;
+    ui.potCredit.classList.remove("is-burst");
+    void ui.potCredit.offsetWidth;
+    ui.potCredit.classList.add("is-burst");
+    potCreditTimer = window.setTimeout(() => { ui.potCredit.classList.remove("is-burst"); potCreditTimer = null; }, 680);
+  }
   function phraseFor(event) {
     if (!state) return "Waking the engine room. Please retain all fingers.";
     const players = Array.isArray(state.players) ? state.players : [];
@@ -514,6 +524,7 @@ class SFXEngine {
     ui.cabinet.dataset.localReady = String(phase === "lobby" && readyPlayers.has(identity.id));
     ui.chamber.dataset.phase = phase;
     setMoneyInstrument("pot", ui.pot, ui.potInstrument, state.pot, isPassUpdate);
+    if (isPassUpdate) showPotCredit(Math.max(0, safeNumber(state.pot) - safeNumber(previousState.pot)));
     if (playerBalance === null) {
       if (moneyMotion.balance.frame) cancelAnimationFrame(moneyMotion.balance.frame);
       if (moneyMotion.balance.cleanup) clearTimeout(moneyMotion.balance.cleanup);
