@@ -49,6 +49,11 @@ class SFXEngine {
     this.tone({ frequency: 420, endFrequency: 285, duration: 0.07, volume: 0.035, type: "sine", delay: 0.04 });
   }
 
+  playChipClink() {
+    this.tone({ frequency: 1180, endFrequency: 830, duration: 0.055, volume: 0.045, type: "triangle" });
+    this.tone({ frequency: 760, endFrequency: 520, duration: 0.075, volume: 0.034, type: "sine", delay: 0.035 });
+  }
+
   playAlarm() {
     this.tone({ frequency: 335, endFrequency: 520, duration: 0.22, volume: 0.06, type: "sawtooth" });
     this.tone({ frequency: 520, endFrequency: 335, duration: 0.22, volume: 0.045, type: "sawtooth", delay: 0.23 });
@@ -124,6 +129,7 @@ class SFXEngine {
   let sfxMuted = localStorage.getItem(soundPreferenceKey) === "true";
   sfx.setMuted(sfxMuted);
   let lastHolderHapticAt = 0;
+  let lastPassDeductionHapticAt = 0;
   let shareMessage = "";
   let playerBalance = null;
   let actionPending = false;
@@ -288,6 +294,13 @@ class SFXEngine {
         lastHolderHapticAt = now;
         haptic.impactOccurred("medium");
       } else if (kind === "pass") haptic.notificationOccurred("success");
+      else if (kind === "chip_deduction") {
+        if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+        const now = Date.now();
+        if (now - lastPassDeductionHapticAt < 650) return;
+        lastPassDeductionHapticAt = now;
+        haptic.impactOccurred("light");
+      }
       else if (kind === "sploded") haptic.notificationOccurred("error");
     } catch {}
   }
@@ -444,6 +457,11 @@ class SFXEngine {
     ui.stackDeduction.classList.add("is-burst");
     stackDeductionTimer = window.setTimeout(() => { ui.stackDeduction.classList.remove("is-burst"); stackDeductionTimer = null; }, 680);
   }
+  function confirmPassDeductionFeedback(amount) {
+    if (amount <= 0) return;
+    sfx.playChipClink();
+    triggerHaptic("chip_deduction");
+  }
   function phraseFor(event) {
     if (!state) return "Waking the engine room. Please retain all fingers.";
     const players = Array.isArray(state.players) ? state.players : [];
@@ -542,7 +560,11 @@ class SFXEngine {
       ui.balance.textContent = "—";
     } else {
       setMoneyInstrument("balance", ui.balance, ui.balanceInstrument, playerBalance, isPassUpdate && previousBalance !== null && playerBalance !== previousBalance);
-      if (isPassUpdate && previousBalance !== null) showStackDeduction(Math.max(0, previousBalance - playerBalance));
+      if (isPassUpdate && previousBalance !== null) {
+        const deduction = Math.max(0, previousBalance - playerBalance);
+        showStackDeduction(deduction);
+        confirmPassDeductionFeedback(deduction);
+      }
     }
     ui.balanceInstrument.dataset.known = String(playerBalance !== null);
     ui.potInstrument.dataset.phase = phase;
@@ -699,7 +721,6 @@ class SFXEngine {
     if (event.type === "update" && previousState?.phase === "running" && nextState.phase === "running" && String(previousState.current_holder) !== String(nextState.current_holder)) {
       triggerBombHandoff(previousState, nextState);
       sfx.playPass();
-      if (String(previousState.current_holder) === identity.id) triggerHaptic("pass");
     }
   }
 
