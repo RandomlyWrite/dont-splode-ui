@@ -1,4 +1,4 @@
-/* Brass-Hinge Calamity — static Telegram Mini App client. The backend remains authoritative for game state; onboarding is a paper-ticket briefing, not a generic app tutorial. */
+/* Brass-Hinge Calamity — static Telegram Mini App client. Personal chips and the communal pot are the cabinet's dominant live instruments. */
 class SFXEngine {
   constructor() {
     this.ctx = null;
@@ -145,9 +145,11 @@ class SFXEngine {
           <div><span class="eyebrow">GROUP GAME / 100 VIRTUAL CHIPS</span><h1 class="wordmark">DON'T SPLODE</h1></div>
           <div class="marquee-tools"><button class="briefing-toggle" id="briefing-toggle" type="button" title="How Dont Splode works">HOW?</button><button class="sfx-toggle" id="sfx-toggle" type="button" aria-pressed="false" title="Mute sound effects">SFX ON</button><div class="system-pill" id="connection" data-status="connecting"><span class="lamp"></span><span>Waking engine</span></div></div>
         </header>
-        <section class="status-rail" aria-label="Round status">
-          <div class="rail-item"><span class="rail-label">Pot</span><strong class="rail-value accent" id="pot-value">—</strong></div>
-          <div class="rail-item"><span class="rail-label">Balance</span><strong class="rail-value balance" id="balance-value">—</strong></div>
+        <section class="financial-console" aria-label="Your virtual chips and the communal pot">
+          <div class="finance-instrument finance-wallet" id="balance-instrument" data-known="false"><div class="instrument-head"><span class="finance-label">YOUR CHIP STACK</span><span class="instrument-lamp">PRIVATE</span></div><strong class="finance-value finance-balance" id="balance-value" aria-live="polite">—</strong><span class="finance-note">YOUR RUNNING VIRTUAL BALANCE</span></div>
+          <div class="finance-instrument finance-pot" id="pot-instrument" data-phase="lobby"><div class="instrument-head"><span class="finance-label">GROUP POT</span><span class="instrument-lamp">ALL IN</span></div><strong class="finance-value finance-pot-value" id="pot-value" aria-live="polite">—</strong><span class="finance-note">WHAT THE CABINET OWES A SURVIVOR</span></div>
+        </section>
+        <section class="utility-rail" aria-label="Round status">
           <div class="rail-item"><span class="rail-label">Occupants</span><strong class="rail-value" id="player-count">0 / 12</strong></div>
           <div class="rail-item"><span class="rail-label">Round</span><strong class="rail-value" id="round-phase">STANDBY</strong></div>
         </section>
@@ -161,7 +163,7 @@ class SFXEngine {
           <section class="latest-ticket" id="latest-ticket" aria-label="Latest round record" hidden><header class="latest-ticket-head"><span>LAST CABINET INCIDENT</span><span>ON FILE</span></header><dl class="latest-ticket-stats"><div><dt>CRASH</dt><dd id="latest-multiplier">—</dd></div><div><dt>POT</dt><dd id="latest-payout">—</dd></div><div><dt>LAST</dt><dd id="latest-survivors">—</dd></div></dl></section>
         </section>
         <aside class="side-docket" aria-label="Game information"></aside>
-        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>POST INLINE LOBBY CARD <span aria-hidden="true">↗</span></button><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><section class="pit-boss" id="pit-boss" hidden aria-label="Pit Boss controls"><span>PIT BOSS CHIP DRAWER <small>1–10,000 ◉</small></span><select id="pit-target" aria-label="Choose a player to receive virtual chips"></select><input id="pit-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Virtual chips to grant" /><button id="pit-grant" type="button">ISSUE</button></section><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
+        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>SUMMON FRESH VICTIMS <span aria-hidden="true">↗</span></button><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><section class="pit-boss" id="pit-boss" hidden aria-label="Pit Boss controls"><span>PIT BOSS CHIP DRAWER <small>1–10,000 ◉</small></span><select id="pit-target" aria-label="Choose a player to receive virtual chips"></select><input id="pit-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Virtual chips to grant" /><button id="pit-grant" type="button">ISSUE</button></section><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
         <p class="safety-note"><strong>Virtual chips only.</strong> This is a theatrical exercise in probability, not financial advice.</p>
       </section>
       <section class="summary-overlay" id="summary-overlay" role="dialog" aria-modal="true" aria-labelledby="summary-title" aria-describedby="summary-copy" hidden>
@@ -199,7 +201,7 @@ class SFXEngine {
     </div>`;
 
   const ui = {
-    cabinet: root.querySelector(".cabinet"), chamber: root.querySelector("#chamber"), connection: root.querySelector("#connection"),
+    cabinet: root.querySelector(".cabinet"), chamber: root.querySelector("#chamber"), connection: root.querySelector("#connection"), balanceInstrument: root.querySelector("#balance-instrument"), potInstrument: root.querySelector("#pot-instrument"),
     pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
     stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
@@ -467,6 +469,8 @@ class SFXEngine {
     ui.chamber.dataset.phase = phase;
     ui.pot.textContent = `${safeNumber(state.pot)} ◉`;
     ui.balance.textContent = playerBalance === null ? "—" : `${formatChips(playerBalance)} ◉`;
+    ui.balanceInstrument.dataset.known = String(playerBalance !== null);
+    ui.potInstrument.dataset.phase = phase;
     ui.count.textContent = `${players.length} / 12`;
     ui.rosterCount.textContent = `${String(players.length).padStart(2, "0")} active`;
     ui.roundCount.textContent = state.round_number ? `FUSE ${String(state.round_number).padStart(2, "0")}` : "MATCH NOT STARTED";

@@ -1,4 +1,4 @@
-/* Brass-Hinge Calamity — onboarding arrives as a dog-eared cabinet orientation ticket with crisp mobile-first motion. */
+/* Brass-Hinge Calamity — finance reads as paired riveted cabinet instruments: private mint stack, shared brass pot. */
 :root {
   --coal: #0e0d0b;
   --ink: #171511;
@@ -85,6 +85,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
   align-content: start;
   gap: 12px;
 }
+.cabinet::after { content: ""; position: absolute; z-index: 8; top: 84px; right: -5px; bottom: 30px; left: -5px; border-right: 3px solid transparent; border-left: 3px solid transparent; border-image: repeating-linear-gradient(135deg, rgba(216,168,75,.78) 0 7px, rgba(225,59,50,.72) 7px 14px, rgba(12,10,7,.7) 14px 20px) 1; filter: drop-shadow(0 0 5px rgba(0,0,0,.4)); opacity: .47; pointer-events: none; }
 
 .marquee {
   position: relative;
@@ -134,12 +135,14 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
 
 .wordmark {
   margin: 1px 0 0;
-  color: var(--bone);
+  color: #f5d685;
   font-family: "Bowlby One SC", Impact, sans-serif;
   font-size: clamp(22px, 7vw, 29px);
   line-height: .95;
-  letter-spacing: .025em;
-  text-shadow: 2px 3px 0 #060504, 0 0 15px rgba(216,168,75,.2);
+  letter-spacing: -.015em;
+  transform: scaleX(.92) rotate(-1deg); transform-origin: left center;
+  -webkit-text-stroke: 1px #5a3a12;
+  text-shadow: 1px 1px 0 #ffe3a4, 3px 4px 0 #4d2f0e, 5px 6px 0 #080604, 0 0 15px rgba(216,168,75,.2);
 }
 
 .system-pill {
@@ -163,17 +166,29 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
 .system-pill[data-status="online"] .lamp { background: var(--mint); box-shadow: 0 0 8px rgba(158,224,107,.72), 0 0 0 2px rgba(0,0,0,.35); }
 .system-pill[data-status="offline"] .lamp { background: var(--fuse); box-shadow: 0 0 8px rgba(225,59,50,.65), 0 0 0 2px rgba(0,0,0,.35); }
 
-.status-rail {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  background: rgba(17,15,11,.86);
-  box-shadow: inset 0 1px rgba(255,255,255,.05), 0 8px 23px rgba(0,0,0,.18);
-}
-.rail-item { padding: 11px 12px 10px; min-width: 0; }
+.financial-console { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.finance-instrument { min-width: 0; min-height: 117px; position: relative; overflow: hidden; padding: 11px 12px 10px; background: linear-gradient(145deg, #292218, #11100d 68%); box-shadow: inset 0 1px rgba(255,255,255,.12), inset 0 0 0 1px rgba(0,0,0,.7), 0 8px 23px rgba(0,0,0,.21); clip-path: polygon(0 7px, 7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px)); }
+.finance-instrument::before { content: ""; position: absolute; inset: 7px; border: 1px solid rgba(216,168,75,.28); pointer-events: none; }
+.finance-instrument::after { content: ""; position: absolute; right: 10px; bottom: 10px; width: 7px; height: 7px; border-radius: 50%; background: #0a0907; box-shadow: inset 1px 1px rgba(255,255,255,.14), 0 0 0 2px rgba(0,0,0,.4); }
+.finance-wallet { background: linear-gradient(145deg, #1d2617, #0d110a 68%); }
+.finance-wallet::before { border-color: rgba(158,224,107,.34); }
+.finance-wallet::after { background: var(--mint); box-shadow: 0 0 11px rgba(158,224,107,.64), 0 0 0 2px rgba(0,0,0,.4); }
+.finance-wallet[data-known="false"]::after { background: var(--muted); box-shadow: 0 0 0 2px rgba(0,0,0,.4); }
+.finance-pot::after { background: var(--brass); box-shadow: 0 0 11px rgba(216,168,75,.54), 0 0 0 2px rgba(0,0,0,.4); }
+.finance-pot[data-phase="running"] { box-shadow: inset 0 1px rgba(255,255,255,.12), inset 0 0 0 1px rgba(225,59,50,.63), inset 0 0 32px rgba(225,59,50,.1), 0 8px 23px rgba(0,0,0,.21); }
+.instrument-head { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+.finance-label, .instrument-lamp { color: var(--brass); font-size: 8px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+.finance-wallet .finance-label, .finance-wallet .instrument-lamp { color: #c9f5aa; }
+.instrument-lamp { color: #2b2113; padding: 3px 4px 2px; background: var(--brass); font-size: 7px; letter-spacing: .09em; }
+.finance-wallet .instrument-lamp { background: var(--mint); }
+.finance-value { position: relative; z-index: 1; display: block; margin-top: 11px; overflow: hidden; color: var(--paper); font-size: clamp(27px, 8.4vw, 40px); font-weight: 700; letter-spacing: -.075em; line-height: .84; text-overflow: ellipsis; text-shadow: 0 3px 0 rgba(0,0,0,.42); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.finance-balance { color: var(--mint); text-shadow: 0 0 18px rgba(158,224,107,.15), 0 3px 0 rgba(0,0,0,.42); }
+.finance-pot-value { color: var(--brass); text-shadow: 0 0 18px rgba(216,168,75,.17), 0 3px 0 rgba(0,0,0,.42); }
+.finance-note { position: relative; z-index: 1; display: block; margin-top: 9px; color: var(--ash); font-size: 7px; font-weight: 700; letter-spacing: .09em; line-height: 1.25; text-transform: uppercase; }
+.utility-rail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); background: rgba(17,15,11,.86); box-shadow: inset 0 1px rgba(255,255,255,.05), 0 8px 23px rgba(0,0,0,.18); }
+.rail-item { padding: 9px 12px 8px; min-width: 0; }
 .rail-item + .rail-item { border-left: 1px solid rgba(216,168,75,.16); }
-.rail-value { display: block; margin-top: 3px; color: var(--paper); font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.rail-value.accent { color: var(--brass); }
-.rail-value.balance { color: var(--mint); font-variant-numeric: tabular-nums; }
+.rail-value { display: block; margin-top: 3px; color: var(--paper); font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .chamber {
   min-height: 490px;
@@ -297,9 +312,10 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
 
 .reconnect { margin: 10px auto 0; display: none; border: 0; background: transparent; color: var(--brass); font-size: 10px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .reconnect.is-visible { display: block; }
-.lobby-invite { width: 100%; margin-top: 10px; border: 1px dashed rgba(216,168,75,.55); padding: 11px 15px; background: rgba(31,26,17,.92); color: var(--brass); clip-path: polygon(0 4px, 4px 0, calc(100% - 4px) 0, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0 calc(100% - 4px)); cursor: pointer; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-align: left; text-transform: uppercase; }
+.lobby-invite { width: 100%; min-height: 46px; margin-top: 10px; border: 0; padding: 12px 48px 11px 23px; position: relative; background: linear-gradient(180deg, #6a5224, #2c210f); color: #f7daa0; box-shadow: inset 0 2px rgba(255,255,255,.16), inset 0 -4px rgba(0,0,0,.45), 0 6px 0 rgba(0,0,0,.25); clip-path: polygon(0 6px, 6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px)); cursor: pointer; font-family: "Bowlby One SC", Impact, sans-serif; font-size: 12px; letter-spacing: .025em; text-align: left; text-shadow: 1px 2px 0 rgba(0,0,0,.45); text-transform: uppercase; }
+.lobby-invite::before { content: ""; position: absolute; left: 10px; top: 9px; bottom: 9px; width: 6px; background: linear-gradient(90deg, #5d3d12, var(--brass), #ffe7a2, var(--brass), #5d3d12); }
 .lobby-invite[hidden] { display: none; }
-.lobby-invite span { float: right; font-size: 17px; line-height: .55; }
+.lobby-invite span { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); color: var(--fuse); font-family: "IBM Plex Mono", monospace; font-size: 21px; line-height: 1; }
 .lobby-invite:active { transform: translateY(2px) scale(.985); }
 
 .safety-note { margin: 13px 7px 0; color: var(--muted); font-size: 9px; line-height: 1.45; letter-spacing: .06em; text-align: center; text-transform: uppercase; }
