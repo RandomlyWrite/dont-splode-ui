@@ -132,6 +132,7 @@ class SFXEngine {
   let isPitBoss = false;
   let pitBossGrant = null;
   let ignitionHolding = false;
+  const moneyMotion = { balance: { current: null, frame: null, cleanup: null }, pot: { current: null, frame: null, cleanup: null } };
   const launchParams = new URLSearchParams(window.location.search);
   let inlineJoinRequested = (telegram?.initDataUnsafe?.start_param || launchParams.get("tgWebAppStartParam") || launchParams.get("startapp")) === "join";
   let inlineJoinAttempted = false;
@@ -381,6 +382,48 @@ class SFXEngine {
   function safeNumber(value, fallback = 0) { return Number.isFinite(Number(value)) ? Number(value) : fallback; }
   function formatChips(value) { const amount = safeNumber(value); return Number.isInteger(amount) ? amount.toLocaleString() : amount.toFixed(2); }
   function formatClaimWait(seconds) { const total = Math.max(0, Math.floor(safeNumber(seconds))); const hours = Math.floor(total / 3600); const minutes = Math.floor((total % 3600) / 60); return hours ? `${hours}H ${minutes}M` : `${Math.max(1, minutes)}M`; }
+  function setMoneyInstrument(key, element, instrument, value, shouldAnimate) {
+    const motion = moneyMotion[key];
+    const target = Math.max(0, safeNumber(value));
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (motion.frame) cancelAnimationFrame(motion.frame);
+    if (motion.cleanup) clearTimeout(motion.cleanup);
+    const start = Number.isFinite(motion.current) ? motion.current : target;
+    const show = (amount) => { element.textContent = `${formatChips(amount)} ◉`; };
+    const changed = Math.abs(target - start) > 0.001;
+    if (!shouldAnimate || reducedMotion || !changed) {
+      motion.current = target;
+      motion.frame = null;
+      instrument.classList.remove("is-counting");
+      delete instrument.dataset.countDirection;
+      show(target);
+      return;
+    }
+    const direction = target > start ? "up" : "down";
+    instrument.classList.remove("is-counting");
+    instrument.dataset.countDirection = direction;
+    void instrument.offsetWidth;
+    instrument.classList.add("is-counting");
+    const duration = Math.min(620, Math.max(340, Math.abs(target - start) * 24));
+    const startedAt = performance.now();
+    const tick = (now) => {
+      const progress = Math.min(1, (now - startedAt) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const raw = start + (target - start) * eased;
+      const shown = Number.isInteger(start) && Number.isInteger(target) ? Math.round(raw) : Math.round(raw * 100) / 100;
+      motion.current = shown;
+      show(shown);
+      if (progress < 1) {
+        motion.frame = requestAnimationFrame(tick);
+        return;
+      }
+      motion.current = target;
+      motion.frame = null;
+      show(target);
+      motion.cleanup = window.setTimeout(() => { instrument.classList.remove("is-counting"); delete instrument.dataset.countDirection; motion.cleanup = null; }, 260);
+    };
+    motion.frame = requestAnimationFrame(tick);
+  }
   function phraseFor(event) {
     if (!state) return "Waking the engine room. Please retain all fingers.";
     const players = Array.isArray(state.players) ? state.players : [];
@@ -448,6 +491,8 @@ class SFXEngine {
   }
 
   function render(nextState, event = null, eventBalance = null, eventDailyClaim = null, eventPitBoss = null, eventPitBossGrant = null) {
+    const previousState = state;
+    const previousBalance = playerBalance;
     state = nextState || state;
     lastEvent = event || lastEvent;
     if (!state) return;
@@ -463,12 +508,20 @@ class SFXEngine {
     const locallyEliminated = eliminated.some((player) => String(player.id) === identity.id);
     const readyPlayers = new Set((state.ready_players || []).map(String));
     const multiplier = safeNumber(state.multiplier, 1);
+    const isPassUpdate = event?.type === "update" && previousState?.phase === "running" && phase === "running" && String(previousState.current_holder) !== String(state.current_holder);
 
     ui.cabinet.dataset.localHolder = String(phase === "running" && localHolder);
     ui.cabinet.dataset.localReady = String(phase === "lobby" && readyPlayers.has(identity.id));
     ui.chamber.dataset.phase = phase;
-    ui.pot.textContent = `${safeNumber(state.pot)} ◉`;
-    ui.balance.textContent = playerBalance === null ? "—" : `${formatChips(playerBalance)} ◉`;
+    setMoneyInstrument("pot", ui.pot, ui.potInstrument, state.pot, isPassUpdate);
+    if (playerBalance === null) {
+      if (moneyMotion.balance.frame) cancelAnimationFrame(moneyMotion.balance.frame);
+      if (moneyMotion.balance.cleanup) clearTimeout(moneyMotion.balance.cleanup);
+      moneyMotion.balance.current = null;
+      ui.balance.textContent = "—";
+    } else {
+      setMoneyInstrument("balance", ui.balance, ui.balanceInstrument, playerBalance, isPassUpdate && previousBalance !== null && playerBalance !== previousBalance);
+    }
     ui.balanceInstrument.dataset.known = String(playerBalance !== null);
     ui.potInstrument.dataset.phase = phase;
     ui.count.textContent = `${players.length} / 12`;
