@@ -489,6 +489,9 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .briefing-ticket::before { content: ""; position: absolute; inset: 8px; border: 1px dashed rgba(81,48,20,.4); pointer-events: none; }
 .briefing-head { position: relative; display: flex; justify-content: space-between; gap: 8px; color: #8f3329; font-size: 8px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .briefing-head span:last-child { color: #7e6b4a; text-align: right; }
+.briefing-view-switch { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin: 10px 0 4px; padding: 3px; background: #5f4418; box-shadow: inset 0 1px rgba(255,255,255,.25), inset 0 -2px rgba(44,27,9,.26); }
+.briefing-view-switch button { border: 0; padding: 8px 6px; background: rgba(255,250,222,.44); color: #5d4b30; cursor: pointer; font: 700 8px/1 "IBM Plex Mono", monospace; letter-spacing: .1em; text-transform: uppercase; }
+.briefing-view-switch button[aria-selected="true"] { background: #9c3028; color: #fff5d6; box-shadow: inset 0 1px rgba(255,255,255,.24), inset 0 -2px rgba(63,16,13,.3); }
 .briefing-ticket h2 { position: relative; margin: 9px 0 8px; color: #82251e; font-family: "Bowlby One SC", Impact, sans-serif; font-size: clamp(27px, 8vw, 38px); line-height: .93; letter-spacing: .02em; text-align: center; text-shadow: 1px 1px 0 rgba(255,255,255,.35); }
 .briefing-copy { position: relative; margin: 0 4px 12px; color: #5a4a34; font-size: 11px; line-height: 1.44; text-align: center; }
 .briefing-steps { position: relative; display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
@@ -502,6 +505,18 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .briefing-dismiss { width: 100%; position: relative; border: 0; padding: 13px 14px; background: #b7332a; color: #fff8e7; box-shadow: inset 0 2px rgba(255,255,255,.18), inset 0 -3px rgba(74,18,14,.35); clip-path: polygon(0 5px, 5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px)); cursor: pointer; font-family: "Bowlby One SC", Impact, sans-serif; font-size: 13px; letter-spacing: .02em; text-align: left; }
 .briefing-dismiss span { float: right; font-family: "IBM Plex Mono", monospace; font-size: 19px; line-height: .65; }
 .briefing-dismiss:active { transform: translateY(2px) scale(.98); }
+.degen-guide { position: relative; padding-top: 2px; }
+.degen-kicker, .degen-footnote { margin: 9px 3px; color: #8f3329; font-size: 8px; font-weight: 700; letter-spacing: .12em; line-height: 1.35; text-align: center; text-transform: uppercase; }
+.degen-guide h2 { margin-bottom: 5px; }
+.degen-copy { margin: 0 8px 10px; color: #685237; font-size: 11px; font-style: italic; line-height: 1.35; text-align: center; }
+.degen-steps { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.degen-steps li:not(.degen-arrow) { display: grid; grid-template-columns: 57px 1fr; gap: 10px; align-items: center; min-height: 65px; padding: 8px 10px; background: rgba(255,252,233,.58); box-shadow: inset 0 0 0 1px rgba(84,50,19,.22); clip-path: polygon(0 6px, 8px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 8px) 100%, 0 100%); }
+.degen-icon { display: grid; width: 49px; aspect-ratio: 1; place-items: center; background: #1b1711; color: #d4a750; box-shadow: inset 0 0 0 2px #b6883c, 3px 3px 0 rgba(75,39,15,.18); font-size: 29px; line-height: 1; }
+.degen-icon.degen-bomb { background: #7f2822; color: #fff2c8; box-shadow: inset 0 0 0 2px #c74c3c, 3px 3px 0 rgba(75,39,15,.18); }
+.degen-steps b { display: block; color: #2d2115; font-family: "Bowlby One SC", Impact, sans-serif; font-size: 17px; line-height: .98; letter-spacing: .01em; }
+.degen-steps small { display: block; margin-top: 4px; color: #7a6040; font-size: 9px; font-weight: 700; letter-spacing: .07em; }
+.degen-arrow { height: 22px; color: #9c3028; font-family: "Bowlby One SC", Impact, sans-serif; font-size: 26px; line-height: .65; text-align: center; text-shadow: 1px 1px 0 rgba(255,255,255,.4); }
+.degen-dismiss { margin-top: 4px; font-size: 11px; }
 
 @keyframes holder-shake { 0%, 100% { transform: translate(0,0) rotate(0deg); } 20% { transform: translate(-2px, 1px) rotate(-1deg); } 40% { transform: translate(2px, -1px) rotate(1deg); } 60% { transform: translate(-1px, 2px) rotate(-.5deg); } 80% { transform: translate(2px, 1px) rotate(.5deg); } }
 @keyframes fuse-glow { from { transform: translate(-50%, -50%) scale(.52); filter: blur(3px); } to { transform: translate(-50%, -50%) scale(1.1); filter: blur(5px); } }

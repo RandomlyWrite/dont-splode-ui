@@ -205,6 +205,8 @@ class SFXEngine {
       <section class="briefing-overlay" id="briefing-overlay" role="dialog" aria-modal="true" aria-labelledby="briefing-title" aria-describedby="briefing-copy" hidden>
         <article class="briefing-ticket">
           <header class="briefing-head"><span>CABINET ORIENTATION // 01</span><span>READ THIS FIRST</span></header>
+          <div class="briefing-view-switch" role="tablist" aria-label="Instruction view"><button id="briefing-full" type="button" role="tab" aria-selected="true" aria-controls="briefing-full-panel">FULL FILE</button><button id="briefing-degen" type="button" role="tab" aria-selected="false" aria-controls="briefing-degen-panel">DEGEN MODE</button></div>
+          <section id="briefing-full-panel" role="tabpanel" aria-labelledby="briefing-full">
           <h2 id="briefing-title">WHAT THE HELL<br>IS GOING ON?</h2>
           <p class="briefing-copy" id="briefing-copy">A group of volunteers passes one lit bomb. The person holding it when the fuse pops is ash. Everyone else keeps the match going until one soul remains.</p>
           <ol class="briefing-steps">
@@ -216,6 +218,12 @@ class SFXEngine {
           </ol>
           <p class="briefing-footnote">POST THE LOBBY CARD IN A GROUP, THEN WATCH IT UPDATE AS THE CABINET COLLECTS VICTIMS.</p>
           <button class="briefing-dismiss" id="briefing-dismiss" type="button">UNDERSTOOD. OPEN THE CABINET <span aria-hidden="true">→</span></button>
+          </section>
+          <section class="degen-guide" id="briefing-degen-panel" role="tabpanel" aria-labelledby="briefing-degen" hidden>
+            <p class="degen-kicker">ATTENTION SPAN: FUSE-LENGTH.</p><h2>DEGEN<br>MODE</h2><p class="degen-copy">Too many words? Fine. Here is the crime in pictures.</p>
+            <ol class="degen-steps"><li><span class="degen-icon" aria-hidden="true">◉</span><div><b>GET CHIPS</b><small>DAILY CACHE. 250.</small></div></li><li class="degen-arrow" aria-hidden="true">↓</li><li><span class="degen-icon" aria-hidden="true">✍</span><div><b>SIGN WAIVER</b><small>PAY 100. JOIN.</small></div></li><li class="degen-arrow" aria-hidden="true">↓</li><li><span class="degen-icon degen-bomb" aria-hidden="true">💣</span><div><b>HOLD? PASS.</b><small>DON’T HOLD. SPLODE.</small></div></li></ol>
+            <p class="degen-footnote">YOU READ THREE BOXES. PLEASE REST.</p><button class="briefing-dismiss degen-dismiss" id="degen-dismiss" type="button">YES. I AM READY TO MAKE THIS WORSE <span aria-hidden="true">→</span></button>
+          </section>
         </article>
       </section>
     </div>`;
@@ -237,6 +245,11 @@ class SFXEngine {
     stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), reactionBurst: root.querySelector("#reaction-burst"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
     roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), leaderboard: root.querySelector("#leaderboard"), leaderboardCount: root.querySelector("#leaderboard-count"), leaderboardStamp: root.querySelector("#leaderboard-stamp"), leaderboardGlobal: root.querySelector("#leaderboard-global"), leaderboardGroup: root.querySelector("#leaderboard-group"), leaderboardCompetitive: root.querySelector("#leaderboard-competitive"), leaderboardChips: root.querySelector("#leaderboard-chips"), leaderboardCopy: root.querySelector("#leaderboard-copy"), leaderboardList: root.querySelector("#leaderboard-list"), leaderboardViewer: root.querySelector("#leaderboard-viewer"), seasonArchive: root.querySelector("#season-archive"), seasonWeek: root.querySelector("#season-week"), seasonCurrent: root.querySelector("#season-current"), seasonHistory: root.querySelector("#season-history"), seasonRefresh: root.querySelector("#season-refresh"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), pitAdmin: root.querySelector("#pit-boss-admin"), pitLedgerRefresh: root.querySelector("#pit-ledger-refresh"), pitProfileSearch: root.querySelector("#pit-profile-search"), pitProfileSearchButton: root.querySelector("#pit-profile-search-button"), pitProfileSort: root.querySelector("#pit-profile-sort"), pitProfileCount: root.querySelector("#pit-profile-count"), pitProfile: root.querySelector("#pit-profile"), pitProfileSummary: root.querySelector("#pit-profile-summary"), pitLedgerList: root.querySelector("#pit-ledger-list"), pitAdjustDirection: root.querySelector("#pit-adjust-direction"), pitAdjustAmount: root.querySelector("#pit-adjust-amount"), pitAdjustReason: root.querySelector("#pit-adjust-reason"), pitAdjustSubmit: root.querySelector("#pit-adjust-submit"), pitMasterConfirm: root.querySelector("#pit-master-confirm"), pitMasterReason: root.querySelector("#pit-master-reason"), pitMasterReset: root.querySelector("#pit-master-reset"), pitGroupList: root.querySelector("#pit-group-list"), invite: root.querySelector("#lobby-invite"), inviteStatus: root.querySelector("#invite-status"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), briefingToggle: root.querySelector("#briefing-toggle"), briefing: root.querySelector("#briefing-overlay"), briefingDismiss: root.querySelector("#briefing-dismiss"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
   };
+  ui.briefingFull = root.querySelector("#briefing-full");
+  ui.briefingDegen = root.querySelector("#briefing-degen");
+  ui.briefingFullPanel = root.querySelector("#briefing-full-panel");
+  ui.briefingDegenPanel = root.querySelector("#briefing-degen-panel");
+  ui.degenDismiss = root.querySelector("#degen-dismiss");
   ui.reactionRail = root.querySelector("#reaction-rail");
   ui.reactionStatus = root.querySelector("#reaction-status");
 
@@ -271,6 +284,9 @@ class SFXEngine {
   ui.soundToggle.addEventListener("click", toggleSfx);
   ui.briefingToggle.addEventListener("click", () => openBriefing());
   ui.briefingDismiss.addEventListener("click", closeBriefing);
+  ui.degenDismiss.addEventListener("click", closeBriefing);
+  ui.briefingFull.addEventListener("click", () => selectBriefingView("full"));
+  ui.briefingDegen.addEventListener("click", () => selectBriefingView("degen"));
   ui.briefing.addEventListener("pointerdown", (event) => { if (event.target === ui.briefing) closeBriefing(); });
   ui.summaryShare.addEventListener("click", shareSurvival);
   ui.summaryClose.addEventListener("click", closeRoundSummary);
@@ -302,10 +318,22 @@ class SFXEngine {
   }
 
   const briefingVersionKey = "dont-splode-briefing-v2";
+  const briefingViewKey = "dont-splode-briefing-view";
+  function selectBriefingView(view, persist = true) {
+    const isDegen = view === "degen";
+    ui.briefingFull.setAttribute("aria-selected", String(!isDegen));
+    ui.briefingDegen.setAttribute("aria-selected", String(isDegen));
+    ui.briefingFullPanel.hidden = isDegen;
+    ui.briefingDegenPanel.hidden = !isDegen;
+    if (persist) { try { localStorage.setItem(briefingViewKey, isDegen ? "degen" : "full"); } catch {} }
+  }
   function openBriefing() {
+    let preferredView = "full";
+    try { preferredView = localStorage.getItem(briefingViewKey) === "degen" ? "degen" : "full"; } catch {}
+    selectBriefingView(preferredView, false);
     ui.briefing.hidden = false;
     window.requestAnimationFrame(() => ui.briefing.classList.add("is-visible"));
-    ui.briefingDismiss.focus({ preventScroll: true });
+    (preferredView === "degen" ? ui.degenDismiss : ui.briefingDismiss).focus({ preventScroll: true });
   }
 
   function closeBriefing() {
