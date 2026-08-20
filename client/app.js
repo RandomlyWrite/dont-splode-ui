@@ -250,6 +250,13 @@ class SFXEngine {
   ui.briefingFullPanel = root.querySelector("#briefing-full-panel");
   ui.briefingDegenPanel = root.querySelector("#briefing-degen-panel");
   ui.degenDismiss = root.querySelector("#degen-dismiss");
+  ui.degenLobby = document.createElement("button");
+  ui.degenLobby.className = "degen-lobby-link";
+  ui.degenLobby.type = "button";
+  ui.degenLobby.hidden = true;
+  ui.degenLobby.innerHTML = '<span aria-hidden="true">⚡</span><strong>SHOW DEGEN MODE</strong><small>THREE BOXES. NO THESIS.</small><i aria-hidden="true">→</i>';
+  ui.action.after(ui.degenLobby);
+  ui.reconnect.textContent = "JOLT THE ENGINE ROOM";
   ui.reactionRail = root.querySelector("#reaction-rail");
   ui.reactionStatus = root.querySelector("#reaction-status");
 
@@ -283,6 +290,7 @@ class SFXEngine {
   ui.invite.addEventListener("click", inviteVictims);
   ui.soundToggle.addEventListener("click", toggleSfx);
   ui.briefingToggle.addEventListener("click", () => openBriefing());
+  ui.degenLobby.addEventListener("click", () => openBriefing("degen"));
   ui.briefingDismiss.addEventListener("click", closeBriefing);
   ui.degenDismiss.addEventListener("click", closeBriefing);
   ui.briefingFull.addEventListener("click", () => selectBriefingView("full"));
@@ -327,9 +335,9 @@ class SFXEngine {
     ui.briefingDegenPanel.hidden = !isDegen;
     if (persist) { try { localStorage.setItem(briefingViewKey, isDegen ? "degen" : "full"); } catch {} }
   }
-  function openBriefing() {
-    let preferredView = "full";
-    try { preferredView = localStorage.getItem(briefingViewKey) === "degen" ? "degen" : "full"; } catch {}
+  function openBriefing(forcedView = null) {
+    let preferredView = forcedView || "full";
+    if (!forcedView) { try { preferredView = localStorage.getItem(briefingViewKey) === "degen" ? "degen" : "full"; } catch {} }
     selectBriefingView(preferredView, false);
     ui.briefing.hidden = false;
     window.requestAnimationFrame(() => ui.briefing.classList.add("is-visible"));
@@ -892,6 +900,7 @@ class SFXEngine {
     ui.action.className = "action-button";
     ui.action.disabled = actionPending;
     ui.invite.hidden = phase !== "lobby";
+    ui.degenLobby.hidden = phase !== "lobby";
     const reactionsAvailable = spectatorMode && ["running", "intermission"].includes(phase);
     ui.reactionRail.hidden = !reactionsAvailable;
     if (reactionsAvailable) ui.reactionStatus.textContent = phase === "running" ? "WATCH ONLY. SHOUT WITHOUT TOUCHING THE FUSE." : "ASH IS SETTLING. MAKE IT TASTELESS.";
