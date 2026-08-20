@@ -766,10 +766,14 @@ class SFXEngine {
     if (!reaction || !ui.reactionBurst) return;
     const stamp = document.createElement("span");
     stamp.textContent = reaction;
-    stamp.style.setProperty("--drift", `${Math.round((Math.random() * 68) - 34)}px`);
-    stamp.style.setProperty("--rise", `${Math.round(42 + (Math.random() * 42))}px`);
+    stamp.style.setProperty("--mid-drift", `${Math.round((Math.random() * 42) - 21)}px`);
+    stamp.style.setProperty("--drift", `${Math.round((Math.random() * 118) - 59)}px`);
+    const rise = Math.round(128 + (Math.random() * 58));
+    stamp.style.setProperty("--rise", `${rise}px`);
+    stamp.style.setProperty("--mid-rise", `${Math.round(rise * .47)}px`);
+    stamp.style.setProperty("--float-duration", `${Math.round(1320 + (Math.random() * 260))}ms`);
     ui.reactionBurst.append(stamp);
-    window.setTimeout(() => stamp.remove(), 960);
+    window.setTimeout(() => stamp.remove(), 1800);
   }
 
   function selectLeaderboardView(view) {
