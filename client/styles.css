@@ -230,6 +230,9 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .live-tag[data-urgent="true"] { color: var(--fuse); }
 
 .bomb-stage { position: relative; z-index: 1; display: grid; place-items: center; min-height: 246px; margin-top: 4px; }
+.reaction-burst { position: absolute; z-index: 8; inset: 0; overflow: hidden; pointer-events: none; }
+.reaction-burst span { position: absolute; left: 50%; top: 48%; display: grid; width: 34px; height: 34px; place-items: center; font-size: 25px; filter: drop-shadow(0 3px 0 rgba(0,0,0,.5)); transform: translate(-50%, -50%); animation: spectator-reaction-burst 920ms var(--ease-out) both; }
+@keyframes spectator-reaction-burst { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.78) rotate(-8deg); } 16% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--drift)), calc(-50% - var(--rise))) scale(1.22) rotate(9deg); } }
 .bomb-halo { position: absolute; width: 216px; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(ellipse at 50% 61%, rgba(0,0,0,.6) 0 31%, rgba(216,168,75,.15) 42%, rgba(216,168,75,.025) 61%, transparent 74%); box-shadow: inset 0 -19px 23px rgba(0,0,0,.42), 0 0 0 12px rgba(0,0,0,.11); filter: blur(2px); }
 .bomb-portrait { position: relative; z-index: 1; width: min(244px, 78vw); height: 245px; transform-origin: 50% 76%; }
 .bomb-mascot { display: block; width: 100%; height: 100%; object-fit: contain; filter: hue-rotate(-58deg) saturate(.92) drop-shadow(0 18px 10px rgba(0,0,0,.47)); }
@@ -352,6 +355,15 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .season-archive li { padding: 6px; background: rgba(255,255,255,.32); color: #675038; font-size: 8px; line-height: 1.35; }
 
 .action-bay { position: relative; z-index: 2; margin: 16px 0 12px; padding: 10px 8px 8px; background: linear-gradient(90deg, rgba(216,168,75,.16), rgba(0,0,0,.12) 12%, rgba(0,0,0,.12) 88%, rgba(216,168,75,.16)); box-shadow: inset 0 1px rgba(255,255,255,.08), inset 0 -1px rgba(0,0,0,.44); }
+.reaction-rail { display: grid; gap: 6px; margin-top: 8px; padding: 7px 8px; background: #16120d; box-shadow: inset 0 1px rgba(255,255,255,.08), inset 0 0 0 1px rgba(216,168,75,.32); }
+.reaction-rail[hidden] { display: none; }
+.reaction-rail > span { color: var(--brass); font-size: 8px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+.reaction-rail > div { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; }
+.reaction-rail button { min-height: 34px; border: 1px solid rgba(216,168,75,.36); background: linear-gradient(180deg, #403016, #181108); box-shadow: inset 0 1px rgba(255,255,255,.15), 0 2px rgba(0,0,0,.32); cursor: pointer; font-size: 18px; line-height: 1; transition: transform 140ms var(--ease-out), filter 140ms var(--ease-out); }
+.reaction-rail button:hover:not(:disabled) { filter: brightness(1.16); }
+.reaction-rail button:active:not(:disabled) { transform: translateY(2px) scale(.95); }
+.reaction-rail button:disabled { cursor: wait; filter: grayscale(.25); opacity: .55; }
+.reaction-rail small { color: var(--ash); font-size: 7px; font-weight: 700; letter-spacing: .07em; line-height: 1.35; text-transform: uppercase; }
 .action-button { width: 100%; min-height: 66px; border: 0; padding: 14px 58px 14px 31px; position: relative; background: linear-gradient(180deg, #f25549, var(--fuse)); color: #fff9e8; box-shadow: inset 0 2px rgba(255,255,255,.22), inset 0 -5px var(--fuse-dark), 0 10px 0 rgba(0,0,0,.32), 0 16px 30px rgba(0,0,0,.24); cursor: pointer; font-family: "Bowlby One SC", Impact, sans-serif; font-size: clamp(15px, 4.4vw, 18px); letter-spacing: .025em; line-height: 1.05; text-align: left; text-shadow: 1px 2px 0 rgba(87,17,11,.45); transition: transform 150ms var(--ease-out), filter 150ms var(--ease-out), background 180ms var(--ease-out); clip-path: polygon(0 9px, 9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px)); }
 .action-button::before { content: ""; position: absolute; left: 11px; top: 10px; bottom: 10px; width: 8px; background: linear-gradient(90deg, #6b4616, var(--brass), #fff0ae, var(--brass), #6b4616); box-shadow: 1px 0 rgba(0,0,0,.42), inset 1px 0 rgba(255,255,255,.3); }
 .action-button::after { content: "↯"; position: absolute; right: 19px; top: 50%; transform: translateY(-53%); color: #ffe0ae; font-family: "IBM Plex Mono", monospace; font-size: 31px; font-weight: 700; }

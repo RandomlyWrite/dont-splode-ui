@@ -174,7 +174,7 @@ class SFXEngine {
         </section>
         <section class="chamber" id="chamber" data-phase="lobby">
           <div class="deck-head"><span class="round-tag" id="round-tag">CABINET AWAITS</span><span class="live-tag" id="live-tag" data-urgent="false">SAFE(ISH)</span></div>
-          <div class="bomb-stage" id="bomb-stage" data-handoff-direction="right"><span class="bomb-halo"></span><span class="handoff-arc" aria-hidden="true"></span><span class="handoff-drop" aria-hidden="true"><span class="handoff-orb"><i></i><b></b></span><span class="handoff-catch"><i></i><i></i></span></span><div class="bomb-portrait" id="bomb-portrait"><img class="bomb-mascot" id="bomb-mascot" src="${ASSETS.mascot}" alt="A worried cartoon bomb with a lit fuse, cradled by distressed cartoon gloves" /><span class="eye-mask eye-mask-left" aria-hidden="true"><i></i></span><span class="eye-mask eye-mask-right" aria-hidden="true"><i></i></span></div><span class="bomb-fallback" aria-hidden="true"></span></div>
+          <div class="bomb-stage" id="bomb-stage" data-handoff-direction="right"><span class="bomb-halo"></span><span class="reaction-burst" id="reaction-burst" aria-hidden="true"></span><span class="handoff-arc" aria-hidden="true"></span><span class="handoff-drop" aria-hidden="true"><span class="handoff-orb"><i></i><b></b></span><span class="handoff-catch"><i></i><i></i></span></span><div class="bomb-portrait" id="bomb-portrait"><img class="bomb-mascot" id="bomb-mascot" src="${ASSETS.mascot}" alt="A worried cartoon bomb with a lit fuse, cradled by distressed cartoon gloves" /><span class="eye-mask eye-mask-left" aria-hidden="true"><i></i></span><span class="eye-mask eye-mask-right" aria-hidden="true"><i></i></span></div><span class="bomb-fallback" aria-hidden="true"></span></div>
           <div class="multiplier-wrap"><strong class="multiplier" id="multiplier">1.00×</strong><span class="multiplier-caption">Survival multiplier</span></div>
           <section class="match-ledger" id="match-ledger" aria-label="Match progress"><span id="round-count">MATCH NOT STARTED</span><span id="eliminated-count">0 ASHED</span></section>
           <p class="message-board" id="message">Waking the engine room. Please retain all fingers.</p>
@@ -222,14 +222,23 @@ class SFXEngine {
 
   const actionBayNode = root.querySelector(".action-bay");
   root.querySelector("#message")?.after(actionBayNode);
+  const reactionRailNode = document.createElement("section");
+  reactionRailNode.className = "reaction-rail";
+  reactionRailNode.id = "reaction-rail";
+  reactionRailNode.hidden = true;
+  reactionRailNode.setAttribute("aria-label", "Spectator reaction rail");
+  reactionRailNode.innerHTML = '<span>SPECTATOR SHOUTS</span><div><button type="button" data-reaction="👀" aria-label="React with eyes">👀</button><button type="button" data-reaction="🔥" aria-label="React with fire">🔥</button><button type="button" data-reaction="😱" aria-label="React with scream">😱</button><button type="button" data-reaction="💥" aria-label="React with explosion">💥</button><button type="button" data-reaction="🪦" aria-label="React with grave">🪦</button></div><small id="reaction-status" role="status">WATCH ONLY. SHOUT WITHOUT TOUCHING THE FUSE.</small>';
+  root.querySelector("#action")?.after(reactionRailNode);
 
   const ui = {
     cabinet: root.querySelector(".cabinet"), chamber: root.querySelector("#chamber"), connection: root.querySelector("#connection"), balanceInstrument: root.querySelector("#balance-instrument"), potInstrument: root.querySelector("#pot-instrument"), potCredit: root.querySelector("#pot-credit"), stackDeduction: root.querySelector("#stack-deduction"),
     pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
-    stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
+    stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), reactionBurst: root.querySelector("#reaction-burst"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
     roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), leaderboard: root.querySelector("#leaderboard"), leaderboardCount: root.querySelector("#leaderboard-count"), leaderboardStamp: root.querySelector("#leaderboard-stamp"), leaderboardGlobal: root.querySelector("#leaderboard-global"), leaderboardGroup: root.querySelector("#leaderboard-group"), leaderboardCompetitive: root.querySelector("#leaderboard-competitive"), leaderboardChips: root.querySelector("#leaderboard-chips"), leaderboardCopy: root.querySelector("#leaderboard-copy"), leaderboardList: root.querySelector("#leaderboard-list"), leaderboardViewer: root.querySelector("#leaderboard-viewer"), seasonArchive: root.querySelector("#season-archive"), seasonWeek: root.querySelector("#season-week"), seasonCurrent: root.querySelector("#season-current"), seasonHistory: root.querySelector("#season-history"), seasonRefresh: root.querySelector("#season-refresh"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), pitAdmin: root.querySelector("#pit-boss-admin"), pitLedgerRefresh: root.querySelector("#pit-ledger-refresh"), pitProfileSearch: root.querySelector("#pit-profile-search"), pitProfileSearchButton: root.querySelector("#pit-profile-search-button"), pitProfileSort: root.querySelector("#pit-profile-sort"), pitProfileCount: root.querySelector("#pit-profile-count"), pitProfile: root.querySelector("#pit-profile"), pitProfileSummary: root.querySelector("#pit-profile-summary"), pitLedgerList: root.querySelector("#pit-ledger-list"), pitAdjustDirection: root.querySelector("#pit-adjust-direction"), pitAdjustAmount: root.querySelector("#pit-adjust-amount"), pitAdjustReason: root.querySelector("#pit-adjust-reason"), pitAdjustSubmit: root.querySelector("#pit-adjust-submit"), pitMasterConfirm: root.querySelector("#pit-master-confirm"), pitMasterReason: root.querySelector("#pit-master-reason"), pitMasterReset: root.querySelector("#pit-master-reset"), pitGroupList: root.querySelector("#pit-group-list"), invite: root.querySelector("#lobby-invite"), inviteStatus: root.querySelector("#invite-status"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), briefingToggle: root.querySelector("#briefing-toggle"), briefing: root.querySelector("#briefing-overlay"), briefingDismiss: root.querySelector("#briefing-dismiss"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
   };
+  ui.reactionRail = root.querySelector("#reaction-rail");
+  ui.reactionStatus = root.querySelector("#reaction-status");
 
   ui.mascot.addEventListener("error", () => ui.stage.classList.add("fallback"));
   ui.eliminationBoard = root.querySelector("#elimination-board");
@@ -257,6 +266,7 @@ class SFXEngine {
   ui.seasonRefresh.addEventListener("click", requestSeasonArchive);
   ui.leaderboardCompetitive.addEventListener("click", () => selectLeaderboardView("competitive"));
   ui.leaderboardChips.addEventListener("click", () => selectLeaderboardView("chips"));
+  root.querySelectorAll("[data-reaction]").forEach((button) => button.addEventListener("click", () => sendSpectatorReaction(button.dataset.reaction)));
   ui.invite.addEventListener("click", inviteVictims);
   ui.soundToggle.addEventListener("click", toggleSfx);
   ui.briefingToggle.addEventListener("click", () => openBriefing());
@@ -743,6 +753,25 @@ class SFXEngine {
     try { socket.send(JSON.stringify({ action: "season_archive" })); } catch { ui.seasonRefresh.disabled = false; ui.seasonRefresh.textContent = "OPEN FILE"; }
   }
 
+  function sendSpectatorReaction(reaction) {
+    const phase = state?.phase;
+    if (!spectatorMode || !["running", "intermission"].includes(phase) || !reaction || !socket || socket.readyState !== WebSocket.OPEN) return;
+    ui.reactionStatus.textContent = "THE CABINET HEARD THAT.";
+    root.querySelectorAll("[data-reaction]").forEach((button) => { button.disabled = true; });
+    try { socket.send(JSON.stringify({ action: "spectator_reaction", reaction })); } catch { ui.reactionStatus.textContent = "REACTION RAIL LOST ITS WIRING."; }
+    window.setTimeout(() => root.querySelectorAll("[data-reaction]").forEach((button) => { button.disabled = false; }), 1850);
+  }
+
+  function showSpectatorReaction(reaction) {
+    if (!reaction || !ui.reactionBurst) return;
+    const stamp = document.createElement("span");
+    stamp.textContent = reaction;
+    stamp.style.setProperty("--drift", `${Math.round((Math.random() * 68) - 34)}px`);
+    stamp.style.setProperty("--rise", `${Math.round(42 + (Math.random() * 42))}px`);
+    ui.reactionBurst.append(stamp);
+    window.setTimeout(() => stamp.remove(), 960);
+  }
+
   function selectLeaderboardView(view) {
     const nextView = view === "chips" ? "chips" : "competitive";
     if (nextView === leaderboardView && leaderboard) return;
@@ -831,6 +860,9 @@ class SFXEngine {
     ui.action.className = "action-button";
     ui.action.disabled = actionPending;
     ui.invite.hidden = phase !== "lobby";
+    const reactionsAvailable = spectatorMode && ["running", "intermission"].includes(phase);
+    ui.reactionRail.hidden = !reactionsAvailable;
+    if (reactionsAvailable) ui.reactionStatus.textContent = phase === "running" ? "WATCH ONLY. SHOUT WITHOUT TOUCHING THE FUSE." : "ASH IS SETTLING. MAKE IT TASTELESS.";
     ui.dailyClaim.hidden = !dailyClaim;
     if (dailyClaim) {
       if (event?.type === "daily_claimed" || event?.type === "action_rejected") dailyClaimPending = false;
@@ -986,6 +1018,7 @@ class SFXEngine {
     socket.addEventListener("message", (message) => {
       try {
         const event = JSON.parse(message.data);
+        if (event?.type === "spectator_reaction") { showSpectatorReaction(event.reaction); return; }
         const previousState = state ? { ...state, players: [...(state.players || [])] } : null;
         if (event.state) {
           handleSoundEvent(event, previousState);
