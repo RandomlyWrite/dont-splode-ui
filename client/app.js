@@ -137,6 +137,8 @@ class SFXEngine {
   let dailyClaimPending = false;
   let isPitBoss = false;
   let pitBossGrant = null;
+  let pitBossDashboard = null;
+  let pitBossDashboardRequested = false;
   let ignitionHolding = false;
   let potCreditTimer = null;
   let stackDeductionTimer = null;
@@ -172,7 +174,7 @@ class SFXEngine {
           <section class="latest-ticket" id="latest-ticket" aria-label="Latest round record" hidden><header class="latest-ticket-head"><span>LAST CABINET INCIDENT</span><span>ON FILE</span></header><dl class="latest-ticket-stats"><div><dt>CRASH</dt><dd id="latest-multiplier">—</dd></div><div><dt>POT</dt><dd id="latest-payout">—</dd></div><div><dt>LAST</dt><dd id="latest-survivors">—</dd></div></dl></section>
         </section>
         <aside class="side-docket" aria-label="Game information"></aside>
-        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>SUMMON FRESH VICTIMS <span aria-hidden="true">↗</span></button><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><section class="pit-boss" id="pit-boss" hidden aria-label="Pit Boss controls"><span>PIT BOSS CHIP DRAWER <small>1–10,000 ◉</small></span><select id="pit-target" aria-label="Choose a player to receive virtual chips"></select><input id="pit-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Virtual chips to grant" /><button id="pit-grant" type="button">ISSUE</button></section><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
+        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>SUMMON FRESH VICTIMS <span aria-hidden="true">↗</span></button><p class="invite-status" id="invite-status" role="status" hidden></p><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><section class="pit-boss" id="pit-boss" hidden aria-label="Pit Boss controls"><span>PIT BOSS CHIP DRAWER <small>LIVE LOBBY / +1–10,000 ◉</small></span><select id="pit-target" aria-label="Choose a live lobby player to receive virtual chips"></select><input id="pit-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Virtual chips to grant" /><button id="pit-grant" type="button">ISSUE</button></section><section class="pit-boss-admin" id="pit-boss-admin" hidden aria-label="Pit Boss persistent ledger"><header><span>CABINET LEDGER</span><button id="pit-ledger-refresh" type="button">REFRESH</button></header><div class="pit-admin-search"><input id="pit-profile-search" type="search" placeholder="Search known players" aria-label="Search persistent player profiles" /><button id="pit-profile-search-button" type="button">FIND</button></div><select id="pit-profile" aria-label="Choose a persistent player profile"></select><p class="pit-profile-summary" id="pit-profile-summary">Opening the cabinet files…</p><ol class="pit-ledger-list" id="pit-ledger-list"></ol><fieldset class="pit-adjustment"><legend>PERMANENT CHIP EDIT</legend><select id="pit-adjust-direction" aria-label="Choose whether to add or remove virtual chips"><option value="add">ADD CHIPS</option><option value="remove">REMOVE CHIPS</option></select><input id="pit-adjust-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Whole virtual chip adjustment amount" /><input id="pit-adjust-reason" type="text" maxlength="96" placeholder="Reason for this edit" aria-label="Reason for persistent chip adjustment" /><button id="pit-adjust-submit" type="button">STAMP LEDGER</button></fieldset><section class="pit-groups"><span>REGISTERED GROUPS</span><ul id="pit-group-list"></ul><small>Use <b>/register_dont_splode</b> inside a Telegram group to put it on file.</small></section></section><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
         <p class="safety-note"><strong>Virtual chips only.</strong> This is a theatrical exercise in probability, not financial advice.</p>
       </section>
       <section class="summary-overlay" id="summary-overlay" role="dialog" aria-modal="true" aria-labelledby="summary-title" aria-describedby="summary-copy" hidden>
@@ -214,7 +216,7 @@ class SFXEngine {
     pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
     stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
-    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), invite: root.querySelector("#lobby-invite"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), briefingToggle: root.querySelector("#briefing-toggle"), briefing: root.querySelector("#briefing-overlay"), briefingDismiss: root.querySelector("#briefing-dismiss"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
+    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), pitAdmin: root.querySelector("#pit-boss-admin"), pitLedgerRefresh: root.querySelector("#pit-ledger-refresh"), pitProfileSearch: root.querySelector("#pit-profile-search"), pitProfileSearchButton: root.querySelector("#pit-profile-search-button"), pitProfile: root.querySelector("#pit-profile"), pitProfileSummary: root.querySelector("#pit-profile-summary"), pitLedgerList: root.querySelector("#pit-ledger-list"), pitAdjustDirection: root.querySelector("#pit-adjust-direction"), pitAdjustAmount: root.querySelector("#pit-adjust-amount"), pitAdjustReason: root.querySelector("#pit-adjust-reason"), pitAdjustSubmit: root.querySelector("#pit-adjust-submit"), pitGroupList: root.querySelector("#pit-group-list"), invite: root.querySelector("#lobby-invite"), inviteStatus: root.querySelector("#invite-status"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), briefingToggle: root.querySelector("#briefing-toggle"), briefing: root.querySelector("#briefing-overlay"), briefingDismiss: root.querySelector("#briefing-dismiss"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
   };
 
   ui.mascot.addEventListener("error", () => ui.stage.classList.add("fallback"));
@@ -230,6 +232,10 @@ class SFXEngine {
   ui.action.addEventListener("keyup", (event) => { if (event.key === " " || event.key === "Enter") stopIgnitionHold(event); });
   ui.dailyClaim.addEventListener("click", claimDailyChips);
   ui.pitGrant.addEventListener("click", grantPitBossChips);
+  ui.pitLedgerRefresh.addEventListener("click", () => requestPitBossDashboard(ui.pitProfile.value, ui.pitProfileSearch.value));
+  ui.pitProfileSearchButton.addEventListener("click", () => requestPitBossDashboard("", ui.pitProfileSearch.value));
+  ui.pitProfile.addEventListener("change", () => requestPitBossDashboard(ui.pitProfile.value, ui.pitProfileSearch.value));
+  ui.pitAdjustSubmit.addEventListener("click", adjustPersistentBalance);
   ui.invite.addEventListener("click", inviteVictims);
   ui.soundToggle.addEventListener("click", toggleSfx);
   ui.briefingToggle.addEventListener("click", () => openBriefing());
@@ -380,18 +386,31 @@ class SFXEngine {
     try {
       if (telegram?.switchInlineQuery) {
         telegram.switchInlineQuery("lobby", ["groups", "supergroups"]);
+        setInviteStatus("Telegram opened the group-card composer. Pick a group, then send the lobby card.");
+        return;
+      }
+      if (telegram?.openTelegramLink) {
+        telegram.openTelegramLink("https://t.me/dontsplodebot?startapp=join");
+        setInviteStatus("This Telegram client cannot post a group card here. The bot launch was opened instead.");
         return;
       }
       if (navigator.share) {
         try {
           await navigator.share({ title: "DON'T SPLODE", text: inviteText, url: pageUrl });
+          setInviteStatus("Link copied into your share sheet. Open it in Telegram to start a lobby, then post a card there.");
           return;
         } catch (error) {
           if (error?.name === "AbortError") return;
         }
       }
       window.open(`https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(inviteText)}`, "dont-splode-invite", "noopener,noreferrer");
-    } catch {}
+      setInviteStatus("Opened a share sheet. A normal browser cannot create the live Telegram group card.");
+    } catch { setInviteStatus("The group-card composer did not open. Try from Telegram mobile, not a normal browser."); }
+  }
+
+  function setInviteStatus(text) {
+    ui.inviteStatus.textContent = text;
+    ui.inviteStatus.hidden = !text;
   }
 
   function safeNumber(value, fallback = 0) { return Number.isFinite(Number(value)) ? Number(value) : fallback; }
@@ -462,6 +481,54 @@ class SFXEngine {
     sfx.playChipClink();
     triggerHaptic("chip_deduction");
   }
+  function requestPitBossDashboard(profileRef = "", search = "") {
+    if (!isPitBoss || !socket || socket.readyState !== WebSocket.OPEN) return;
+    pitBossDashboardRequested = true;
+    try { socket.send(JSON.stringify({ action: "pit_boss_dashboard", profile_ref: profileRef, search })); } catch { pitBossDashboardRequested = false; }
+  }
+  function adjustPersistentBalance() {
+    if (!isPitBoss || !socket || socket.readyState !== WebSocket.OPEN || !ui.pitProfile.value) return;
+    const reason = ui.pitAdjustReason.value.trim();
+    if (reason.length < 3) { ui.message.textContent = "Write a short reason before stamping a permanent chip edit."; return; }
+    ui.pitAdjustSubmit.disabled = true;
+    ui.pitAdjustSubmit.textContent = "STAMPING…";
+    try { socket.send(JSON.stringify({ action: "pit_boss_adjust", target_ref: ui.pitProfile.value, direction: ui.pitAdjustDirection.value, amount: ui.pitAdjustAmount.value, reason })); } catch { render(state); }
+  }
+  function renderPitBossDashboard() {
+    ui.pitAdmin.hidden = !isPitBoss;
+    if (!isPitBoss) return;
+    const dashboard = pitBossDashboard || { profiles: [], ledger: [], groups: [], selected_ref: "" };
+    const profiles = Array.isArray(dashboard.profiles) ? dashboard.profiles : [];
+    const selectedRef = dashboard.selected_ref || ui.pitProfile.value || "";
+    ui.pitProfile.replaceChildren();
+    if (!profiles.length) {
+      const option = document.createElement("option"); option.value = ""; option.textContent = "No known player profiles found"; ui.pitProfile.append(option);
+    } else {
+      profiles.forEach((profile) => {
+        const option = document.createElement("option"); option.value = profile.ref;
+        option.textContent = `${profile.public_handle ? `@${profile.public_handle}` : profile.name} — ${formatChips(profile.balance)} ◉`;
+        ui.pitProfile.append(option);
+      });
+      ui.pitProfile.value = profiles.some((profile) => profile.ref === selectedRef) ? selectedRef : profiles[0].ref;
+    }
+    const active = profiles.find((profile) => profile.ref === ui.pitProfile.value);
+    ui.pitProfileSummary.textContent = active ? `${active.name}${active.public_handle ? ` / @${active.public_handle}` : ""} — ${formatChips(active.balance)} ◉ • ${active.passes || 0} passes • ${active.matches_entered || 0} matches` : "Search a player profile to inspect the persistent cabinet file.";
+    ui.pitLedgerList.replaceChildren();
+    const ledger = Array.isArray(dashboard.ledger) ? dashboard.ledger : [];
+    if (!ledger.length) { const entry = document.createElement("li"); entry.textContent = "No ledger events on file for this profile."; ui.pitLedgerList.append(entry); }
+    else ledger.forEach((event) => {
+      const entry = document.createElement("li"); entry.className = Number(event.amount) < 0 ? "is-debit" : "is-credit";
+      const amount = `${Number(event.amount) >= 0 ? "+" : ""}${formatChips(event.amount)} ◉`;
+      entry.textContent = `${amount} • ${String(event.reason || "ledger_adjustment").replaceAll("_", " ")}${event.note ? ` — ${event.note}` : ""} • ${formatChips(event.balance_after)} ◉`;
+      ui.pitLedgerList.append(entry);
+    });
+    ui.pitGroupList.replaceChildren();
+    const groups = Array.isArray(dashboard.groups) ? dashboard.groups : [];
+    if (!groups.length) { const entry = document.createElement("li"); entry.textContent = "No groups registered yet."; ui.pitGroupList.append(entry); }
+    else groups.forEach((group) => { const entry = document.createElement("li"); entry.textContent = `${group.title} • ${group.games_started || 0} lit / ${group.games_completed || 0} settled`; ui.pitGroupList.append(entry); });
+    ui.pitAdjustSubmit.disabled = !ui.pitProfile.value;
+    ui.pitAdjustSubmit.textContent = "STAMP LEDGER";
+  }
   function phraseFor(event) {
     if (!state) return "Waking the engine room. Please retain all fingers.";
     const players = Array.isArray(state.players) ? state.players : [];
@@ -472,6 +539,7 @@ class SFXEngine {
     if (event?.type === "daily_claimed") return `Daily chip cache released ${formatChips(event.claim_amount)} ◉. Spend it irresponsibly.`;
     if (event?.type === "pit_boss_granted") return `The Pit Boss slid ${formatChips(event.grant_amount)} ◉ across the felt. Don’t make it weird.`;
     if (event?.type === "pit_boss_grant_sent") return `You issued ${formatChips(event.grant_amount)} ◉ from the chip drawer.`;
+    if (event?.type === "pit_boss_adjusted") return `The cabinet ledger recorded ${Number(event.adjustment_amount) >= 0 ? "+" : ""}${formatChips(event.adjustment_amount)} ◉. ${event.adjustment_reason || "Reason stamped on file."}`;
     if (event?.type === "reset") return "The cabinet swept the ash aside. Volunteer for virtual peril.";
     if (event?.type === "eliminated") return String(event.loser) === identity.id ? "You were vaporized. Observe the remaining bad decisions." : `${event.loser_name || "A victim"} was vaporized. The next fuse lights shortly.`;
     if (event?.type === "next_round") return "The cabinet relit the fuse. The survivors are still not safe.";
@@ -538,6 +606,7 @@ class SFXEngine {
     if (eventDailyClaim && typeof eventDailyClaim === "object") dailyClaim = eventDailyClaim;
     if (typeof eventPitBoss === "boolean") isPitBoss = eventPitBoss;
     if (eventPitBossGrant && typeof eventPitBossGrant === "object") pitBossGrant = eventPitBossGrant;
+    if (event?.pit_boss_dashboard && typeof event.pit_boss_dashboard === "object") { pitBossDashboard = event.pit_boss_dashboard; pitBossDashboardRequested = false; }
     const players = Array.isArray(state.players) ? state.players : [];
     const eliminated = Array.isArray(state.eliminated_players) ? state.eliminated_players : [];
     const phase = state.phase || "lobby";
@@ -611,6 +680,8 @@ class SFXEngine {
       if (!ui.pitAmount.value) ui.pitAmount.value = String(pitBossGrant?.default || 100);
       ui.pitGrant.textContent = "ISSUE";
     }
+    renderPitBossDashboard();
+    if (isPitBoss && !pitBossDashboard && !pitBossDashboardRequested) window.setTimeout(() => requestPitBossDashboard(), 0);
     if (phase === "lobby" && !isInLobby && actionPending) { ui.action.textContent = "SIGNING THE WAIVER…"; ui.action.classList.add("is-neutral"); }
     else if (phase === "lobby" && !isInLobby) ui.action.textContent = "SIGN THE WAIVER — 100 ◉";
     else if (phase === "lobby" && players.length >= 2) { const readyCount = readyPlayers.size; ui.action.textContent = readyPlayers.has(identity.id) ? `HOLDING FLAME — ${readyCount}/${players.length}` : `HOLD LIGHT IT UP — ${readyCount}/${players.length}`; ui.action.classList.add("is-ready"); }

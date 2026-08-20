@@ -329,6 +329,28 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
 .lobby-invite[hidden] { display: none; }
 .lobby-invite span { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); color: var(--fuse); font-family: "IBM Plex Mono", monospace; font-size: 21px; line-height: 1; }
 .lobby-invite:active { transform: translateY(2px) scale(.985); }
+.invite-status { margin: 7px 4px 0; color: var(--brass); font-size: 9px; line-height: 1.45; letter-spacing: .05em; text-align: center; }
+.invite-status[hidden] { display: none; }
+.pit-boss-admin { margin-top: 9px; padding: 10px; background: linear-gradient(135deg, #16100d, #080706); box-shadow: inset 0 0 0 1px rgba(216,168,75,.35), inset 0 1px rgba(255,255,255,.08); }
+.pit-boss-admin[hidden] { display: none; }
+.pit-boss-admin header, .pit-groups > span { display: flex; align-items: center; justify-content: space-between; color: var(--brass); font-size: 9px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+.pit-boss-admin header button, .pit-admin-search button, .pit-adjustment button { border: 0; padding: 7px 9px; background: #513313; color: #ffebbb; cursor: pointer; font-size: 8px; font-weight: 700; letter-spacing: .08em; }
+.pit-admin-search { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; margin-top: 8px; }
+.pit-boss-admin select, .pit-boss-admin input { width: 100%; min-width: 0; box-sizing: border-box; border: 1px solid rgba(216,168,75,.32); padding: 8px; background: #0b0907; color: var(--paper); font-size: 10px; }
+.pit-boss-admin > select { margin-top: 7px; }
+.pit-profile-summary { margin: 7px 0; color: var(--ash); font-size: 9px; line-height: 1.4; }
+.pit-ledger-list, .pit-groups ul { display: grid; gap: 4px; max-height: 142px; margin: 0; padding: 0; overflow: auto; list-style: none; }
+.pit-ledger-list li, .pit-groups li { padding: 6px; background: rgba(255,255,255,.035); color: var(--ash); font-size: 8px; line-height: 1.4; }
+.pit-ledger-list li.is-credit { color: var(--mint); }
+.pit-ledger-list li.is-debit { color: #ff837c; }
+.pit-adjustment { display: grid; grid-template-columns: minmax(0, 1fr) 82px; gap: 6px; margin: 10px 0; padding: 8px; border: 1px solid rgba(225,59,50,.28); }
+.pit-adjustment legend { padding: 0 4px; color: var(--danger); font-size: 8px; font-weight: 700; letter-spacing: .1em; }
+.pit-adjustment input[placeholder] { grid-column: 1 / -1; }
+.pit-adjustment button { grid-column: 1 / -1; background: var(--fuse-dark); }
+.pit-adjustment button:disabled { cursor: not-allowed; opacity: .6; }
+.pit-groups { border-top: 1px dashed rgba(216,168,75,.28); padding-top: 9px; }
+.pit-groups small { display: block; margin-top: 6px; color: var(--muted); font-size: 8px; line-height: 1.35; }
+.pit-groups b { color: var(--brass); }
 
 .safety-note { margin: 13px 7px 0; color: var(--muted); font-size: 9px; line-height: 1.45; letter-spacing: .06em; text-align: center; text-transform: uppercase; }
 .safety-note strong { color: var(--ash); }
