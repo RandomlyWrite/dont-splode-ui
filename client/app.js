@@ -139,6 +139,7 @@ class SFXEngine {
   let pitBossGrant = null;
   let pitBossDashboard = null;
   let pitBossDashboardRequested = false;
+  let pitProfileSearchTimer = null;
   let ignitionHolding = false;
   let potCreditTimer = null;
   let stackDeductionTimer = null;
@@ -174,7 +175,7 @@ class SFXEngine {
           <section class="latest-ticket" id="latest-ticket" aria-label="Latest round record" hidden><header class="latest-ticket-head"><span>LAST CABINET INCIDENT</span><span>ON FILE</span></header><dl class="latest-ticket-stats"><div><dt>CRASH</dt><dd id="latest-multiplier">—</dd></div><div><dt>POT</dt><dd id="latest-payout">—</dd></div><div><dt>LAST</dt><dd id="latest-survivors">—</dd></div></dl></section>
         </section>
         <aside class="side-docket" aria-label="Game information"></aside>
-        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>SUMMON FRESH VICTIMS <span aria-hidden="true">↗</span></button><p class="invite-status" id="invite-status" role="status" hidden></p><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><section class="pit-boss" id="pit-boss" hidden aria-label="Pit Boss controls"><span>PIT BOSS CHIP DRAWER <small>LIVE LOBBY / +1–10,000 ◉</small></span><select id="pit-target" aria-label="Choose a live lobby player to receive virtual chips"></select><input id="pit-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Virtual chips to grant" /><button id="pit-grant" type="button">ISSUE</button></section><section class="pit-boss-admin" id="pit-boss-admin" hidden aria-label="Pit Boss persistent ledger"><header><span>CABINET LEDGER</span><button id="pit-ledger-refresh" type="button">REFRESH</button></header><div class="pit-admin-search"><input id="pit-profile-search" type="search" placeholder="Search known players" aria-label="Search persistent player profiles" /><button id="pit-profile-search-button" type="button">FIND</button></div><select id="pit-profile" aria-label="Choose a persistent player profile"></select><p class="pit-profile-summary" id="pit-profile-summary">Opening the cabinet files…</p><ol class="pit-ledger-list" id="pit-ledger-list"></ol><fieldset class="pit-adjustment"><legend>PERMANENT CHIP EDIT</legend><select id="pit-adjust-direction" aria-label="Choose whether to add or remove virtual chips"><option value="add">ADD CHIPS</option><option value="remove">REMOVE CHIPS</option></select><input id="pit-adjust-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Whole virtual chip adjustment amount" /><input id="pit-adjust-reason" type="text" maxlength="96" placeholder="Reason for this edit" aria-label="Reason for persistent chip adjustment" /><button id="pit-adjust-submit" type="button">STAMP LEDGER</button></fieldset><section class="pit-groups"><span>REGISTERED GROUPS</span><ul id="pit-group-list"></ul><small>Use <b>/register_dont_splode</b> inside a Telegram group to put it on file.</small></section></section><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
+        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>SUMMON FRESH VICTIMS <span aria-hidden="true">↗</span></button><p class="invite-status" id="invite-status" role="status" hidden></p><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><section class="pit-boss" id="pit-boss" hidden aria-label="Pit Boss controls"><span>PIT BOSS CHIP DRAWER <small>LIVE LOBBY / +1–10,000 ◉</small></span><select id="pit-target" aria-label="Choose a live lobby player to receive virtual chips"></select><input id="pit-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Virtual chips to grant" /><button id="pit-grant" type="button">ISSUE</button></section><section class="pit-boss-admin" id="pit-boss-admin" hidden aria-label="Pit Boss persistent ledger"><header><span>CABINET LEDGER</span><button id="pit-ledger-refresh" type="button">REFRESH</button></header><div class="pit-admin-tools"><div class="pit-admin-search"><input id="pit-profile-search" type="search" placeholder="Search name or @handle" aria-label="Search persistent player profiles by name or public handle" aria-describedby="pit-profile-count" /><button id="pit-profile-search-button" type="button">FIND</button></div><label class="pit-sort-control" for="pit-profile-sort"><span>SORT FILES</span><select id="pit-profile-sort" aria-label="Sort persistent player profiles"><option value="balance_desc">MOST CHIPS</option><option value="balance_asc">LEAST CHIPS</option><option value="recent">RECENT ACTIVITY</option><option value="matches_desc">MOST MATCHES</option><option value="name_asc">NAME A–Z</option></select></label></div><p class="pit-profile-count" id="pit-profile-count" aria-live="polite">Awaiting cabinet files…</p><select id="pit-profile" aria-label="Choose a persistent player profile"></select><p class="pit-profile-summary" id="pit-profile-summary">Opening the cabinet files…</p><ol class="pit-ledger-list" id="pit-ledger-list"></ol><fieldset class="pit-adjustment"><legend>PERMANENT CHIP EDIT</legend><select id="pit-adjust-direction" aria-label="Choose whether to add or remove virtual chips"><option value="add">ADD CHIPS</option><option value="remove">REMOVE CHIPS</option></select><input id="pit-adjust-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Whole virtual chip adjustment amount" /><input id="pit-adjust-reason" type="text" maxlength="96" placeholder="Reason for this edit" aria-label="Reason for persistent chip adjustment" /><button id="pit-adjust-submit" type="button">STAMP LEDGER</button></fieldset><section class="pit-groups"><span>REGISTERED GROUPS</span><ul id="pit-group-list"></ul><small>Use <b>/register_dont_splode</b> inside a Telegram group to put it on file.</small></section></section><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
         <p class="safety-note"><strong>Virtual chips only.</strong> This is a theatrical exercise in probability, not financial advice.</p>
       </section>
       <section class="summary-overlay" id="summary-overlay" role="dialog" aria-modal="true" aria-labelledby="summary-title" aria-describedby="summary-copy" hidden>
@@ -216,7 +217,7 @@ class SFXEngine {
     pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
     stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
-    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), pitAdmin: root.querySelector("#pit-boss-admin"), pitLedgerRefresh: root.querySelector("#pit-ledger-refresh"), pitProfileSearch: root.querySelector("#pit-profile-search"), pitProfileSearchButton: root.querySelector("#pit-profile-search-button"), pitProfile: root.querySelector("#pit-profile"), pitProfileSummary: root.querySelector("#pit-profile-summary"), pitLedgerList: root.querySelector("#pit-ledger-list"), pitAdjustDirection: root.querySelector("#pit-adjust-direction"), pitAdjustAmount: root.querySelector("#pit-adjust-amount"), pitAdjustReason: root.querySelector("#pit-adjust-reason"), pitAdjustSubmit: root.querySelector("#pit-adjust-submit"), pitGroupList: root.querySelector("#pit-group-list"), invite: root.querySelector("#lobby-invite"), inviteStatus: root.querySelector("#invite-status"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), briefingToggle: root.querySelector("#briefing-toggle"), briefing: root.querySelector("#briefing-overlay"), briefingDismiss: root.querySelector("#briefing-dismiss"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
+    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), pitAdmin: root.querySelector("#pit-boss-admin"), pitLedgerRefresh: root.querySelector("#pit-ledger-refresh"), pitProfileSearch: root.querySelector("#pit-profile-search"), pitProfileSearchButton: root.querySelector("#pit-profile-search-button"), pitProfileSort: root.querySelector("#pit-profile-sort"), pitProfileCount: root.querySelector("#pit-profile-count"), pitProfile: root.querySelector("#pit-profile"), pitProfileSummary: root.querySelector("#pit-profile-summary"), pitLedgerList: root.querySelector("#pit-ledger-list"), pitAdjustDirection: root.querySelector("#pit-adjust-direction"), pitAdjustAmount: root.querySelector("#pit-adjust-amount"), pitAdjustReason: root.querySelector("#pit-adjust-reason"), pitAdjustSubmit: root.querySelector("#pit-adjust-submit"), pitGroupList: root.querySelector("#pit-group-list"), invite: root.querySelector("#lobby-invite"), inviteStatus: root.querySelector("#invite-status"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), briefingToggle: root.querySelector("#briefing-toggle"), briefing: root.querySelector("#briefing-overlay"), briefingDismiss: root.querySelector("#briefing-dismiss"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
   };
 
   ui.mascot.addEventListener("error", () => ui.stage.classList.add("fallback"));
@@ -232,9 +233,12 @@ class SFXEngine {
   ui.action.addEventListener("keyup", (event) => { if (event.key === " " || event.key === "Enter") stopIgnitionHold(event); });
   ui.dailyClaim.addEventListener("click", claimDailyChips);
   ui.pitGrant.addEventListener("click", grantPitBossChips);
-  ui.pitLedgerRefresh.addEventListener("click", () => requestPitBossDashboard(ui.pitProfile.value, ui.pitProfileSearch.value));
-  ui.pitProfileSearchButton.addEventListener("click", () => requestPitBossDashboard("", ui.pitProfileSearch.value));
-  ui.pitProfile.addEventListener("change", () => requestPitBossDashboard(ui.pitProfile.value, ui.pitProfileSearch.value));
+  ui.pitLedgerRefresh.addEventListener("click", () => requestPitBossDashboard(ui.pitProfile.value, ui.pitProfileSearch.value, ui.pitProfileSort.value));
+  ui.pitProfileSearchButton.addEventListener("click", runPitBossProfileSearch);
+  ui.pitProfileSearch.addEventListener("input", queuePitBossProfileSearch);
+  ui.pitProfileSearch.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); runPitBossProfileSearch(); } });
+  ui.pitProfileSort.addEventListener("change", () => requestPitBossDashboard(ui.pitProfile.value, ui.pitProfileSearch.value, ui.pitProfileSort.value));
+  ui.pitProfile.addEventListener("change", () => requestPitBossDashboard(ui.pitProfile.value, ui.pitProfileSearch.value, ui.pitProfileSort.value));
   ui.pitAdjustSubmit.addEventListener("click", adjustPersistentBalance);
   ui.invite.addEventListener("click", inviteVictims);
   ui.soundToggle.addEventListener("click", toggleSfx);
@@ -481,10 +485,30 @@ class SFXEngine {
     sfx.playChipClink();
     triggerHaptic("chip_deduction");
   }
-  function requestPitBossDashboard(profileRef = "", search = "") {
+  function runPitBossProfileSearch() {
+    if (pitProfileSearchTimer) { clearTimeout(pitProfileSearchTimer); pitProfileSearchTimer = null; }
+    requestPitBossDashboard("", ui.pitProfileSearch.value.trim(), ui.pitProfileSort.value);
+  }
+  function queuePitBossProfileSearch() {
+    if (!isPitBoss) return;
+    if (pitProfileSearchTimer) clearTimeout(pitProfileSearchTimer);
+    pitProfileSearchTimer = window.setTimeout(() => { pitProfileSearchTimer = null; runPitBossProfileSearch(); }, 220);
+  }
+  function sortPitBossProfiles(profiles) {
+    const sort = ui.pitProfileSort?.value || "balance_desc";
+    const byName = (left, right) => String(left.name || "").localeCompare(String(right.name || ""), undefined, { sensitivity: "base" });
+    return [...profiles].sort((left, right) => {
+      if (sort === "balance_asc") return safeNumber(left.balance) - safeNumber(right.balance) || byName(left, right);
+      if (sort === "recent") return safeNumber(right.last_seen) - safeNumber(left.last_seen) || byName(left, right);
+      if (sort === "matches_desc") return safeNumber(right.matches_entered) - safeNumber(left.matches_entered) || safeNumber(right.balance) - safeNumber(left.balance) || byName(left, right);
+      if (sort === "name_asc") return byName(left, right) || safeNumber(right.balance) - safeNumber(left.balance);
+      return safeNumber(right.balance) - safeNumber(left.balance) || byName(left, right);
+    });
+  }
+  function requestPitBossDashboard(profileRef = "", search = "", sort = ui.pitProfileSort?.value || "balance_desc") {
     if (!isPitBoss || !socket || socket.readyState !== WebSocket.OPEN) return;
     pitBossDashboardRequested = true;
-    try { socket.send(JSON.stringify({ action: "pit_boss_dashboard", profile_ref: profileRef, search })); } catch { pitBossDashboardRequested = false; }
+    try { socket.send(JSON.stringify({ action: "pit_boss_dashboard", profile_ref: profileRef, search, sort })); } catch { pitBossDashboardRequested = false; }
   }
   function adjustPersistentBalance() {
     if (!isPitBoss || !socket || socket.readyState !== WebSocket.OPEN || !ui.pitProfile.value) return;
@@ -498,8 +522,12 @@ class SFXEngine {
     ui.pitAdmin.hidden = !isPitBoss;
     if (!isPitBoss) return;
     const dashboard = pitBossDashboard || { profiles: [], ledger: [], groups: [], selected_ref: "" };
-    const profiles = Array.isArray(dashboard.profiles) ? dashboard.profiles : [];
+    const profiles = sortPitBossProfiles(Array.isArray(dashboard.profiles) ? dashboard.profiles : []);
     const selectedRef = dashboard.selected_ref || ui.pitProfile.value || "";
+    const query = ui.pitProfileSearch.value.trim();
+    ui.pitProfileCount.textContent = profiles.length
+      ? `${profiles.length} CABINET FILE${profiles.length === 1 ? "" : "S"}${query ? ` MATCHING “${query}”` : " ON DISPLAY"}`
+      : query ? `NO CABINET FILES MATCH “${query}”` : "NO CABINET FILES ON DISPLAY";
     ui.pitProfile.replaceChildren();
     if (!profiles.length) {
       const option = document.createElement("option"); option.value = ""; option.textContent = "No known player profiles found"; ui.pitProfile.append(option);

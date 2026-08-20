@@ -30,9 +30,9 @@ body {
   overflow-x: hidden;
 }
 
-button, input { font: inherit; }
+button, input, select { font: inherit; }
 button { -webkit-tap-highlight-color: transparent; }
-button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
 
 .shell {
   min-height: 100dvh;
@@ -335,9 +335,13 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outl
 .pit-boss-admin[hidden] { display: none; }
 .pit-boss-admin header, .pit-groups > span { display: flex; align-items: center; justify-content: space-between; color: var(--brass); font-size: 9px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
 .pit-boss-admin header button, .pit-admin-search button, .pit-adjustment button { border: 0; padding: 7px 9px; background: #513313; color: #ffebbb; cursor: pointer; font-size: 8px; font-weight: 700; letter-spacing: .08em; }
-.pit-admin-search { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; margin-top: 8px; }
+.pit-admin-tools { display: grid; gap: 7px; margin-top: 8px; }
+.pit-admin-search { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
+.pit-sort-control { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; padding: 6px 7px; background: rgba(216,168,75,.07); color: var(--brass); font-size: 8px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.pit-sort-control select { border-color: rgba(216,168,75,.38); padding: 6px 7px; color: var(--paper); font-size: 9px; font-weight: 700; letter-spacing: .04em; }
 .pit-boss-admin select, .pit-boss-admin input { width: 100%; min-width: 0; box-sizing: border-box; border: 1px solid rgba(216,168,75,.32); padding: 8px; background: #0b0907; color: var(--paper); font-size: 10px; }
 .pit-boss-admin > select { margin-top: 7px; }
+.pit-profile-count { min-height: 13px; margin: 6px 0 0; color: var(--brass-dim); font-size: 8px; font-weight: 700; letter-spacing: .08em; line-height: 1.3; text-transform: uppercase; }
 .pit-profile-summary { margin: 7px 0; color: var(--ash); font-size: 9px; line-height: 1.4; }
 .pit-ledger-list, .pit-groups ul { display: grid; gap: 4px; max-height: 142px; margin: 0; padding: 0; overflow: auto; list-style: none; }
 .pit-ledger-list li, .pit-groups li { padding: 6px; background: rgba(255,255,255,.035); color: var(--ash); font-size: 8px; line-height: 1.4; }
