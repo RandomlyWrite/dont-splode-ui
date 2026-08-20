@@ -144,6 +144,8 @@ class SFXEngine {
   let leaderboardView = "competitive";
   let leaderboardScope = "global";
   let groupContextAvailable = false;
+  let groupSeasons = null;
+  let spectatorMode = false;
   let ignitionHolding = false;
   let potCreditTimer = null;
   let stackDeductionTimer = null;
@@ -178,7 +180,7 @@ class SFXEngine {
           <p class="message-board" id="message">Waking the engine room. Please retain all fingers.</p>
           <section class="roster" aria-label="Players in the lobby"><header class="roster-head"><span>Victim manifest</span><span id="roster-count">00 active</span></header><div class="roster-list" id="roster"><div class="roster-empty">The lobby is making eye contact with nobody.</div></div></section>
           <section class="latest-ticket" id="latest-ticket" aria-label="Latest round record" hidden><header class="latest-ticket-head"><span>LAST CABINET INCIDENT</span><span>ON FILE</span></header><dl class="latest-ticket-stats"><div><dt>CRASH</dt><dd id="latest-multiplier">—</dd></div><div><dt>POT</dt><dd id="latest-payout">—</dd></div><div><dt>LAST</dt><dd id="latest-survivors">—</dd></div></dl></section>
-          <section class="leaderboard" id="leaderboard" aria-labelledby="leaderboard-title"><header class="leaderboard-head"><div><span id="leaderboard-title">HALL OF SURVIVORS</span><small id="leaderboard-count">OPENING THE FILES…</small></div><span class="leaderboard-stamp" id="leaderboard-stamp">ALL TIME</span></header><div class="leaderboard-scope" id="leaderboard-scope" role="group" aria-label="Leaderboard scope"><button id="leaderboard-global" type="button" aria-pressed="true">ALL CABINETS</button><button id="leaderboard-group" type="button" aria-pressed="false" hidden>YOUR GROUP</button></div><div class="leaderboard-tabs" role="tablist" aria-label="Leaderboard view"><button id="leaderboard-competitive" type="button" role="tab" aria-selected="true" aria-controls="leaderboard-list" data-view="competitive">COMPETITIVE RECORD</button><button id="leaderboard-chips" type="button" role="tab" aria-selected="false" aria-controls="leaderboard-list" data-view="chips">CHIP STACK</button></div><p class="leaderboard-copy" id="leaderboard-copy">Final survivals first. Cumulative virtual pots break the tie.</p><ol class="leaderboard-list" id="leaderboard-list" aria-live="polite"><li class="leaderboard-empty">The cabinet has not crowned a survivor yet.</li></ol><div class="leaderboard-viewer" id="leaderboard-viewer" hidden></div></section>
+          <section class="leaderboard" id="leaderboard" aria-labelledby="leaderboard-title"><header class="leaderboard-head"><div><span id="leaderboard-title">HALL OF SURVIVORS</span><small id="leaderboard-count">OPENING THE FILES…</small></div><span class="leaderboard-stamp" id="leaderboard-stamp">ALL TIME</span></header><div class="leaderboard-scope" id="leaderboard-scope" role="group" aria-label="Leaderboard scope"><button id="leaderboard-global" type="button" aria-pressed="true">ALL CABINETS</button><button id="leaderboard-group" type="button" aria-pressed="false" hidden>YOUR GROUP</button></div><div class="leaderboard-tabs" role="tablist" aria-label="Leaderboard view"><button id="leaderboard-competitive" type="button" role="tab" aria-selected="true" aria-controls="leaderboard-list" data-view="competitive">COMPETITIVE RECORD</button><button id="leaderboard-chips" type="button" role="tab" aria-selected="false" aria-controls="leaderboard-list" data-view="chips">CHIP STACK</button></div><p class="leaderboard-copy" id="leaderboard-copy">Final survivals first. Cumulative virtual pots break the tie.</p><ol class="leaderboard-list" id="leaderboard-list" aria-live="polite"><li class="leaderboard-empty">The cabinet has not crowned a survivor yet.</li></ol><div class="leaderboard-viewer" id="leaderboard-viewer" hidden></div></section><section class="season-archive" id="season-archive" aria-labelledby="season-archive-title" hidden><header><div><span id="season-archive-title">WEEKLY ASH ARCHIVE</span><small id="season-week">GROUP CARD REQUIRED</small></div><button id="season-refresh" type="button">OPEN FILE</button></header><p id="season-current">Open from a registered group card to inspect its current weekly survivors.</p><ol id="season-history"></ol></section>
         </section>
         <aside class="side-docket" aria-label="Game information"></aside>
         <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>SUMMON FRESH VICTIMS <span aria-hidden="true">↗</span></button><p class="invite-status" id="invite-status" role="status" hidden></p><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><section class="pit-boss" id="pit-boss" hidden aria-label="Pit Boss controls"><span>PIT BOSS CHIP DRAWER <small>LIVE LOBBY / +1–10,000 ◉</small></span><select id="pit-target" aria-label="Choose a live lobby player to receive virtual chips"></select><input id="pit-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Virtual chips to grant" /><button id="pit-grant" type="button">ISSUE</button></section><section class="pit-boss-admin" id="pit-boss-admin" hidden aria-label="Pit Boss persistent ledger"><header><span>CABINET LEDGER</span><button id="pit-ledger-refresh" type="button">REFRESH</button></header><div class="pit-admin-tools"><div class="pit-admin-search"><input id="pit-profile-search" type="search" placeholder="Search name or @handle" aria-label="Search persistent player profiles by name or public handle" aria-describedby="pit-profile-count" /><button id="pit-profile-search-button" type="button">FIND</button></div><label class="pit-sort-control" for="pit-profile-sort"><span>SORT FILES</span><select id="pit-profile-sort" aria-label="Sort persistent player profiles"><option value="balance_desc">MOST CHIPS</option><option value="balance_asc">LEAST CHIPS</option><option value="recent">RECENT ACTIVITY</option><option value="matches_desc">MOST MATCHES</option><option value="name_asc">NAME A–Z</option></select></label></div><p class="pit-profile-count" id="pit-profile-count" aria-live="polite">Awaiting cabinet files…</p><select id="pit-profile" aria-label="Choose a persistent player profile"></select><p class="pit-profile-summary" id="pit-profile-summary">Opening the cabinet files…</p><ol class="pit-ledger-list" id="pit-ledger-list"></ol><fieldset class="pit-adjustment"><legend>PERMANENT CHIP EDIT</legend><select id="pit-adjust-direction" aria-label="Choose whether to add or remove virtual chips"><option value="add">ADD CHIPS</option><option value="remove">REMOVE CHIPS</option></select><input id="pit-adjust-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Whole virtual chip adjustment amount" /><input id="pit-adjust-reason" type="text" maxlength="96" placeholder="Reason for this edit" aria-label="Reason for persistent chip adjustment" /><button id="pit-adjust-submit" type="button">STAMP LEDGER</button></fieldset><fieldset class="pit-master-reset"><legend>MASTER CHIP RESET</legend><p>RESTORES EVERY KNOWN STACK TO 500 ◉. SURVIVAL RECORDS STAY ON FILE.</p><input id="pit-master-confirm" type="text" maxlength="32" placeholder="Type RESET ALL CHIPS" aria-label="Type RESET ALL CHIPS to confirm master virtual-chip reset" /><input id="pit-master-reason" type="text" maxlength="96" placeholder="Audit reason for master reset" aria-label="Reason for master virtual-chip reset" /><button id="pit-master-reset" type="button">RESET ALL STACKS TO 500 ◉</button></fieldset><section class="pit-groups"><span>REGISTERED GROUPS</span><ul id="pit-group-list"></ul><small>Use <b>/register_dont_splode</b> inside a Telegram group to put it on file.</small></section></section><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
@@ -218,12 +220,15 @@ class SFXEngine {
       </section>
     </div>`;
 
+  const actionBayNode = root.querySelector(".action-bay");
+  root.querySelector("#message")?.after(actionBayNode);
+
   const ui = {
     cabinet: root.querySelector(".cabinet"), chamber: root.querySelector("#chamber"), connection: root.querySelector("#connection"), balanceInstrument: root.querySelector("#balance-instrument"), potInstrument: root.querySelector("#pot-instrument"), potCredit: root.querySelector("#pot-credit"), stackDeduction: root.querySelector("#stack-deduction"),
     pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
     stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
-    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), leaderboard: root.querySelector("#leaderboard"), leaderboardCount: root.querySelector("#leaderboard-count"), leaderboardStamp: root.querySelector("#leaderboard-stamp"), leaderboardGlobal: root.querySelector("#leaderboard-global"), leaderboardGroup: root.querySelector("#leaderboard-group"), leaderboardCompetitive: root.querySelector("#leaderboard-competitive"), leaderboardChips: root.querySelector("#leaderboard-chips"), leaderboardCopy: root.querySelector("#leaderboard-copy"), leaderboardList: root.querySelector("#leaderboard-list"), leaderboardViewer: root.querySelector("#leaderboard-viewer"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), pitAdmin: root.querySelector("#pit-boss-admin"), pitLedgerRefresh: root.querySelector("#pit-ledger-refresh"), pitProfileSearch: root.querySelector("#pit-profile-search"), pitProfileSearchButton: root.querySelector("#pit-profile-search-button"), pitProfileSort: root.querySelector("#pit-profile-sort"), pitProfileCount: root.querySelector("#pit-profile-count"), pitProfile: root.querySelector("#pit-profile"), pitProfileSummary: root.querySelector("#pit-profile-summary"), pitLedgerList: root.querySelector("#pit-ledger-list"), pitAdjustDirection: root.querySelector("#pit-adjust-direction"), pitAdjustAmount: root.querySelector("#pit-adjust-amount"), pitAdjustReason: root.querySelector("#pit-adjust-reason"), pitAdjustSubmit: root.querySelector("#pit-adjust-submit"), pitMasterConfirm: root.querySelector("#pit-master-confirm"), pitMasterReason: root.querySelector("#pit-master-reason"), pitMasterReset: root.querySelector("#pit-master-reset"), pitGroupList: root.querySelector("#pit-group-list"), invite: root.querySelector("#lobby-invite"), inviteStatus: root.querySelector("#invite-status"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), briefingToggle: root.querySelector("#briefing-toggle"), briefing: root.querySelector("#briefing-overlay"), briefingDismiss: root.querySelector("#briefing-dismiss"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
+    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), leaderboard: root.querySelector("#leaderboard"), leaderboardCount: root.querySelector("#leaderboard-count"), leaderboardStamp: root.querySelector("#leaderboard-stamp"), leaderboardGlobal: root.querySelector("#leaderboard-global"), leaderboardGroup: root.querySelector("#leaderboard-group"), leaderboardCompetitive: root.querySelector("#leaderboard-competitive"), leaderboardChips: root.querySelector("#leaderboard-chips"), leaderboardCopy: root.querySelector("#leaderboard-copy"), leaderboardList: root.querySelector("#leaderboard-list"), leaderboardViewer: root.querySelector("#leaderboard-viewer"), seasonArchive: root.querySelector("#season-archive"), seasonWeek: root.querySelector("#season-week"), seasonCurrent: root.querySelector("#season-current"), seasonHistory: root.querySelector("#season-history"), seasonRefresh: root.querySelector("#season-refresh"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), pitAdmin: root.querySelector("#pit-boss-admin"), pitLedgerRefresh: root.querySelector("#pit-ledger-refresh"), pitProfileSearch: root.querySelector("#pit-profile-search"), pitProfileSearchButton: root.querySelector("#pit-profile-search-button"), pitProfileSort: root.querySelector("#pit-profile-sort"), pitProfileCount: root.querySelector("#pit-profile-count"), pitProfile: root.querySelector("#pit-profile"), pitProfileSummary: root.querySelector("#pit-profile-summary"), pitLedgerList: root.querySelector("#pit-ledger-list"), pitAdjustDirection: root.querySelector("#pit-adjust-direction"), pitAdjustAmount: root.querySelector("#pit-adjust-amount"), pitAdjustReason: root.querySelector("#pit-adjust-reason"), pitAdjustSubmit: root.querySelector("#pit-adjust-submit"), pitMasterConfirm: root.querySelector("#pit-master-confirm"), pitMasterReason: root.querySelector("#pit-master-reason"), pitMasterReset: root.querySelector("#pit-master-reset"), pitGroupList: root.querySelector("#pit-group-list"), invite: root.querySelector("#lobby-invite"), inviteStatus: root.querySelector("#invite-status"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), briefingToggle: root.querySelector("#briefing-toggle"), briefing: root.querySelector("#briefing-overlay"), briefingDismiss: root.querySelector("#briefing-dismiss"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
   };
 
   ui.mascot.addEventListener("error", () => ui.stage.classList.add("fallback"));
@@ -249,6 +254,7 @@ class SFXEngine {
   ui.pitMasterReset.addEventListener("click", masterResetVirtualChips);
   ui.leaderboardGlobal.addEventListener("click", () => selectLeaderboardScope("global"));
   ui.leaderboardGroup.addEventListener("click", () => selectLeaderboardScope("group"));
+  ui.seasonRefresh.addEventListener("click", requestSeasonArchive);
   ui.leaderboardCompetitive.addEventListener("click", () => selectLeaderboardView("competitive"));
   ui.leaderboardChips.addEventListener("click", () => selectLeaderboardView("chips"));
   ui.invite.addEventListener("click", inviteVictims);
@@ -698,6 +704,45 @@ class SFXEngine {
     } else ui.leaderboardViewer.hidden = true;
   }
 
+  function leaderboardRowLabel(row) {
+    return row?.public_handle ? `@${row.public_handle}` : row?.name || "UNKNOWN SOUL";
+  }
+
+  function renderSeasonArchive() {
+    const archive = groupSeasons;
+    const available = Boolean(groupContextAvailable && archive?.available);
+    ui.seasonArchive.hidden = !available;
+    if (!available) return;
+    const current = archive.current || {};
+    const entries = Array.isArray(current.entries) ? current.entries : [];
+    ui.seasonWeek.textContent = current.week ? `${current.week} // LIVE FILE` : "CURRENT WEEK";
+    const winner = current.winner;
+    ui.seasonCurrent.textContent = winner
+      ? `${leaderboardRowLabel(winner)} leads this week: ${winner.survivals || 0} survived • ${formatChips(winner.pot_won)} ◉ won.`
+      : "No final survivor has been stamped into this week’s file yet.";
+    ui.seasonHistory.replaceChildren();
+    const archives = Array.isArray(archive.archives) ? archive.archives : [];
+    if (!archives.length) {
+      const entry = document.createElement("li"); entry.textContent = entries.length ? "First weekly archive is stamped after the UTC week closes." : "No past weekly winner is on file yet."; ui.seasonHistory.append(entry);
+      return;
+    }
+    archives.forEach((snapshot) => {
+      const entry = document.createElement("li");
+      const winnerRow = snapshot?.winner;
+      entry.textContent = winnerRow
+        ? `${snapshot.week || "ARCHIVE"} — ${leaderboardRowLabel(winnerRow)} // ${winnerRow.survivals || 0} survived • ${formatChips(winnerRow.pot_won)} ◉ won`
+        : `${snapshot?.week || "ARCHIVE"} — No confirmed survivor`;
+      ui.seasonHistory.append(entry);
+    });
+  }
+
+  function requestSeasonArchive() {
+    if (!groupContextAvailable || !socket || socket.readyState !== WebSocket.OPEN) return;
+    ui.seasonRefresh.disabled = true;
+    ui.seasonRefresh.textContent = "OPENING…";
+    try { socket.send(JSON.stringify({ action: "season_archive" })); } catch { ui.seasonRefresh.disabled = false; ui.seasonRefresh.textContent = "OPEN FILE"; }
+  }
+
   function selectLeaderboardView(view) {
     const nextView = view === "chips" ? "chips" : "competitive";
     if (nextView === leaderboardView && leaderboard) return;
@@ -730,6 +775,8 @@ class SFXEngine {
     if (event?.pit_boss_dashboard && typeof event.pit_boss_dashboard === "object") { pitBossDashboard = event.pit_boss_dashboard; pitBossDashboardRequested = false; }
     if (event?.leaderboard && typeof event.leaderboard === "object") leaderboard = event.leaderboard;
     if (typeof event?.group_context_available === "boolean") groupContextAvailable = event.group_context_available;
+    if (event?.group_seasons && typeof event.group_seasons === "object") groupSeasons = event.group_seasons;
+    if (typeof event?.spectator_mode === "boolean") spectatorMode = event.spectator_mode;
     if (event?.type === "pit_boss_master_reset" || event?.type === "action_rejected") { ui.pitMasterReset.disabled = false; ui.pitMasterReset.textContent = "RESET ALL STACKS TO 500 ◉"; }
     const players = Array.isArray(state.players) ? state.players : [];
     const eliminated = Array.isArray(state.eliminated_players) ? state.eliminated_players : [];
@@ -775,6 +822,8 @@ class SFXEngine {
     renderRoster(players, eliminated, readyPlayers);
     renderLatestRound(state.latest_round, phase);
     renderLeaderboard();
+    renderSeasonArchive();
+    if (event?.type === "season_archive") { ui.seasonRefresh.disabled = false; ui.seasonRefresh.textContent = "OPEN FILE"; }
     if (event?.type === "reset") closeRoundSummary();
 
     if (event?.type === "action_rejected" || isInLobby || phase !== "lobby") actionPending = false;
@@ -812,7 +861,8 @@ class SFXEngine {
       ui.pitMasterReset.title = masterResetAvailable ? "Requires RESET ALL CHIPS and an audit reason" : "Master reset is locked until the lobby is empty";
     }
     if (isPitBoss && !pitBossDashboard && !pitBossDashboardRequested) window.setTimeout(() => requestPitBossDashboard(), 0);
-    if (phase === "lobby" && !isInLobby && actionPending) { ui.action.textContent = "SIGNING THE WAIVER…"; ui.action.classList.add("is-neutral"); }
+    if (spectatorMode) { ui.action.textContent = phase === "running" ? "WATCHING LIVE — NO WAIVER" : phase === "intermission" ? "WATCHING THE ASH SETTLE" : "WATCH-ONLY CABINET RECORD"; ui.action.classList.add("is-neutral"); ui.action.disabled = true; }
+    else if (phase === "lobby" && !isInLobby && actionPending) { ui.action.textContent = "SIGNING THE WAIVER…"; ui.action.classList.add("is-neutral"); }
     else if (phase === "lobby" && !isInLobby) ui.action.textContent = "SIGN THE WAIVER — 100 ◉";
     else if (phase === "lobby" && players.length >= 2) { const readyCount = readyPlayers.size; ui.action.textContent = readyPlayers.has(identity.id) ? `HOLDING FLAME — ${readyCount}/${players.length}` : `HOLD LIGHT IT UP — ${readyCount}/${players.length}`; ui.action.classList.add("is-ready"); }
     else if (phase === "lobby") { ui.action.textContent = "AWAITING ANOTHER VICTIM"; ui.action.classList.add("is-neutral"); ui.action.disabled = true; }
