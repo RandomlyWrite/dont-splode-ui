@@ -140,6 +140,8 @@ class SFXEngine {
   let pitBossDashboard = null;
   let pitBossDashboardRequested = false;
   let pitProfileSearchTimer = null;
+  let leaderboard = null;
+  let leaderboardView = "competitive";
   let ignitionHolding = false;
   let potCreditTimer = null;
   let stackDeductionTimer = null;
@@ -173,6 +175,7 @@ class SFXEngine {
           <p class="message-board" id="message">Waking the engine room. Please retain all fingers.</p>
           <section class="roster" aria-label="Players in the lobby"><header class="roster-head"><span>Victim manifest</span><span id="roster-count">00 active</span></header><div class="roster-list" id="roster"><div class="roster-empty">The lobby is making eye contact with nobody.</div></div></section>
           <section class="latest-ticket" id="latest-ticket" aria-label="Latest round record" hidden><header class="latest-ticket-head"><span>LAST CABINET INCIDENT</span><span>ON FILE</span></header><dl class="latest-ticket-stats"><div><dt>CRASH</dt><dd id="latest-multiplier">—</dd></div><div><dt>POT</dt><dd id="latest-payout">—</dd></div><div><dt>LAST</dt><dd id="latest-survivors">—</dd></div></dl></section>
+          <section class="leaderboard" id="leaderboard" aria-labelledby="leaderboard-title"><header class="leaderboard-head"><div><span id="leaderboard-title">HALL OF SURVIVORS</span><small id="leaderboard-count">OPENING THE FILES…</small></div><span class="leaderboard-stamp" id="leaderboard-stamp">ALL TIME</span></header><div class="leaderboard-tabs" role="tablist" aria-label="Leaderboard view"><button id="leaderboard-competitive" type="button" role="tab" aria-selected="true" aria-controls="leaderboard-list" data-view="competitive">COMPETITIVE RECORD</button><button id="leaderboard-chips" type="button" role="tab" aria-selected="false" aria-controls="leaderboard-list" data-view="chips">CHIP STACK</button></div><p class="leaderboard-copy" id="leaderboard-copy">Final survivals first. Cumulative virtual pots break the tie.</p><ol class="leaderboard-list" id="leaderboard-list" aria-live="polite"><li class="leaderboard-empty">The cabinet has not crowned a survivor yet.</li></ol><div class="leaderboard-viewer" id="leaderboard-viewer" hidden></div></section>
         </section>
         <aside class="side-docket" aria-label="Game information"></aside>
         <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>SUMMON FRESH VICTIMS <span aria-hidden="true">↗</span></button><p class="invite-status" id="invite-status" role="status" hidden></p><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><section class="pit-boss" id="pit-boss" hidden aria-label="Pit Boss controls"><span>PIT BOSS CHIP DRAWER <small>LIVE LOBBY / +1–10,000 ◉</small></span><select id="pit-target" aria-label="Choose a live lobby player to receive virtual chips"></select><input id="pit-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Virtual chips to grant" /><button id="pit-grant" type="button">ISSUE</button></section><section class="pit-boss-admin" id="pit-boss-admin" hidden aria-label="Pit Boss persistent ledger"><header><span>CABINET LEDGER</span><button id="pit-ledger-refresh" type="button">REFRESH</button></header><div class="pit-admin-tools"><div class="pit-admin-search"><input id="pit-profile-search" type="search" placeholder="Search name or @handle" aria-label="Search persistent player profiles by name or public handle" aria-describedby="pit-profile-count" /><button id="pit-profile-search-button" type="button">FIND</button></div><label class="pit-sort-control" for="pit-profile-sort"><span>SORT FILES</span><select id="pit-profile-sort" aria-label="Sort persistent player profiles"><option value="balance_desc">MOST CHIPS</option><option value="balance_asc">LEAST CHIPS</option><option value="recent">RECENT ACTIVITY</option><option value="matches_desc">MOST MATCHES</option><option value="name_asc">NAME A–Z</option></select></label></div><p class="pit-profile-count" id="pit-profile-count" aria-live="polite">Awaiting cabinet files…</p><select id="pit-profile" aria-label="Choose a persistent player profile"></select><p class="pit-profile-summary" id="pit-profile-summary">Opening the cabinet files…</p><ol class="pit-ledger-list" id="pit-ledger-list"></ol><fieldset class="pit-adjustment"><legend>PERMANENT CHIP EDIT</legend><select id="pit-adjust-direction" aria-label="Choose whether to add or remove virtual chips"><option value="add">ADD CHIPS</option><option value="remove">REMOVE CHIPS</option></select><input id="pit-adjust-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Whole virtual chip adjustment amount" /><input id="pit-adjust-reason" type="text" maxlength="96" placeholder="Reason for this edit" aria-label="Reason for persistent chip adjustment" /><button id="pit-adjust-submit" type="button">STAMP LEDGER</button></fieldset><section class="pit-groups"><span>REGISTERED GROUPS</span><ul id="pit-group-list"></ul><small>Use <b>/register_dont_splode</b> inside a Telegram group to put it on file.</small></section></section><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
@@ -217,7 +220,7 @@ class SFXEngine {
     pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"), phase: root.querySelector("#round-phase"),
     roundTag: root.querySelector("#round-tag"), liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
     stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
-    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), pitAdmin: root.querySelector("#pit-boss-admin"), pitLedgerRefresh: root.querySelector("#pit-ledger-refresh"), pitProfileSearch: root.querySelector("#pit-profile-search"), pitProfileSearchButton: root.querySelector("#pit-profile-search-button"), pitProfileSort: root.querySelector("#pit-profile-sort"), pitProfileCount: root.querySelector("#pit-profile-count"), pitProfile: root.querySelector("#pit-profile"), pitProfileSummary: root.querySelector("#pit-profile-summary"), pitLedgerList: root.querySelector("#pit-ledger-list"), pitAdjustDirection: root.querySelector("#pit-adjust-direction"), pitAdjustAmount: root.querySelector("#pit-adjust-amount"), pitAdjustReason: root.querySelector("#pit-adjust-reason"), pitAdjustSubmit: root.querySelector("#pit-adjust-submit"), pitGroupList: root.querySelector("#pit-group-list"), invite: root.querySelector("#lobby-invite"), inviteStatus: root.querySelector("#invite-status"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), briefingToggle: root.querySelector("#briefing-toggle"), briefing: root.querySelector("#briefing-overlay"), briefingDismiss: root.querySelector("#briefing-dismiss"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
+    roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), leaderboard: root.querySelector("#leaderboard"), leaderboardCount: root.querySelector("#leaderboard-count"), leaderboardStamp: root.querySelector("#leaderboard-stamp"), leaderboardCompetitive: root.querySelector("#leaderboard-competitive"), leaderboardChips: root.querySelector("#leaderboard-chips"), leaderboardCopy: root.querySelector("#leaderboard-copy"), leaderboardList: root.querySelector("#leaderboard-list"), leaderboardViewer: root.querySelector("#leaderboard-viewer"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), pitAdmin: root.querySelector("#pit-boss-admin"), pitLedgerRefresh: root.querySelector("#pit-ledger-refresh"), pitProfileSearch: root.querySelector("#pit-profile-search"), pitProfileSearchButton: root.querySelector("#pit-profile-search-button"), pitProfileSort: root.querySelector("#pit-profile-sort"), pitProfileCount: root.querySelector("#pit-profile-count"), pitProfile: root.querySelector("#pit-profile"), pitProfileSummary: root.querySelector("#pit-profile-summary"), pitLedgerList: root.querySelector("#pit-ledger-list"), pitAdjustDirection: root.querySelector("#pit-adjust-direction"), pitAdjustAmount: root.querySelector("#pit-adjust-amount"), pitAdjustReason: root.querySelector("#pit-adjust-reason"), pitAdjustSubmit: root.querySelector("#pit-adjust-submit"), pitGroupList: root.querySelector("#pit-group-list"), invite: root.querySelector("#lobby-invite"), inviteStatus: root.querySelector("#invite-status"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), briefingToggle: root.querySelector("#briefing-toggle"), briefing: root.querySelector("#briefing-overlay"), briefingDismiss: root.querySelector("#briefing-dismiss"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
   };
 
   ui.mascot.addEventListener("error", () => ui.stage.classList.add("fallback"));
@@ -240,6 +243,8 @@ class SFXEngine {
   ui.pitProfileSort.addEventListener("change", () => requestPitBossDashboard(ui.pitProfile.value, ui.pitProfileSearch.value, ui.pitProfileSort.value));
   ui.pitProfile.addEventListener("change", () => requestPitBossDashboard(ui.pitProfile.value, ui.pitProfileSearch.value, ui.pitProfileSort.value));
   ui.pitAdjustSubmit.addEventListener("click", adjustPersistentBalance);
+  ui.leaderboardCompetitive.addEventListener("click", () => selectLeaderboardView("competitive"));
+  ui.leaderboardChips.addEventListener("click", () => selectLeaderboardView("chips"));
   ui.invite.addEventListener("click", inviteVictims);
   ui.soundToggle.addEventListener("click", toggleSfx);
   ui.briefingToggle.addEventListener("click", () => openBriefing());
@@ -624,6 +629,61 @@ class SFXEngine {
     ui.latestSurvivors.textContent = `${survivors} ${survivors === 1 ? "SOUL" : "SOULS"}`;
   }
 
+  function leaderboardIdentity(row) {
+    return row.public_handle ? `@${row.public_handle}` : row.name || "UNKNOWN SOUL";
+  }
+
+  function appendLeaderboardRow(row, isViewer = false) {
+    const entry = document.createElement("li");
+    entry.className = `leaderboard-row${isViewer ? " is-viewer" : ""}`;
+    const rank = document.createElement("span"); rank.className = "leaderboard-rank"; rank.textContent = `#${String(row.rank).padStart(2, "0")}`;
+    const identityLabel = document.createElement("span"); identityLabel.className = "leaderboard-identity"; identityLabel.textContent = leaderboardIdentity(row);
+    const score = document.createElement("span"); score.className = "leaderboard-score";
+    score.textContent = leaderboardView === "chips" ? `${formatChips(row.balance)} ◉` : `${row.survivals} SURVIVED • ${formatChips(row.pot_won)} ◉ WON`;
+    entry.append(rank, identityLabel, score);
+    return entry;
+  }
+
+  function renderLeaderboard() {
+    const board = leaderboard;
+    const boardView = board?.view === "chips" ? "chips" : "competitive";
+    if (board) leaderboardView = boardView;
+    ui.leaderboard.dataset.view = leaderboardView;
+    ui.leaderboardCompetitive.setAttribute("aria-selected", String(leaderboardView === "competitive"));
+    ui.leaderboardChips.setAttribute("aria-selected", String(leaderboardView === "chips"));
+    ui.leaderboardCompetitive.tabIndex = leaderboardView === "competitive" ? 0 : -1;
+    ui.leaderboardChips.tabIndex = leaderboardView === "chips" ? 0 : -1;
+    ui.leaderboardStamp.textContent = leaderboardView === "chips" ? "VIRTUAL CHIPS" : "ALL TIME";
+    ui.leaderboardCopy.textContent = leaderboardView === "chips"
+      ? "Virtual chip balances only. Pit Boss edits can move this board."
+      : "Final survivals first. Cumulative virtual pots break the tie.";
+    ui.leaderboardList.replaceChildren();
+    const entries = Array.isArray(board?.entries) ? board.entries : [];
+    if (!entries.length) {
+      const empty = document.createElement("li"); empty.className = "leaderboard-empty";
+      empty.textContent = leaderboardView === "chips" ? "The cabinet has no chip stacks on file yet." : "The cabinet has not crowned a survivor yet.";
+      ui.leaderboardList.append(empty);
+    } else entries.forEach((row) => ui.leaderboardList.append(appendLeaderboardRow(row, Number(row.rank) === Number(board?.viewer_rank))));
+    const count = Math.max(0, Number(board?.eligible_count || 0));
+    ui.leaderboardCount.textContent = board ? `${count} ${count === 1 ? "SOUL" : "SOULS"} ON FILE` : "OPENING THE FILES…";
+    ui.leaderboardViewer.replaceChildren();
+    if (board?.viewer) {
+      const kicker = document.createElement("span"); kicker.className = "leaderboard-viewer-label"; kicker.textContent = "YOUR FILE";
+      ui.leaderboardViewer.append(kicker, appendLeaderboardRow(board.viewer, true));
+      ui.leaderboardViewer.hidden = false;
+    } else ui.leaderboardViewer.hidden = true;
+  }
+
+  function selectLeaderboardView(view) {
+    const nextView = view === "chips" ? "chips" : "competitive";
+    if (nextView === leaderboardView && leaderboard) return;
+    leaderboardView = nextView;
+    if (leaderboard) leaderboard = { ...leaderboard, view: nextView, entries: [], viewer: null };
+    renderLeaderboard();
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    try { socket.send(JSON.stringify({ action: "leaderboard", view: nextView })); } catch {}
+  }
+
   function render(nextState, event = null, eventBalance = null, eventDailyClaim = null, eventPitBoss = null, eventPitBossGrant = null) {
     const previousState = state;
     const previousBalance = playerBalance;
@@ -635,6 +695,7 @@ class SFXEngine {
     if (typeof eventPitBoss === "boolean") isPitBoss = eventPitBoss;
     if (eventPitBossGrant && typeof eventPitBossGrant === "object") pitBossGrant = eventPitBossGrant;
     if (event?.pit_boss_dashboard && typeof event.pit_boss_dashboard === "object") { pitBossDashboard = event.pit_boss_dashboard; pitBossDashboardRequested = false; }
+    if (event?.leaderboard && typeof event.leaderboard === "object") leaderboard = event.leaderboard;
     const players = Array.isArray(state.players) ? state.players : [];
     const eliminated = Array.isArray(state.eliminated_players) ? state.eliminated_players : [];
     const phase = state.phase || "lobby";
@@ -678,6 +739,7 @@ class SFXEngine {
     ui.message.textContent = phraseFor(event);
     renderRoster(players, eliminated, readyPlayers);
     renderLatestRound(state.latest_round, phase);
+    renderLeaderboard();
     if (event?.type === "reset") closeRoundSummary();
 
     if (event?.type === "action_rejected" || isInLobby || phase !== "lobby") actionPending = false;
