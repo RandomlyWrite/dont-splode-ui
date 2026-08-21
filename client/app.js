@@ -1,4 +1,5 @@
 /* Brass-Hinge Calamity — static Telegram Mini App client. Personal chips and the communal pot are the cabinet's dominant live instruments. */
+/* Brass-Hinge Calamity: the Pit Boss Office is a private brass desk within the same cabinet; backend authority, not hidden UI, guards every ledger action. */
 class SFXEngine {
   constructor() {
     this.ctx = null;
@@ -136,6 +137,8 @@ class SFXEngine {
   let dailyClaim = null;
   let dailyClaimPending = false;
   let isPitBoss = false;
+  let pitBossAuthorityResolved = false;
+  let activeAppRoute = "game";
   let pitBossGrant = null;
   let pitBossDashboard = null;
   let pitBossDashboardRequested = false;
@@ -162,7 +165,7 @@ class SFXEngine {
         <header class="marquee">
           <span class="brand-mark" aria-label="Dont Splode bomb emblem"></span>
           <div><span class="eyebrow">GROUP GAME / 100 VIRTUAL CHIPS</span><h1 class="wordmark">DON'T SPLODE</h1></div>
-          <div class="marquee-tools"><button class="briefing-toggle" id="briefing-toggle" type="button" title="How Dont Splode works">HOW?</button><button class="sfx-toggle" id="sfx-toggle" type="button" aria-pressed="false" title="Mute sound effects">SFX ON</button><div class="system-pill" id="connection" data-status="connecting"><span class="lamp"></span><span>Waking engine</span></div></div>
+          <div class="marquee-tools"><button class="briefing-toggle" id="briefing-toggle" type="button" title="How Dont Splode works">HOW?</button><button class="pit-office-link" id="pit-office-link" type="button" hidden>OFFICE</button><button class="sfx-toggle" id="sfx-toggle" type="button" aria-pressed="false" title="Mute sound effects">SFX ON</button><div class="system-pill" id="connection" data-status="connecting"><span class="lamp"></span><span>Waking engine</span></div></div>
         </header>
         <section class="financial-console" aria-label="Your virtual chips and the communal pot">
           <div class="finance-instrument finance-wallet" id="balance-instrument" data-known="false"><span class="stack-deduction" id="stack-deduction" aria-hidden="true">−5</span><div class="instrument-head"><span class="finance-label">YOUR CHIP STACK</span><span class="instrument-lamp">PRIVATE</span></div><strong class="finance-value finance-balance" id="balance-value" aria-live="polite">—</strong><span class="finance-note">YOUR RUNNING VIRTUAL BALANCE</span></div>
@@ -249,6 +252,16 @@ class SFXEngine {
   ui.briefingDegen = root.querySelector("#briefing-degen");
   ui.briefingFullPanel = root.querySelector("#briefing-full-panel");
   ui.briefingDegenPanel = root.querySelector("#briefing-degen-panel");
+  ui.pitOfficeLink = root.querySelector("#pit-office-link");
+  ui.pitOffice = document.createElement("section");
+  ui.pitOffice.className = "pit-office";
+  ui.pitOffice.id = "pit-office";
+  ui.pitOffice.hidden = true;
+  ui.pitOffice.setAttribute("aria-label", "Pit Boss Office");
+  ui.pitOffice.innerHTML = '<header class="pit-office-head"><div><span>PIT BOSS OFFICE</span><small>LEDGER // LIVE CABINET CONTROL</small></div><button id="pit-office-return" type="button">← RETURN TO CABINET</button></header><p class="pit-office-copy">Private desk. The records are real; the chips are not. Every stamp stays on file.</p>';
+  ui.pitOfficeReturn = ui.pitOffice.querySelector("#pit-office-return");
+  ui.pitOffice.append(ui.pitBoss, ui.pitAdmin);
+  ui.cabinet.append(ui.pitOffice);
   ui.degenDismiss = root.querySelector("#degen-dismiss");
   ui.degenLobby = document.createElement("button");
   ui.degenLobby.className = "degen-lobby-link";
@@ -272,6 +285,8 @@ class SFXEngine {
   ui.action.addEventListener("keydown", (event) => { if (event.key === " " || event.key === "Enter") startIgnitionHold(event); });
   ui.action.addEventListener("keyup", (event) => { if (event.key === " " || event.key === "Enter") stopIgnitionHold(event); });
   ui.dailyClaim.addEventListener("click", claimDailyChips);
+  ui.pitOfficeLink.addEventListener("click", () => setAppRoute("pit-boss"));
+  ui.pitOfficeReturn.addEventListener("click", () => setAppRoute("game"));
   ui.pitGrant.addEventListener("click", grantPitBossChips);
   ui.pitLedgerRefresh.addEventListener("click", () => requestPitBossDashboard(ui.pitProfile.value, ui.pitProfileSearch.value, ui.pitProfileSort.value));
   ui.pitProfileSearchButton.addEventListener("click", runPitBossProfileSearch);
@@ -304,6 +319,7 @@ class SFXEngine {
     if (!ui.summary.hidden) closeRoundSummary();
     else if (!ui.briefing.hidden) closeBriefing();
   });
+  window.addEventListener("hashchange", applyAppRoute);
   updateSoundToggle();
 
   function setConnection(status, text) {
@@ -348,6 +364,39 @@ class SFXEngine {
     ui.briefing.classList.remove("is-visible");
     try { localStorage.setItem(briefingVersionKey, "seen"); } catch {}
     window.setTimeout(() => { if (!ui.briefing.classList.contains("is-visible")) ui.briefing.hidden = true; }, 180);
+  }
+
+  function getRequestedAppRoute() {
+    return window.location.hash.replace(/^#/, "") === "/pit-boss" ? "pit-boss" : "game";
+  }
+
+  function setAppRoute(route) {
+    const nextHash = route === "pit-boss" ? "#/pit-boss" : "";
+    if (window.location.hash === nextHash) {
+      applyAppRoute();
+      return;
+    }
+    window.location.hash = nextHash;
+  }
+
+  function applyAppRoute() {
+    const requestedRoute = getRequestedAppRoute();
+    const showOffice = requestedRoute === "pit-boss" && pitBossAuthorityResolved && isPitBoss;
+    const enteringOffice = showOffice && activeAppRoute !== "pit-boss";
+    activeAppRoute = showOffice ? "pit-boss" : "game";
+    ui.cabinet.dataset.route = activeAppRoute;
+    ui.pitOffice.hidden = !showOffice;
+    ui.pitOfficeLink.hidden = !(pitBossAuthorityResolved && isPitBoss);
+    ui.pitOfficeLink.setAttribute("aria-current", showOffice ? "page" : "false");
+    if (requestedRoute === "pit-boss" && pitBossAuthorityResolved && !isPitBoss) {
+      history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+      window.setTimeout(() => { if (state) ui.message.textContent = "That office door is bolted from the inside. Only the verified Pit Boss has the key."; }, 0);
+      return;
+    }
+    if (showOffice) {
+      if ((enteringOffice || !pitBossDashboard) && !pitBossDashboardRequested) requestPitBossDashboard(ui.pitProfile.value, ui.pitProfileSearch.value, ui.pitProfileSort.value);
+      if (enteringOffice) window.setTimeout(() => ui.pitProfileSearch.focus({ preventScroll: true }), 0);
+    }
   }
 
   function showBriefingOnFirstOpen() {
@@ -839,7 +888,7 @@ class SFXEngine {
     if (!state) return;
     if (Number.isFinite(Number(eventBalance))) playerBalance = Math.max(0, Number(eventBalance));
     if (eventDailyClaim && typeof eventDailyClaim === "object") dailyClaim = eventDailyClaim;
-    if (typeof eventPitBoss === "boolean") isPitBoss = eventPitBoss;
+    if (typeof eventPitBoss === "boolean") { isPitBoss = eventPitBoss; pitBossAuthorityResolved = true; }
     if (eventPitBossGrant && typeof eventPitBossGrant === "object") pitBossGrant = eventPitBossGrant;
     if (event?.pit_boss_dashboard && typeof event.pit_boss_dashboard === "object") { pitBossDashboard = event.pit_boss_dashboard; pitBossDashboardRequested = false; }
     if (event?.leaderboard && typeof event.leaderboard === "object") leaderboard = event.leaderboard;
@@ -928,12 +977,13 @@ class SFXEngine {
       ui.pitGrant.textContent = "ISSUE";
     }
     renderPitBossDashboard();
+    applyAppRoute();
     if (isPitBoss) {
       const masterResetAvailable = phase === "lobby" && players.length === 0;
       ui.pitMasterReset.disabled = !masterResetAvailable;
       ui.pitMasterReset.title = masterResetAvailable ? "Requires RESET ALL CHIPS and an audit reason" : "Master reset is locked until the lobby is empty";
     }
-    if (isPitBoss && !pitBossDashboard && !pitBossDashboardRequested) window.setTimeout(() => requestPitBossDashboard(), 0);
+    if (isPitBoss && activeAppRoute === "pit-boss" && !pitBossDashboard && !pitBossDashboardRequested) window.setTimeout(() => requestPitBossDashboard(), 0);
     if (spectatorMode) { ui.action.textContent = phase === "running" ? "WATCHING LIVE — NO WAIVER" : phase === "intermission" ? "WATCHING THE ASH SETTLE" : "WATCH-ONLY CABINET RECORD"; ui.action.classList.add("is-neutral"); ui.action.disabled = true; }
     else if (phase === "lobby" && !isInLobby && actionPending) { ui.action.textContent = "SIGNING THE WAIVER…"; ui.action.classList.add("is-neutral"); }
     else if (phase === "lobby" && !isInLobby) ui.action.textContent = "SIGN THE WAIVER — 100 ◉";

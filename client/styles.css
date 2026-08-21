@@ -1,4 +1,4 @@
-/* Brass-Hinge Calamity — finance reads as paired riveted cabinet instruments: private mint stack, shared brass pot. */
+/* Brass-Hinge Calamity — finance reads as paired riveted cabinet instruments; the Pit Boss Office is a private brass desk inside the same cabinet. */
 :root {
   --coal: #0e0d0b;
   --ink: #171511;
@@ -396,6 +396,20 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .pit-boss input { font-variant-numeric: tabular-nums; }
 .pit-boss button { border: 0; padding: 9px 11px; background: var(--fuse-dark); color: var(--bone); cursor: pointer; font-size: 9px; font-weight: 700; letter-spacing: .08em; }
 .pit-boss button:disabled { cursor: not-allowed; opacity: .62; }
+
+.pit-office { display: grid; gap: 10px; width: 100%; margin-top: 12px; padding: 13px; background: linear-gradient(135deg, rgba(35, 25, 13, .96), rgba(12, 9, 7, .98)); box-shadow: inset 0 0 0 1px rgba(216,168,75,.58), inset 0 2px rgba(255,255,255,.08), 0 12px 28px rgba(0,0,0,.28); }
+.pit-office[hidden] { display: none; }
+.pit-office-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding-bottom: 9px; border-bottom: 1px dashed rgba(216,168,75,.42); }
+.pit-office-head > div { display: grid; gap: 3px; }
+.pit-office-head span { color: var(--brass); font-family: "Bowlby One SC", Impact, sans-serif; font-size: 15px; letter-spacing: .035em; line-height: 1; text-transform: uppercase; }
+.pit-office-head small { color: var(--ash); font-size: 8px; font-weight: 700; letter-spacing: .1em; line-height: 1.35; }
+.pit-office-head button, .pit-office-link { border: 1px solid rgba(216,168,75,.56); padding: 7px 8px; background: linear-gradient(180deg, #4d3516, #241809); color: #ffecbb; box-shadow: inset 0 1px rgba(255,255,255,.14), inset 0 -2px rgba(0,0,0,.38); cursor: pointer; font-size: 8px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
+.pit-office-head button:active, .pit-office-link:active { transform: translateY(1px) scale(.98); }
+.pit-office-link[hidden] { display: none; }
+.pit-office-copy { margin: -2px 0 1px; color: var(--ash); font-size: 9px; line-height: 1.45; }
+.pit-office .pit-boss, .pit-office .pit-boss-admin { margin-top: 0; }
+.pit-office .pit-boss-admin { min-height: 420px; }
+.cabinet[data-route="pit-boss"] .financial-console, .cabinet[data-route="pit-boss"] .utility-rail, .cabinet[data-route="pit-boss"] .chamber, .cabinet[data-route="pit-boss"] .side-docket, .cabinet[data-route="pit-boss"] .safety-note { display: none; }
 
 .reconnect { width: 100%; margin: 9px auto 0; display: none; border: 1px solid rgba(225,59,50,.7); padding: 9px 11px; background: repeating-linear-gradient(-45deg, #2d1110 0 7px, #421713 7px 14px); color: #ffd5b9; box-shadow: inset 0 1px rgba(255,255,255,.12), inset 0 -2px rgba(0,0,0,.44); cursor: pointer; font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 .reconnect.is-visible { display: block; }
