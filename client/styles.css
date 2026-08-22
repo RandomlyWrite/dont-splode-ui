@@ -536,8 +536,9 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .degen-copy { margin: 0 8px 10px; color: #685237; font-size: 11px; font-style: italic; line-height: 1.35; text-align: center; }
 .degen-steps { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
 .degen-steps li:not(.degen-arrow) { display: grid; grid-template-columns: 57px 1fr; gap: 10px; align-items: center; min-height: 65px; padding: 8px 10px; background: rgba(255,252,233,.58); box-shadow: inset 0 0 0 1px rgba(84,50,19,.22); clip-path: polygon(0 6px, 8px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 8px) 100%, 0 100%); }
-.degen-icon { display: grid; width: 49px; aspect-ratio: 1; place-items: center; background: #1b1711; color: #d4a750; box-shadow: inset 0 0 0 2px #b6883c, 3px 3px 0 rgba(75,39,15,.18); font-size: 29px; line-height: 1; }
-.degen-icon.degen-bomb { background: #7f2822; color: #fff2c8; box-shadow: inset 0 0 0 2px #c74c3c, 3px 3px 0 rgba(75,39,15,.18); }
+.degen-icon { display: grid; width: 49px; aspect-ratio: 1; place-items: center; background: transparent; box-shadow: none; font-size: 0; line-height: 1; }
+.degen-icon img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.degen-icon.degen-bomb { background: transparent; box-shadow: none; }
 .degen-steps b { display: block; color: #2d2115; font-family: "Bowlby One SC", Impact, sans-serif; font-size: 17px; line-height: .98; letter-spacing: .01em; }
 .degen-steps small { display: block; margin-top: 4px; color: #7a6040; font-size: 9px; font-weight: 700; letter-spacing: .07em; }
 .degen-arrow { height: 22px; color: #9c3028; font-family: "Bowlby One SC", Impact, sans-serif; font-size: 26px; line-height: .65; text-align: center; text-shadow: 1px 1px 0 rgba(255,255,255,.4); animation: degen-arrow-nag 1.12s cubic-bezier(.2,.8,.3,1) infinite; }
