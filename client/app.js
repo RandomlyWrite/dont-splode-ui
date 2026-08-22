@@ -223,9 +223,9 @@ class SFXEngine {
           <button class="briefing-dismiss" id="briefing-dismiss" type="button">UNDERSTOOD. OPEN THE CABINET <span aria-hidden="true">→</span></button>
           </section>
           <section class="degen-guide" id="briefing-degen-panel" role="tabpanel" aria-labelledby="briefing-degen" hidden>
-            <p class="degen-kicker">ATTENTION SPAN: FUSE-LENGTH.</p><h2>DEGEN<br>MODE</h2><p class="degen-copy">Too many words? Fine. Here is the crime in pictures.</p>
-            <ol class="degen-steps"><li><span class="degen-icon" aria-hidden="true">◉</span><div><b>GET CHIPS</b><small>DAILY CACHE. 250.</small></div></li><li class="degen-arrow" aria-hidden="true">↓</li><li><span class="degen-icon" aria-hidden="true">✍</span><div><b>SIGN WAIVER</b><small>PAY 100. JOIN.</small></div></li><li class="degen-arrow" aria-hidden="true">↓</li><li><span class="degen-icon degen-bomb" aria-hidden="true">💣</span><div><b>HOLD? PASS.</b><small>DON’T HOLD. SPLODE.</small></div></li></ol>
-            <p class="degen-footnote">YOU READ THREE BOXES. PLEASE REST.</p><button class="briefing-dismiss degen-dismiss" id="degen-dismiss" type="button">YES. I AM READY TO MAKE THIS WORSE <span aria-hidden="true">→</span></button>
+            <p class="degen-kicker">ATTENTION SPAN: ADHD AT BEST.</p><h2>DEGEN<br>MODE</h2><p class="degen-copy">Too many words? Fine. Wut do in pictures.</p>
+            <ol class="degen-steps"><li><span class="degen-icon" aria-hidden="true">◉</span><div><b>PUSH BUTTON.</b><small>GET DAILY. 250.</small></div></li><li class="degen-arrow" aria-hidden="true">↓</li><li><span class="degen-icon" aria-hidden="true">✍</span><div><b>PUSH OTHER BUTTON</b><small>PAY 100 CHIPS. JOIN ROUND.</small></div></li><li class="degen-arrow" aria-hidden="true">↓</li><li><span class="degen-icon degen-bomb" aria-hidden="true">💣</span><div><b>PASSING BOMB WILL<br>COST YOU A LITTLE</b><small>SPLODING WILL COST YOU EVERYTHING.</small></div></li></ol>
+            <p class="degen-footnote">IF EVERYONE AFTER 3 JOINED PLAYERS HOLD LIGHT IT UP SIMULTANEOUSLY, ROUND WILL START INSTANTLY. OTHERWISE WAIT FOR TIMER TO BEGIN.</p><button class="briefing-dismiss degen-dismiss" id="degen-dismiss" type="button">YES. I AM READY TO MAKE THIS WORSE <span aria-hidden="true">→</span></button>
           </section>
         </article>
       </section>
