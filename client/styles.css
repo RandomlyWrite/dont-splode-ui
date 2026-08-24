@@ -479,6 +479,12 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .pit-adjustment input[placeholder] { grid-column: 1 / -1; }
 .pit-adjustment button { grid-column: 1 / -1; background: var(--fuse-dark); }
 .pit-adjustment button:disabled { cursor: not-allowed; opacity: .6; }
+.pit-delete-player { display: grid; gap: 6px; margin: 10px 0; padding: 8px; border: 1px solid rgba(225,59,50,.52); background: linear-gradient(145deg, rgba(83,18,14,.38), rgba(14,8,7,.82)); }
+.pit-delete-player legend { padding: 0 4px; color: #ff837c; font-size: 8px; font-weight: 700; letter-spacing: .1em; }
+.pit-delete-player p { margin: 0 0 2px; color: var(--ash); font-size: 8px; line-height: 1.4; }
+.pit-delete-player input[placeholder] { width: 100%; box-sizing: border-box; }
+.pit-delete-player button { background: linear-gradient(180deg, #a12d25, #681814); color: #fff0d5; }
+.pit-delete-player button:disabled { cursor: not-allowed; opacity: .62; }
 .pit-master-reset { display: grid; gap: 6px; margin: 10px 0; padding: 8px; border: 1px solid rgba(225,59,50,.52); background: linear-gradient(145deg, rgba(83,18,14,.38), rgba(14,8,7,.82)); }
 .pit-master-reset legend { padding: 0 4px; color: #ff837c; font-size: 8px; font-weight: 700; letter-spacing: .1em; }
 .pit-master-reset p { margin: 0 0 2px; color: var(--ash); font-size: 8px; line-height: 1.4; }
