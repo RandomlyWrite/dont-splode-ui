@@ -313,6 +313,19 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .latest-ticket-stats div:first-child dd { color: var(--brass); }
 
 /* Brass-Hinge Calamity — the public Hall of Survivors is a soot-dark rank docket, not a generic data table. */
+/* Focus mode: hide the leaderboard and season archive while a round is
+   actually live (running/intermission). Nothing here changed how or when
+   they're populated -- they were just permanently rendered before, stacked
+   right under the bomb, competing for attention with the multiplier, pot,
+   and wallet while a player is mid-round and stressed about all three.
+   They reappear the instant the round ends or the lobby reopens. */
+.chamber[data-phase="running"] .leaderboard,
+.chamber[data-phase="running"] .season-archive,
+.chamber[data-phase="intermission"] .leaderboard,
+.chamber[data-phase="intermission"] .season-archive {
+  display: none;
+}
+
 .leaderboard { position: relative; z-index: 1; margin: 17px 11px 0; padding: 9px; background: linear-gradient(145deg, #1a1510, #0b0907 62%); color: var(--paper); box-shadow: inset 0 1px rgba(255,255,255,.07), inset 0 0 0 1px rgba(216,168,75,.27), inset 0 -9px rgba(0,0,0,.17), 0 5px 0 rgba(0,0,0,.16); clip-path: polygon(0 6px, 7px 0, calc(100% - 7px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 6px)); }
 .leaderboard-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 .leaderboard-head > div { display: grid; gap: 3px; min-width: 0; }
@@ -364,6 +377,28 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .reaction-rail button:active:not(:disabled) { transform: translateY(2px) scale(.95); }
 .reaction-rail button:disabled { cursor: wait; filter: grayscale(.25); opacity: .55; }
 .reaction-rail small { color: var(--ash); font-size: 7px; font-weight: 700; letter-spacing: .07em; line-height: 1.35; text-transform: uppercase; }
+.taunt-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; margin-top: 6px; }
+.taunt-row[hidden] { display: none; }
+.taunt-row button { min-height: 30px; border: 1px solid rgba(225,59,50,.4); background: linear-gradient(180deg, #3a1712, #170907); color: #ffdbd2; box-shadow: inset 0 1px rgba(255,255,255,.1), 0 2px rgba(0,0,0,.32); cursor: pointer; font-size: 8px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; transition: transform 140ms var(--ease-out), filter 140ms var(--ease-out); }
+.taunt-row button:hover:not(:disabled) { filter: brightness(1.2); }
+.taunt-row button:active:not(:disabled) { transform: translateY(2px) scale(.95); }
+.taunt-row button:disabled { cursor: wait; filter: grayscale(.3); opacity: .5; }
+.reaction-burst span.is-ghost { filter: grayscale(1) brightness(1.3) opacity(.75); }
+.message-board.is-taunt { color: var(--fuse); font-weight: 700; }
+
+.leave-lobby { width: 100%; min-height: 34px; margin-top: 8px; border: 1px solid rgba(216,168,75,.28); padding: 8px 13px 7px; background: linear-gradient(180deg, #241f18, #14110c); color: var(--ash); box-shadow: inset 0 1px rgba(255,255,255,.06); cursor: pointer; font-size: 9px; font-weight: 700; letter-spacing: .1em; text-align: center; text-transform: uppercase; transition: color 150ms var(--ease-out), filter 150ms var(--ease-out); }
+.leave-lobby:hover:not(:disabled) { color: var(--fuse); filter: brightness(1.14); }
+.leave-lobby:disabled { cursor: wait; opacity: .55; }
+.leave-lobby[hidden] { display: none; }
+
+.predict-survivor { display: grid; gap: 6px; margin-top: 10px; padding: 9px 10px; background: #16120d; box-shadow: inset 0 1px rgba(255,255,255,.08), inset 0 0 0 1px rgba(216,168,75,.32); }
+.predict-survivor[hidden] { display: none; }
+.predict-survivor > span { color: var(--brass); font-size: 8px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+.predict-controls { display: grid; grid-template-columns: 1fr auto; gap: 6px; }
+.predict-controls select { min-height: 32px; border: 1px solid rgba(216,168,75,.32); background: #1e1811; color: var(--paper); font-size: 10px; padding: 0 8px; }
+.predict-controls button { min-height: 32px; border: 1px solid rgba(216,168,75,.4); background: linear-gradient(180deg, #403016, #181108); color: var(--brass); cursor: pointer; font-size: 9px; font-weight: 700; letter-spacing: .08em; padding: 0 12px; text-transform: uppercase; }
+.predict-controls button:disabled { cursor: wait; opacity: .55; }
+.predict-survivor small { color: var(--ash); font-size: 7px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 .action-button { width: 100%; min-height: 66px; border: 0; padding: 14px 58px 14px 31px; position: relative; background: linear-gradient(180deg, #f25549, var(--fuse)); color: #fff9e8; box-shadow: inset 0 2px rgba(255,255,255,.22), inset 0 -5px var(--fuse-dark), 0 10px 0 rgba(0,0,0,.32), 0 16px 30px rgba(0,0,0,.24); cursor: pointer; font-family: "Bowlby One SC", Impact, sans-serif; font-size: clamp(15px, 4.4vw, 18px); letter-spacing: .025em; line-height: 1.05; text-align: left; text-shadow: 1px 2px 0 rgba(87,17,11,.45); transition: transform 150ms var(--ease-out), filter 150ms var(--ease-out), background 180ms var(--ease-out); clip-path: polygon(0 9px, 9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px)); }
 .action-button::before { content: ""; position: absolute; left: 11px; top: 10px; bottom: 10px; width: 8px; background: linear-gradient(90deg, #6b4616, var(--brass), #fff0ae, var(--brass), #6b4616); box-shadow: 1px 0 rgba(0,0,0,.42), inset 1px 0 rgba(255,255,255,.3); }
 .action-button::after { content: "↯"; position: absolute; right: 19px; top: 50%; transform: translateY(-53%); color: #ffe0ae; font-family: "IBM Plex Mono", monospace; font-size: 31px; font-weight: 700; }

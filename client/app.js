@@ -186,7 +186,7 @@ class SFXEngine {
           <section class="leaderboard" id="leaderboard" aria-labelledby="leaderboard-title"><header class="leaderboard-head"><div><span id="leaderboard-title">HALL OF SURVIVORS</span><small id="leaderboard-count">OPENING THE FILES…</small></div><span class="leaderboard-stamp" id="leaderboard-stamp">ALL TIME</span></header><div class="leaderboard-scope" id="leaderboard-scope" role="group" aria-label="Leaderboard scope"><button id="leaderboard-global" type="button" aria-pressed="true">ALL CABINETS</button><button id="leaderboard-group" type="button" aria-pressed="false" hidden>YOUR GROUP</button></div><div class="leaderboard-tabs" role="tablist" aria-label="Leaderboard view"><button id="leaderboard-competitive" type="button" role="tab" aria-selected="true" aria-controls="leaderboard-list" data-view="competitive">COMPETITIVE RECORD</button><button id="leaderboard-chips" type="button" role="tab" aria-selected="false" aria-controls="leaderboard-list" data-view="chips">CHIP STACK</button></div><p class="leaderboard-copy" id="leaderboard-copy">Final survivals first. Cumulative virtual pots break the tie.</p><ol class="leaderboard-list" id="leaderboard-list" aria-live="polite"><li class="leaderboard-empty">The cabinet has not crowned a survivor yet.</li></ol><div class="leaderboard-viewer" id="leaderboard-viewer" hidden></div></section><section class="season-archive" id="season-archive" aria-labelledby="season-archive-title" hidden><header><div><span id="season-archive-title">WEEKLY ASH ARCHIVE</span><small id="season-week">GROUP CARD REQUIRED</small></div><button id="season-refresh" type="button">OPEN FILE</button></header><p id="season-current">Open from a registered group card to inspect its current weekly survivors.</p><ol id="season-history"></ol></section>
         </section>
         <aside class="side-docket" aria-label="Game information"></aside>
-        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>SUMMON FRESH VICTIMS <span aria-hidden="true">↗</span></button><p class="invite-status" id="invite-status" role="status" hidden></p><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><section class="pit-boss" id="pit-boss" hidden aria-label="Pit Boss controls"><span>PIT BOSS CHIP DRAWER <small>LIVE LOBBY / +1–10,000 ◉</small></span><select id="pit-target" aria-label="Choose a live lobby player to receive virtual chips"></select><input id="pit-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Virtual chips to grant" /><button id="pit-grant" type="button">ISSUE</button></section><section class="pit-boss-admin" id="pit-boss-admin" hidden aria-label="Pit Boss persistent ledger"><header><span>CABINET LEDGER</span><button id="pit-ledger-refresh" type="button">REFRESH</button></header><div class="pit-admin-tools"><div class="pit-admin-search"><input id="pit-profile-search" type="search" placeholder="Search name or @handle" aria-label="Search persistent player profiles by name or public handle" aria-describedby="pit-profile-count" /><button id="pit-profile-search-button" type="button">FIND</button></div><label class="pit-sort-control" for="pit-profile-sort"><span>SORT FILES</span><select id="pit-profile-sort" aria-label="Sort persistent player profiles"><option value="balance_desc">MOST CHIPS</option><option value="balance_asc">LEAST CHIPS</option><option value="recent">RECENT ACTIVITY</option><option value="matches_desc">MOST MATCHES</option><option value="name_asc">NAME A–Z</option></select></label></div><p class="pit-profile-count" id="pit-profile-count" aria-live="polite">Awaiting cabinet files…</p><select id="pit-profile" aria-label="Choose a persistent player profile"></select><p class="pit-profile-summary" id="pit-profile-summary">Opening the cabinet files…</p><ol class="pit-ledger-list" id="pit-ledger-list"></ol><fieldset class="pit-adjustment"><legend>PERMANENT CHIP EDIT</legend><select id="pit-adjust-direction" aria-label="Choose whether to add or remove virtual chips"><option value="add">ADD CHIPS</option><option value="remove">REMOVE CHIPS</option></select><input id="pit-adjust-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Whole virtual chip adjustment amount" /><input id="pit-adjust-reason" type="text" maxlength="96" placeholder="Reason for this edit" aria-label="Reason for persistent chip adjustment" /><button id="pit-adjust-submit" type="button">STAMP LEDGER</button></fieldset><fieldset class="pit-master-reset"><legend>MASTER CHIP RESET</legend><p>RESTORES EVERY KNOWN STACK TO 500 ◉. SURVIVAL RECORDS STAY ON FILE.</p><input id="pit-master-confirm" type="text" maxlength="32" placeholder="Type RESET ALL CHIPS" aria-label="Type RESET ALL CHIPS to confirm master virtual-chip reset" /><input id="pit-master-reason" type="text" maxlength="96" placeholder="Audit reason for master reset" aria-label="Reason for master virtual-chip reset" /><button id="pit-master-reset" type="button">RESET ALL STACKS TO 500 ◉</button></fieldset><section class="pit-groups"><span>REGISTERED GROUPS</span><ul id="pit-group-list"></ul><small>Use <b>/register_dont_splode</b> inside a Telegram group to put it on file.</small></section></section><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
+        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="leave-lobby" id="leave-lobby" type="button" hidden>LEAVE — REFUND 100 ◉</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>SUMMON FRESH VICTIMS <span aria-hidden="true">↗</span></button><section class="predict-survivor" id="predict-survivor" hidden aria-label="Predict the survivor"><span>🔮 PREDICT THE SURVIVOR</span><div class="predict-controls"><select id="predict-select" aria-label="Choose who you think will survive"></select><button id="predict-submit" type="button">LOCK IT IN</button></div><small id="predict-status" role="status"></small></section><p class="invite-status" id="invite-status" role="status" hidden></p><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><section class="pit-boss" id="pit-boss" hidden aria-label="Pit Boss controls"><span>PIT BOSS CHIP DRAWER <small>LIVE LOBBY / +1–10,000 ◉</small></span><select id="pit-target" aria-label="Choose a live lobby player to receive virtual chips"></select><input id="pit-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Virtual chips to grant" /><button id="pit-grant" type="button">ISSUE</button></section><section class="pit-boss-admin" id="pit-boss-admin" hidden aria-label="Pit Boss persistent ledger"><header><span>CABINET LEDGER</span><button id="pit-ledger-refresh" type="button">REFRESH</button></header><div class="pit-admin-tools"><div class="pit-admin-search"><input id="pit-profile-search" type="search" placeholder="Search name or @handle" aria-label="Search persistent player profiles by name or public handle" aria-describedby="pit-profile-count" /><button id="pit-profile-search-button" type="button">FIND</button></div><label class="pit-sort-control" for="pit-profile-sort"><span>SORT FILES</span><select id="pit-profile-sort" aria-label="Sort persistent player profiles"><option value="balance_desc">MOST CHIPS</option><option value="balance_asc">LEAST CHIPS</option><option value="recent">RECENT ACTIVITY</option><option value="matches_desc">MOST MATCHES</option><option value="name_asc">NAME A–Z</option></select></label></div><p class="pit-profile-count" id="pit-profile-count" aria-live="polite">Awaiting cabinet files…</p><select id="pit-profile" aria-label="Choose a persistent player profile"></select><p class="pit-profile-summary" id="pit-profile-summary">Opening the cabinet files…</p><ol class="pit-ledger-list" id="pit-ledger-list"></ol><fieldset class="pit-adjustment"><legend>PERMANENT CHIP EDIT</legend><select id="pit-adjust-direction" aria-label="Choose whether to add or remove virtual chips"><option value="add">ADD CHIPS</option><option value="remove">REMOVE CHIPS</option></select><input id="pit-adjust-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Whole virtual chip adjustment amount" /><input id="pit-adjust-reason" type="text" maxlength="96" placeholder="Reason for this edit" aria-label="Reason for persistent chip adjustment" /><button id="pit-adjust-submit" type="button">STAMP LEDGER</button></fieldset><fieldset class="pit-master-reset"><legend>MASTER CHIP RESET</legend><p>RESTORES EVERY KNOWN STACK TO 500 ◉. SURVIVAL RECORDS STAY ON FILE.</p><input id="pit-master-confirm" type="text" maxlength="32" placeholder="Type RESET ALL CHIPS" aria-label="Type RESET ALL CHIPS to confirm master virtual-chip reset" /><input id="pit-master-reason" type="text" maxlength="96" placeholder="Audit reason for master reset" aria-label="Reason for master virtual-chip reset" /><button id="pit-master-reset" type="button">RESET ALL STACKS TO 500 ◉</button></fieldset><section class="pit-groups"><span>REGISTERED GROUPS</span><ul id="pit-group-list"></ul><small>Use <b>/register_dont_splode</b> inside a Telegram group to put it on file.</small></section></section><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
         <p class="safety-note"><strong>Virtual chips only.</strong> This is a theatrical exercise in probability, not financial advice.</p>
       </section>
       <section class="summary-overlay" id="summary-overlay" role="dialog" aria-modal="true" aria-labelledby="summary-title" aria-describedby="summary-copy" hidden>
@@ -238,7 +238,7 @@ class SFXEngine {
   reactionRailNode.id = "reaction-rail";
   reactionRailNode.hidden = true;
   reactionRailNode.setAttribute("aria-label", "Spectator reaction rail");
-  reactionRailNode.innerHTML = '<span>SPECTATOR SHOUTS</span><div><button type="button" data-reaction="👀" aria-label="React with eyes">👀</button><button type="button" data-reaction="🔥" aria-label="React with fire">🔥</button><button type="button" data-reaction="😱" aria-label="React with scream">😱</button><button type="button" data-reaction="💥" aria-label="React with explosion">💥</button><button type="button" data-reaction="🪦" aria-label="React with grave">🪦</button></div><small id="reaction-status" role="status">WATCH ONLY. SHOUT WITHOUT TOUCHING THE FUSE.</small>';
+  reactionRailNode.innerHTML = '<span>SPECTATOR SHOUTS</span><div><button type="button" data-reaction="👀" aria-label="React with eyes">👀</button><button type="button" data-reaction="🔥" aria-label="React with fire">🔥</button><button type="button" data-reaction="😱" aria-label="React with scream">😱</button><button type="button" data-reaction="💥" aria-label="React with explosion">💥</button><button type="button" data-reaction="🪦" aria-label="React with grave">🪦</button></div><small id="reaction-status" role="status">WATCH ONLY. SHOUT WITHOUT TOUCHING THE FUSE.</small><div class="taunt-row" id="taunt-row" hidden><button type="button" data-taunt-id="0">🔥 doubt</button><button type="button" data-taunt-id="1">👀 shaky hands</button><button type="button" data-taunt-id="2">⏳ tick tock</button><button type="button" data-taunt-id="3">🎯 due</button><button type="button" data-taunt-id="4">🍿 good part</button></div>';
   root.querySelector("#action")?.after(reactionRailNode);
 
   const ui = {
@@ -272,6 +272,12 @@ class SFXEngine {
   ui.reconnect.textContent = "JOLT THE ENGINE ROOM";
   ui.reactionRail = root.querySelector("#reaction-rail");
   ui.reactionStatus = root.querySelector("#reaction-status");
+  ui.tauntRow = root.querySelector("#taunt-row");
+  ui.leaveLobby = root.querySelector("#leave-lobby");
+  ui.predictSection = root.querySelector("#predict-survivor");
+  ui.predictSelect = root.querySelector("#predict-select");
+  ui.predictSubmit = root.querySelector("#predict-submit");
+  ui.predictStatus = root.querySelector("#predict-status");
 
   ui.mascot.addEventListener("error", () => ui.stage.classList.add("fallback"));
   ui.eliminationBoard = root.querySelector("#elimination-board");
@@ -285,6 +291,8 @@ class SFXEngine {
   ui.action.addEventListener("keydown", (event) => { if (event.key === " " || event.key === "Enter") startIgnitionHold(event); });
   ui.action.addEventListener("keyup", (event) => { if (event.key === " " || event.key === "Enter") stopIgnitionHold(event); });
   ui.dailyClaim.addEventListener("click", claimDailyChips);
+  ui.leaveLobby.addEventListener("click", handleLeaveLobby);
+  ui.predictSubmit.addEventListener("click", handlePredictSubmit);
   ui.pitOfficeLink.addEventListener("click", () => setAppRoute("pit-boss"));
   ui.pitOfficeReturn.addEventListener("click", () => setAppRoute("game"));
   ui.pitGrant.addEventListener("click", grantPitBossChips);
@@ -302,6 +310,7 @@ class SFXEngine {
   ui.leaderboardCompetitive.addEventListener("click", () => selectLeaderboardView("competitive"));
   ui.leaderboardChips.addEventListener("click", () => selectLeaderboardView("chips"));
   root.querySelectorAll("[data-reaction]").forEach((button) => button.addEventListener("click", () => sendSpectatorReaction(button.dataset.reaction)));
+  root.querySelectorAll("[data-taunt-id]").forEach((button) => button.addEventListener("click", () => sendTaunt(Number(button.dataset.tauntId))));
   ui.invite.addEventListener("click", inviteVictims);
   ui.soundToggle.addEventListener("click", toggleSfx);
   ui.briefingToggle.addEventListener("click", () => openBriefing());
@@ -838,19 +847,79 @@ class SFXEngine {
     try { socket.send(JSON.stringify({ action: "season_archive" })); } catch { ui.seasonRefresh.disabled = false; ui.seasonRefresh.textContent = "OPEN FILE"; }
   }
 
+  function isLocalGhost() {
+    const eliminated = Array.isArray(state?.eliminated_players) ? state.eliminated_players : [];
+    return eliminated.some((player) => String(player.id) === identity.id);
+  }
+
   function sendSpectatorReaction(reaction) {
     const phase = state?.phase;
-    if (!spectatorMode || !["running", "intermission"].includes(phase) || !reaction || !socket || socket.readyState !== WebSocket.OPEN) return;
+    const eligible = spectatorMode || isLocalGhost();
+    if (!eligible || !["running", "intermission"].includes(phase) || !reaction || !socket || socket.readyState !== WebSocket.OPEN) return;
     ui.reactionStatus.textContent = "THE CABINET HEARD THAT.";
     root.querySelectorAll("[data-reaction]").forEach((button) => { button.disabled = true; });
     try { socket.send(JSON.stringify({ action: "spectator_reaction", reaction })); } catch { ui.reactionStatus.textContent = "REACTION RAIL LOST ITS WIRING."; }
     window.setTimeout(() => root.querySelectorAll("[data-reaction]").forEach((button) => { button.disabled = false; }), 1850);
   }
 
-  function showSpectatorReaction(reaction) {
+  function sendTaunt(tauntId) {
+    const eligible = spectatorMode || isLocalGhost();
+    if (!eligible || state?.phase !== "running" || !Number.isFinite(tauntId) || !socket || socket.readyState !== WebSocket.OPEN) return;
+    root.querySelectorAll("[data-taunt-id]").forEach((button) => { button.disabled = true; });
+    try { socket.send(JSON.stringify({ action: "taunt", taunt_id: tauntId })); } catch {}
+    window.setTimeout(() => root.querySelectorAll("[data-taunt-id]").forEach((button) => { button.disabled = false; }), 3050);
+  }
+
+  function showTaunt(text) {
+    if (!text || !ui.message) return;
+    const previous = ui.message.textContent;
+    ui.message.textContent = text;
+    ui.message.classList.add("is-taunt");
+    window.setTimeout(() => { ui.message.classList.remove("is-taunt"); if (ui.message.textContent === text) ui.message.textContent = previous; }, 2400);
+  }
+
+  function handleLeaveLobby() {
+    if (!socket || socket.readyState !== WebSocket.OPEN || state?.phase !== "lobby") return;
+    ui.leaveLobby.disabled = true;
+    try { socket.send(JSON.stringify({ action: "leave_lobby" })); } catch {}
+    window.setTimeout(() => { ui.leaveLobby.disabled = false; }, 1200);
+  }
+
+  function renderPredictSurvivor() {
+    const players = Array.isArray(state?.players) ? state.players : [];
+    const phase = state?.phase || "lobby";
+    const isInLobby = players.some((player) => String(player.id) === identity.id);
+    const available = phase === "lobby" && players.length >= 2;
+    ui.predictSection.hidden = !available;
+    if (!available) return;
+    const previousValue = ui.predictSelect.value;
+    ui.predictSelect.replaceChildren();
+    players.forEach((player) => {
+      const option = document.createElement("option");
+      option.value = String(player.id);
+      option.textContent = player.name || "Anonymous troublemaker";
+      ui.predictSelect.append(option);
+    });
+    if (previousValue && players.some((player) => String(player.id) === previousValue)) ui.predictSelect.value = previousValue;
+    ui.predictSubmit.disabled = false;
+    if (!isInLobby) ui.predictStatus.textContent = "Spectators can call it too.";
+  }
+
+  function handlePredictSubmit() {
+    if (!socket || socket.readyState !== WebSocket.OPEN || state?.phase !== "lobby") return;
+    const predictedPlayerId = ui.predictSelect.value;
+    if (!predictedPlayerId) return;
+    ui.predictSubmit.disabled = true;
+    ui.predictStatus.textContent = "LOCKING IT IN…";
+    try { socket.send(JSON.stringify({ action: "predict_survivor", predicted_player_id: predictedPlayerId })); }
+    catch { ui.predictSubmit.disabled = false; ui.predictStatus.textContent = "Prediction rail lost its wiring."; }
+  }
+
+  function showSpectatorReaction(reaction, isGhost) {
     if (!reaction || !ui.reactionBurst) return;
     const stamp = document.createElement("span");
     stamp.textContent = reaction;
+    if (isGhost) stamp.classList.add("is-ghost");
     stamp.style.setProperty("--mid-drift", `${Math.round((Math.random() * 42) - 21)}px`);
     stamp.style.setProperty("--drift", `${Math.round((Math.random() * 118) - 59)}px`);
     const rise = Math.round(128 + (Math.random() * 58));
@@ -943,6 +1012,8 @@ class SFXEngine {
     renderSeasonArchive();
     if (event?.type === "season_archive") { ui.seasonRefresh.disabled = false; ui.seasonRefresh.textContent = "OPEN FILE"; }
     if (event?.type === "reset") closeRoundSummary();
+    if (event?.type === "prediction_locked") { ui.predictStatus.textContent = "CALL LOCKED IN. NO TAKEBACKS."; }
+    if (event?.type === "action_rejected" && ui.predictSubmit) ui.predictSubmit.disabled = false;
 
     if (event?.type === "action_rejected" || isInLobby || phase !== "lobby") actionPending = false;
 
@@ -950,9 +1021,12 @@ class SFXEngine {
     ui.action.disabled = actionPending;
     ui.invite.hidden = phase !== "lobby";
     ui.degenLobby.hidden = phase !== "lobby";
-    const reactionsAvailable = spectatorMode && ["running", "intermission"].includes(phase);
+    const reactionsAvailable = (spectatorMode || locallyEliminated) && ["running", "intermission"].includes(phase);
     ui.reactionRail.hidden = !reactionsAvailable;
     if (reactionsAvailable) ui.reactionStatus.textContent = phase === "running" ? "WATCH ONLY. SHOUT WITHOUT TOUCHING THE FUSE." : "ASH IS SETTLING. MAKE IT TASTELESS.";
+    ui.tauntRow.hidden = !(reactionsAvailable && phase === "running");
+    ui.leaveLobby.hidden = !(phase === "lobby" && isInLobby);
+    renderPredictSurvivor();
     ui.dailyClaim.hidden = !dailyClaim;
     if (dailyClaim) {
       if (event?.type === "daily_claimed" || event?.type === "action_rejected") dailyClaimPending = false;
@@ -1109,7 +1183,8 @@ class SFXEngine {
     socket.addEventListener("message", (message) => {
       try {
         const event = JSON.parse(message.data);
-        if (event?.type === "spectator_reaction") { showSpectatorReaction(event.reaction); return; }
+        if (event?.type === "spectator_reaction") { showSpectatorReaction(event.reaction, Boolean(event.ghost)); return; }
+        if (event?.type === "taunt") { showTaunt(event.text); return; }
         const previousState = state ? { ...state, players: [...(state.players || [])] } : null;
         if (event.state) {
           handleSoundEvent(event, previousState);
