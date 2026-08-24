@@ -186,7 +186,7 @@ class SFXEngine {
           <section class="leaderboard" id="leaderboard" aria-labelledby="leaderboard-title"><header class="leaderboard-head"><div><span id="leaderboard-title">HALL OF SURVIVORS</span><small id="leaderboard-count">OPENING THE FILES…</small></div><span class="leaderboard-stamp" id="leaderboard-stamp">ALL TIME</span></header><div class="leaderboard-scope" id="leaderboard-scope" role="group" aria-label="Leaderboard scope"><button id="leaderboard-global" type="button" aria-pressed="true">ALL CABINETS</button><button id="leaderboard-group" type="button" aria-pressed="false" hidden>YOUR GROUP</button></div><div class="leaderboard-tabs" role="tablist" aria-label="Leaderboard view"><button id="leaderboard-competitive" type="button" role="tab" aria-selected="true" aria-controls="leaderboard-list" data-view="competitive">COMPETITIVE RECORD</button><button id="leaderboard-chips" type="button" role="tab" aria-selected="false" aria-controls="leaderboard-list" data-view="chips">CHIP STACK</button></div><p class="leaderboard-copy" id="leaderboard-copy">Final survivals first. Cumulative virtual pots break the tie.</p><ol class="leaderboard-list" id="leaderboard-list" aria-live="polite"><li class="leaderboard-empty">The cabinet has not crowned a survivor yet.</li></ol><div class="leaderboard-viewer" id="leaderboard-viewer" hidden></div></section><section class="season-archive" id="season-archive" aria-labelledby="season-archive-title" hidden><header><div><span id="season-archive-title">WEEKLY ASH ARCHIVE</span><small id="season-week">GROUP CARD REQUIRED</small></div><button id="season-refresh" type="button">OPEN FILE</button></header><p id="season-current">Open from a registered group card to inspect its current weekly survivors.</p><ol id="season-history"></ol></section>
         </section>
         <aside class="side-docket" aria-label="Game information"></aside>
-        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="leave-lobby" id="leave-lobby" type="button" hidden>LEAVE — REFUND 100 ◉</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>SUMMON FRESH VICTIMS <span aria-hidden="true">↗</span></button><section class="predict-survivor" id="predict-survivor" hidden aria-label="Predict the survivor"><span>🔮 PREDICT THE SURVIVOR</span><div class="predict-controls"><select id="predict-select" aria-label="Choose who you think will survive"></select><button id="predict-submit" type="button">LOCK IT IN</button></div><small id="predict-status" role="status"></small></section><p class="invite-status" id="invite-status" role="status" hidden></p><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><section class="pit-boss" id="pit-boss" hidden aria-label="Pit Boss controls"><span>PIT BOSS CHIP DRAWER <small>LIVE LOBBY / +1–10,000 ◉</small></span><select id="pit-target" aria-label="Choose a live lobby player to receive virtual chips"></select><input id="pit-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Virtual chips to grant" /><button id="pit-grant" type="button">ISSUE</button></section><section class="pit-boss-admin" id="pit-boss-admin" hidden aria-label="Pit Boss persistent ledger"><header><span>CABINET LEDGER</span><button id="pit-ledger-refresh" type="button">REFRESH</button></header><div class="pit-admin-tools"><div class="pit-admin-search"><input id="pit-profile-search" type="search" placeholder="Search name or @handle" aria-label="Search persistent player profiles by name or public handle" aria-describedby="pit-profile-count" /><button id="pit-profile-search-button" type="button">FIND</button></div><label class="pit-sort-control" for="pit-profile-sort"><span>SORT FILES</span><select id="pit-profile-sort" aria-label="Sort persistent player profiles"><option value="balance_desc">MOST CHIPS</option><option value="balance_asc">LEAST CHIPS</option><option value="recent">RECENT ACTIVITY</option><option value="matches_desc">MOST MATCHES</option><option value="name_asc">NAME A–Z</option></select></label></div><p class="pit-profile-count" id="pit-profile-count" aria-live="polite">Awaiting cabinet files…</p><select id="pit-profile" aria-label="Choose a persistent player profile"></select><p class="pit-profile-summary" id="pit-profile-summary">Opening the cabinet files…</p><ol class="pit-ledger-list" id="pit-ledger-list"></ol><fieldset class="pit-adjustment"><legend>PERMANENT CHIP EDIT</legend><select id="pit-adjust-direction" aria-label="Choose whether to add or remove virtual chips"><option value="add">ADD CHIPS</option><option value="remove">REMOVE CHIPS</option></select><input id="pit-adjust-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Whole virtual chip adjustment amount" /><input id="pit-adjust-reason" type="text" maxlength="96" placeholder="Reason for this edit" aria-label="Reason for persistent chip adjustment" /><button id="pit-adjust-submit" type="button">STAMP LEDGER</button></fieldset><fieldset class="pit-delete-player"><legend>ERASE PLAYER RECORD</legend><p>PERMANENTLY DELETES THIS PROFILE'S BALANCE, LEDGER, AND LEADERBOARD ENTRIES. CANNOT BE UNDONE.</p><input id="pit-delete-confirm" type="text" maxlength="32" placeholder="Type ERASE PLAYER RECORD" aria-label="Type ERASE PLAYER RECORD to confirm deletion" /><input id="pit-delete-reason" type="text" maxlength="96" placeholder="Audit reason for deletion" aria-label="Reason for player record deletion" /><button id="pit-delete-player" type="button">ERASE THIS PLAYER'S RECORD</button></fieldset><fieldset class="pit-master-reset"><legend>MASTER CHIP RESET</legend><p>RESTORES EVERY KNOWN STACK TO 500 ◉. SURVIVAL RECORDS STAY ON FILE.</p><input id="pit-master-confirm" type="text" maxlength="32" placeholder="Type RESET ALL CHIPS" aria-label="Type RESET ALL CHIPS to confirm master virtual-chip reset" /><input id="pit-master-reason" type="text" maxlength="96" placeholder="Audit reason for master reset" aria-label="Reason for master virtual-chip reset" /><button id="pit-master-reset" type="button">RESET ALL STACKS TO 500 ◉</button></fieldset><section class="pit-groups"><span>REGISTERED GROUPS</span><ul id="pit-group-list"></ul><small>Use <b>/register_dont_splode</b> inside a Telegram group to put it on file.</small></section></section><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
+        <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="leave-lobby" id="leave-lobby" type="button" hidden>LEAVE — REFUND 100 ◉</button><button class="lobby-invite" id="lobby-invite" type="button" hidden>SUMMON FRESH VICTIMS <span aria-hidden="true">↗</span></button><section class="predict-survivor" id="predict-survivor" hidden aria-label="Predict the survivor"><span>🔮 PREDICT THE SURVIVOR</span><div class="predict-controls"><select id="predict-select" aria-label="Choose who you think will survive"></select><button id="predict-submit" type="button">LOCK IT IN</button></div><small id="predict-status" role="status"></small></section><p class="invite-status" id="invite-status" role="status" hidden></p><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><section class="pit-boss" id="pit-boss" hidden aria-label="Pit Boss controls"><span>PIT BOSS CHIP DRAWER <small>LIVE LOBBY / +1–10,000 ◉</small></span><select id="pit-target" aria-label="Choose a live lobby player to receive virtual chips"></select><input id="pit-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Virtual chips to grant" /><button id="pit-grant" type="button">ISSUE</button></section><section class="pit-boss-admin" id="pit-boss-admin" hidden aria-label="Pit Boss persistent ledger"><header><span>CABINET LEDGER</span><button id="pit-ledger-refresh" type="button">REFRESH</button></header><div class="pit-admin-tools"><div class="pit-admin-search"><input id="pit-profile-search" type="search" placeholder="Search name or @handle" aria-label="Search persistent player profiles by name or public handle" aria-describedby="pit-profile-count" /><button id="pit-profile-search-button" type="button">FIND</button></div><label class="pit-sort-control" for="pit-profile-sort"><span>SORT FILES</span><select id="pit-profile-sort" aria-label="Sort persistent player profiles"><option value="balance_desc">MOST CHIPS</option><option value="balance_asc">LEAST CHIPS</option><option value="recent">RECENT ACTIVITY</option><option value="matches_desc">MOST MATCHES</option><option value="name_asc">NAME A–Z</option></select></label></div><p class="pit-profile-count" id="pit-profile-count" aria-live="polite">Awaiting cabinet files…</p><select id="pit-profile" aria-label="Choose a persistent player profile"></select><p class="pit-profile-summary" id="pit-profile-summary">Opening the cabinet files…</p><p class="pit-office-status" id="pit-office-status" role="status" aria-live="polite"></p><ol class="pit-ledger-list" id="pit-ledger-list"></ol><fieldset class="pit-adjustment"><legend>PERMANENT CHIP EDIT</legend><select id="pit-adjust-direction" aria-label="Choose whether to add or remove virtual chips"><option value="add">ADD CHIPS</option><option value="remove">REMOVE CHIPS</option></select><input id="pit-adjust-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Whole virtual chip adjustment amount" /><input id="pit-adjust-reason" type="text" maxlength="96" placeholder="Reason for this edit" aria-label="Reason for persistent chip adjustment" /><button id="pit-adjust-submit" type="button">STAMP LEDGER</button></fieldset><fieldset class="pit-delete-player"><legend>ERASE PLAYER RECORD</legend><p>PERMANENTLY DELETES THIS PROFILE'S BALANCE, LEDGER, AND LEADERBOARD ENTRIES. CANNOT BE UNDONE.</p><input id="pit-delete-confirm" type="text" maxlength="32" placeholder="Type ERASE PLAYER RECORD" aria-label="Type ERASE PLAYER RECORD to confirm deletion" /><input id="pit-delete-reason" type="text" maxlength="96" placeholder="Audit reason for deletion" aria-label="Reason for player record deletion" /><button id="pit-delete-player" type="button">ERASE THIS PLAYER'S RECORD</button></fieldset><fieldset class="pit-delete-all"><legend>⚠ ERASE ALL PLAYER RECORDS</legend><p>PERMANENTLY DELETES EVERY PLAYER'S BALANCE, LEDGER, AND LEADERBOARD ENTRY. LOCKED UNTIL THE LOBBY IS EMPTY. CANNOT BE UNDONE.</p><input id="pit-delete-all-confirm" type="text" maxlength="32" placeholder="Type ERASE ALL PLAYER RECORDS" aria-label="Type ERASE ALL PLAYER RECORDS to confirm" /><input id="pit-delete-all-reason" type="text" maxlength="96" placeholder="Audit reason for full erasure" aria-label="Reason for erasing every player record" /><button id="pit-delete-all-players" type="button">ERASE EVERY PLAYER'S RECORD</button></fieldset><fieldset class="pit-master-reset"><legend>MASTER CHIP RESET</legend><p>RESTORES EVERY KNOWN STACK TO 500 ◉. SURVIVAL RECORDS STAY ON FILE.</p><input id="pit-master-confirm" type="text" maxlength="32" placeholder="Type RESET ALL CHIPS" aria-label="Type RESET ALL CHIPS to confirm master virtual-chip reset" /><input id="pit-master-reason" type="text" maxlength="96" placeholder="Audit reason for master reset" aria-label="Reason for master virtual-chip reset" /><button id="pit-master-reset" type="button">RESET ALL STACKS TO 500 ◉</button></fieldset><section class="pit-groups"><span>REGISTERED GROUPS</span><ul id="pit-group-list"></ul><small>Use <b>/register_dont_splode</b> inside a Telegram group to put it on file.</small></section></section><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
         <p class="safety-note"><strong>Virtual chips only.</strong> This is a theatrical exercise in probability, not financial advice.</p>
       </section>
       <section class="summary-overlay" id="summary-overlay" role="dialog" aria-modal="true" aria-labelledby="summary-title" aria-describedby="summary-copy" hidden>
@@ -252,6 +252,10 @@ class SFXEngine {
   ui.pitDeleteConfirm = root.querySelector("#pit-delete-confirm");
   ui.pitDeleteReason = root.querySelector("#pit-delete-reason");
   ui.pitDeletePlayer = root.querySelector("#pit-delete-player");
+  ui.pitOfficeStatus = root.querySelector("#pit-office-status");
+  ui.pitDeleteAllConfirm = root.querySelector("#pit-delete-all-confirm");
+  ui.pitDeleteAllReason = root.querySelector("#pit-delete-all-reason");
+  ui.pitDeleteAllPlayers = root.querySelector("#pit-delete-all-players");
   ui.briefingDegen = root.querySelector("#briefing-degen");
   ui.briefingFullPanel = root.querySelector("#briefing-full-panel");
   ui.briefingDegenPanel = root.querySelector("#briefing-degen-panel");
@@ -307,6 +311,7 @@ class SFXEngine {
   ui.pitProfile.addEventListener("change", () => requestPitBossDashboard(ui.pitProfile.value, ui.pitProfileSearch.value, ui.pitProfileSort.value));
   ui.pitAdjustSubmit.addEventListener("click", adjustPersistentBalance);
   ui.pitDeletePlayer.addEventListener("click", deletePlayerRecord);
+  ui.pitDeleteAllPlayers.addEventListener("click", deleteAllPlayerRecords);
   ui.pitMasterReset.addEventListener("click", masterResetVirtualChips);
   ui.leaderboardGlobal.addEventListener("click", () => selectLeaderboardScope("global"));
   ui.leaderboardGroup.addEventListener("click", () => selectLeaderboardScope("group"));
@@ -636,29 +641,45 @@ class SFXEngine {
     try { socket.send(JSON.stringify({ action: "pit_boss_dashboard", profile_ref: profileRef, search, sort })); } catch { pitBossDashboardRequested = false; }
   }
   function adjustPersistentBalance() {
-    if (!isPitBoss || !socket || socket.readyState !== WebSocket.OPEN || !ui.pitProfile.value) return;
+    if (!isPitBoss || !socket || socket.readyState !== WebSocket.OPEN) return;
+    if (!ui.pitProfile.value) { ui.pitOfficeStatus.textContent = "Select a player profile first."; return; }
     const reason = ui.pitAdjustReason.value.trim();
-    if (reason.length < 3) { ui.message.textContent = "Write a short reason before stamping a permanent chip edit."; return; }
+    if (reason.length < 3) { ui.pitOfficeStatus.textContent = "Write a short reason before stamping a permanent chip edit."; return; }
+    ui.pitOfficeStatus.textContent = "";
     ui.pitAdjustSubmit.disabled = true;
     ui.pitAdjustSubmit.textContent = "STAMPING…";
     try { socket.send(JSON.stringify({ action: "pit_boss_adjust", target_ref: ui.pitProfile.value, direction: ui.pitAdjustDirection.value, amount: ui.pitAdjustAmount.value, reason })); } catch { render(state); }
   }
   function deletePlayerRecord() {
-    if (!isPitBoss || !socket || socket.readyState !== WebSocket.OPEN || !ui.pitProfile.value) return;
+    if (!isPitBoss || !socket || socket.readyState !== WebSocket.OPEN) return;
+    if (!ui.pitProfile.value) { ui.pitOfficeStatus.textContent = "Select a player profile first."; return; }
     const confirmation = ui.pitDeleteConfirm.value.trim().toUpperCase();
     const reason = ui.pitDeleteReason.value.trim();
-    if (confirmation !== "ERASE PLAYER RECORD") { ui.message.textContent = "Type ERASE PLAYER RECORD exactly before erasing a player's records."; return; }
-    if (reason.length < 3) { ui.message.textContent = "Write a short reason before erasing a player's records."; return; }
+    if (confirmation !== "ERASE PLAYER RECORD") { ui.pitOfficeStatus.textContent = "Type ERASE PLAYER RECORD exactly before erasing a player's records."; return; }
+    if (reason.length < 3) { ui.pitOfficeStatus.textContent = "Write a short reason before erasing a player's records."; return; }
+    ui.pitOfficeStatus.textContent = "";
     ui.pitDeletePlayer.disabled = true;
     ui.pitDeletePlayer.textContent = "ERASING…";
     try { socket.send(JSON.stringify({ action: "pit_boss_delete_player", target_ref: ui.pitProfile.value, confirmation, reason })); } catch { render(state); }
+  }
+  function deleteAllPlayerRecords() {
+    if (!isPitBoss || !socket || socket.readyState !== WebSocket.OPEN) return;
+    const confirmation = ui.pitDeleteAllConfirm.value.trim().toUpperCase();
+    const reason = ui.pitDeleteAllReason.value.trim();
+    if (confirmation !== "ERASE ALL PLAYER RECORDS") { ui.pitOfficeStatus.textContent = "Type ERASE ALL PLAYER RECORDS exactly before erasing everyone."; return; }
+    if (reason.length < 3) { ui.pitOfficeStatus.textContent = "Write a short reason before erasing every player's records."; return; }
+    ui.pitOfficeStatus.textContent = "";
+    ui.pitDeleteAllPlayers.disabled = true;
+    ui.pitDeleteAllPlayers.textContent = "ERASING EVERYONE…";
+    try { socket.send(JSON.stringify({ action: "pit_boss_delete_all_players", confirmation, reason })); } catch { render(state); }
   }
   function masterResetVirtualChips() {
     if (!isPitBoss || !socket || socket.readyState !== WebSocket.OPEN) return;
     const confirmation = ui.pitMasterConfirm.value.trim().toUpperCase();
     const reason = ui.pitMasterReason.value.trim();
-    if (confirmation !== "RESET ALL CHIPS") { ui.message.textContent = "Type RESET ALL CHIPS exactly before pulling the master reset lever."; return; }
-    if (reason.length < 3) { ui.message.textContent = "Write a short audit reason before resetting every virtual stack."; return; }
+    if (confirmation !== "RESET ALL CHIPS") { ui.pitOfficeStatus.textContent = "Type RESET ALL CHIPS exactly before pulling the master reset lever."; return; }
+    if (reason.length < 3) { ui.pitOfficeStatus.textContent = "Write a short audit reason before resetting every virtual stack."; return; }
+    ui.pitOfficeStatus.textContent = "";
     ui.pitMasterReset.disabled = true;
     ui.pitMasterReset.textContent = "RESETTING CABINET…";
     try { socket.send(JSON.stringify({ action: "pit_boss_master_reset", confirmation, reason })); } catch { render(state); }
@@ -980,7 +1001,14 @@ class SFXEngine {
     if (typeof event?.spectator_mode === "boolean") spectatorMode = event.spectator_mode;
     if (event?.type === "pit_boss_master_reset" || event?.type === "action_rejected") { ui.pitMasterReset.disabled = false; ui.pitMasterReset.textContent = "RESET ALL STACKS TO 500 ◉"; }
     if (event?.type === "pit_boss_player_deleted" || event?.type === "action_rejected") { ui.pitDeletePlayer.disabled = false; ui.pitDeletePlayer.textContent = "ERASE THIS PLAYER'S RECORD"; }
-    if (event?.type === "pit_boss_player_deleted") { ui.pitDeleteConfirm.value = ""; ui.pitDeleteReason.value = ""; ui.message.textContent = "Player record erased. It's not coming back."; }
+    if (event?.type === "pit_boss_player_deleted") { ui.pitDeleteConfirm.value = ""; ui.pitDeleteReason.value = ""; ui.pitOfficeStatus.textContent = "Player record erased. It's not coming back."; }
+    if (event?.type === "pit_boss_all_players_deleted" || event?.type === "action_rejected") { ui.pitDeleteAllPlayers.disabled = false; ui.pitDeleteAllPlayers.textContent = "ERASE EVERY PLAYER'S RECORD"; }
+    if (event?.type === "pit_boss_all_players_deleted") {
+      ui.pitDeleteAllConfirm.value = "";
+      ui.pitDeleteAllReason.value = "";
+      const removedCount = event?.removed_summary?.players_removed ?? "every";
+      ui.pitOfficeStatus.textContent = `${removedCount} player record(s) erased. None of it is coming back.`;
+    }
     const players = Array.isArray(state.players) ? state.players : [];
     const eliminated = Array.isArray(state.eliminated_players) ? state.eliminated_players : [];
     const phase = state.phase || "lobby";
@@ -1022,6 +1050,12 @@ class SFXEngine {
     ui.multiplier.textContent = `${multiplier.toFixed(2)}×`;
     ui.multiplier.className = `multiplier${phase === "running" && localHolder ? " is-danger" : ""}${phase === "ended" ? " is-ended" : ""}`;
     ui.message.textContent = phraseFor(event);
+    if (["pit_boss_master_reset", "pit_boss_adjusted", "pit_boss_granted", "pit_boss_grant_sent"].includes(event?.type)) {
+      // #message lives inside .chamber, which is display:none while the Pit
+      // Boss Office is open -- mirror office-relevant feedback somewhere
+      // actually visible instead of silently succeeding/failing off-screen.
+      ui.pitOfficeStatus.textContent = phraseFor(event);
+    }
     renderRoster(players, eliminated, readyPlayers);
     renderLatestRound(state.latest_round, phase);
     renderLeaderboard();
@@ -1072,6 +1106,8 @@ class SFXEngine {
       const masterResetAvailable = phase === "lobby" && players.length === 0;
       ui.pitMasterReset.disabled = !masterResetAvailable;
       ui.pitMasterReset.title = masterResetAvailable ? "Requires RESET ALL CHIPS and an audit reason" : "Master reset is locked until the lobby is empty";
+      ui.pitDeleteAllPlayers.disabled = !masterResetAvailable;
+      ui.pitDeleteAllPlayers.title = masterResetAvailable ? "Requires ERASE ALL PLAYER RECORDS and an audit reason" : "Erasing every record is locked until the lobby is empty";
     }
     if (isPitBoss && activeAppRoute === "pit-boss" && !pitBossDashboard && !pitBossDashboardRequested) window.setTimeout(() => requestPitBossDashboard(), 0);
     if (spectatorMode) { ui.action.textContent = phase === "running" ? "WATCHING LIVE — NO WAIVER" : phase === "intermission" ? "WATCHING THE ASH SETTLE" : "WATCH-ONLY CABINET RECORD"; ui.action.classList.add("is-neutral"); ui.action.disabled = true; }
