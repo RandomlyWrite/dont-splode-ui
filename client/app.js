@@ -94,6 +94,7 @@ class SFXEngine {
   const ENDPOINT = "wss://dont-splode-backend.onrender.com/ws";
   const ASSETS = {
     mascot: "./assets/hands-of-calamity.png",
+    sploded: "./assets/you-sploded.jpg",
     logo: "/manus-storage/dont-splode-logo_8863a007.png",
   };
 
@@ -172,7 +173,7 @@ class SFXEngine {
           <div class="finance-instrument finance-pot" id="pot-instrument" data-phase="lobby"><span class="pot-credit" id="pot-credit" aria-hidden="true">+5 TO POT</span><div class="instrument-head"><span class="finance-label">GROUP POT</span><span class="instrument-lamp">ALL IN</span></div><strong class="finance-value finance-pot-value" id="pot-value" aria-live="polite">—</strong><span class="finance-note">WHAT THE CABINET OWES A SURVIVOR</span></div>
         </section>
         <section class="chamber" id="chamber" data-phase="lobby">
-          <div class="bomb-stage" id="bomb-stage" data-handoff-direction="right"><span class="bomb-halo"></span><span class="reaction-burst" id="reaction-burst" aria-hidden="true"></span><span class="handoff-arc" aria-hidden="true"></span><span class="handoff-drop" aria-hidden="true"><span class="handoff-orb"><i></i><b></b></span><span class="handoff-catch"><i></i><i></i></span></span><div class="bomb-portrait" id="bomb-portrait"><img class="bomb-mascot" id="bomb-mascot" src="${ASSETS.mascot}" alt="A worried cartoon bomb with a lit fuse, cradled by distressed cartoon gloves" /><span class="eye-mask eye-mask-left" aria-hidden="true"><i></i></span><span class="eye-mask eye-mask-right" aria-hidden="true"><i></i></span></div><span class="bomb-fallback" aria-hidden="true"></span></div>
+          <div class="bomb-stage" id="bomb-stage" data-handoff-direction="right"><span class="detonation-flash" id="detonation-flash" aria-hidden="true"></span><span class="bomb-halo"></span><span class="reaction-burst" id="reaction-burst" aria-hidden="true"></span><span class="handoff-arc" aria-hidden="true"></span><span class="handoff-drop" aria-hidden="true"><span class="handoff-orb"><i></i><b></b></span><span class="handoff-catch"><i></i><i></i></span></span><div class="bomb-portrait" id="bomb-portrait"><img class="bomb-mascot" id="bomb-mascot" src="${ASSETS.mascot}" alt="A worried cartoon bomb with a lit fuse, cradled by distressed cartoon gloves" /><span class="eye-mask eye-mask-left" aria-hidden="true"><i></i></span><span class="eye-mask eye-mask-right" aria-hidden="true"><i></i></span></div><span class="bomb-fallback" aria-hidden="true"></span></div>
           <div class="holder-block" id="holder-block" data-state="none" hidden><span class="holder-kicker" id="holder-kicker">CURRENT FUSE</span><strong class="holder-name" id="holder-name">—</strong></div>
           <div class="multiplier-wrap"><span class="live-tag" id="live-tag" data-urgent="false">SAFE(ISH)</span><strong class="multiplier" id="multiplier">1.00×</strong><span class="multiplier-caption">Survival multiplier</span></div>
           <section class="match-ledger" id="match-ledger" aria-label="Match progress"><span id="player-count">0 / 12 IN</span><span id="round-count">MATCH NOT STARTED</span><span id="eliminated-count">0 ASHED</span></section>
@@ -190,7 +191,7 @@ class SFXEngine {
           <span class="summary-kicker">CABINET INCIDENT REPORT</span>
           <h2 id="summary-title">DETONATION REPORT</h2>
           <p class="summary-copy" id="summary-copy">A bad decision has concluded its service.</p>
-          <div class="defeat-emblem" aria-hidden="true"><span class="dead-bomb"><i></i></span></div>
+          <div class="defeat-emblem" aria-hidden="true"><img class="defeat-art" id="defeat-art" src="${ASSETS.sploded}" alt="" onerror="this.closest('.defeat-emblem').classList.add('art-missing')" /><span class="dead-bomb"><i></i></span></div>
           <dl class="summary-stats">
             <div><dt>VAPORIZED</dt><dd id="summary-loser">UNKNOWN</dd></div>
             <div><dt>CRASH POINT</dt><dd id="summary-multiplier">1.00×</dd></div>
@@ -241,7 +242,7 @@ class SFXEngine {
     cabinet: root.querySelector(".cabinet"), chamber: root.querySelector("#chamber"), connection: root.querySelector("#connection"), balanceInstrument: root.querySelector("#balance-instrument"), potInstrument: root.querySelector("#pot-instrument"), potCredit: root.querySelector("#pot-credit"), stackDeduction: root.querySelector("#stack-deduction"),
     pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"),
     liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
-    stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), reactionBurst: root.querySelector("#reaction-burst"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"),
+    stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), reactionBurst: root.querySelector("#reaction-burst"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"), detonationFlash: root.querySelector("#detonation-flash"),
     holderBlock: root.querySelector("#holder-block"), holderKicker: root.querySelector("#holder-kicker"), holderName: root.querySelector("#holder-name"),
     roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), leaderboard: root.querySelector("#leaderboard"), leaderboardCount: root.querySelector("#leaderboard-count"), leaderboardStamp: root.querySelector("#leaderboard-stamp"), leaderboardGlobal: root.querySelector("#leaderboard-global"), leaderboardGroup: root.querySelector("#leaderboard-group"), leaderboardCompetitive: root.querySelector("#leaderboard-competitive"), leaderboardChips: root.querySelector("#leaderboard-chips"), leaderboardCopy: root.querySelector("#leaderboard-copy"), leaderboardList: root.querySelector("#leaderboard-list"), leaderboardViewer: root.querySelector("#leaderboard-viewer"), seasonArchive: root.querySelector("#season-archive"), seasonWeek: root.querySelector("#season-week"), seasonCurrent: root.querySelector("#season-current"), seasonHistory: root.querySelector("#season-history"), seasonRefresh: root.querySelector("#season-refresh"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), pitAdmin: root.querySelector("#pit-boss-admin"), pitLedgerRefresh: root.querySelector("#pit-ledger-refresh"), pitProfileSearch: root.querySelector("#pit-profile-search"), pitProfileSearchButton: root.querySelector("#pit-profile-search-button"), pitProfileSort: root.querySelector("#pit-profile-sort"), pitProfileCount: root.querySelector("#pit-profile-count"), pitProfile: root.querySelector("#pit-profile"), pitProfileSummary: root.querySelector("#pit-profile-summary"), pitLedgerList: root.querySelector("#pit-ledger-list"), pitAdjustDirection: root.querySelector("#pit-adjust-direction"), pitAdjustAmount: root.querySelector("#pit-adjust-amount"), pitAdjustReason: root.querySelector("#pit-adjust-reason"), pitAdjustSubmit: root.querySelector("#pit-adjust-submit"), pitMasterConfirm: root.querySelector("#pit-master-confirm"), pitMasterReason: root.querySelector("#pit-master-reason"), pitMasterReset: root.querySelector("#pit-master-reset"), pitGroupList: root.querySelector("#pit-group-list"), invite: root.querySelector("#lobby-invite"), inviteStatus: root.querySelector("#invite-status"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), briefingToggle: root.querySelector("#briefing-toggle"), briefing: root.querySelector("#briefing-overlay"), briefingDismiss: root.querySelector("#briefing-dismiss"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
   };
@@ -1212,6 +1213,14 @@ class SFXEngine {
     window.setTimeout(() => ui.stage.classList.remove("is-handoff"), 760);
   }
 
+  function triggerDetonation(isLocal) {
+    ui.stage.classList.remove("is-detonating");
+    void ui.stage.offsetWidth;
+    ui.stage.classList.toggle("is-local-detonation", isLocal);
+    ui.stage.classList.add("is-detonating");
+    window.setTimeout(() => ui.stage.classList.remove("is-detonating"), 420);
+  }
+
   function handleSoundEvent(event, previousState) {
     const nextState = event.state;
     const localHolder = String(nextState.current_holder) === identity.id;
@@ -1224,7 +1233,9 @@ class SFXEngine {
       if (event.type === "eliminated") sfx.playElimination(); else sfx.playExplosion();
       if (event.final && String(event.loser) !== identity.id) sfx.playPayout();
       triggerHaptic("sploded");
-      showRoundSummary(event);
+      const localLoss = String(event.loser) === identity.id;
+      triggerDetonation(localLoss);
+      window.setTimeout(() => showRoundSummary(event), 260);
     }
     if (event.type === "update" && previousState?.phase === "running" && nextState.phase === "running" && String(previousState.current_holder) !== String(nextState.current_holder)) {
       triggerBombHandoff(previousState, nextState);
