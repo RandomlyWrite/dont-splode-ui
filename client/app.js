@@ -232,6 +232,12 @@ class SFXEngine {
           </section>
         </article>
       </section>
+      <section class="debug-panel" id="debug-panel" aria-label="Clarity pass test controls" hidden>
+        <span>CLARITY DEBUG</span>
+        <button id="debug-detonate" type="button">DETONATE</button>
+        <button id="debug-smoke" type="button">SMOKE BURST</button>
+        <button id="debug-ambient" type="button">AMBIENT ON/OFF</button>
+      </section>
     </div>`;
 
   const actionBayNode = root.querySelector(".action-bay");
@@ -1382,4 +1388,16 @@ class SFXEngine {
     detonate: () => { triggerDetonation(true); SmokeField.detonate(); showSplodedInterstitial(); },
     smoke: { detonate: () => SmokeField.detonate(), startAmbient: () => SmokeField.startAmbient(), stop: () => SmokeField.stop() },
   };
+
+  if (launchParams.get("debug") === "1") {
+    const debugPanel = root.querySelector("#debug-panel");
+    let ambientOn = false;
+    debugPanel.hidden = false;
+    root.querySelector("#debug-detonate").addEventListener("click", () => window.__dontSplodeClarity.detonate());
+    root.querySelector("#debug-smoke").addEventListener("click", () => SmokeField.detonate());
+    root.querySelector("#debug-ambient").addEventListener("click", () => {
+      ambientOn = !ambientOn;
+      if (ambientOn) SmokeField.startAmbient(); else SmokeField.stop();
+    });
+  }
 })();
