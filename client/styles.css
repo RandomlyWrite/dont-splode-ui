@@ -284,6 +284,30 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .multiplier.is-danger { color: var(--fuse); text-shadow: 0 0 22px rgba(225,59,50,.22); }
 .multiplier.is-ended { color: var(--brass); }
 .multiplier-caption { color: var(--ash); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
+
+/* Dedicated holder block — sits between bomb and multiplier, second most important element on screen */
+.holder-block { position: relative; z-index: 1; display: grid; justify-items: center; gap: 2px; margin: 4px 0 2px; padding: 6px 14px; transition: background 180ms var(--ease-out), box-shadow 180ms var(--ease-out); }
+.holder-kicker { display: block; font-size: 9px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--brass); }
+.holder-name { display: block; font-size: clamp(17px, 5.2vw, 23px); font-weight: 700; letter-spacing: -.02em; color: var(--paper); line-height: 1.1; }
+.holder-block[data-state="them"] { box-shadow: inset 0 0 0 1px rgba(216,168,75,.28); background: rgba(216,168,75,.06); }
+.holder-block[data-state="you"] { background: linear-gradient(180deg, rgba(225,59,50,.24), rgba(225,59,50,.07)); box-shadow: inset 0 0 0 1px rgba(225,59,50,.6), 0 0 18px rgba(225,59,50,.18); animation: holder-you-pulse 1.1s var(--ease-in-out) infinite; }
+.holder-block[data-state="you"] .holder-kicker { color: var(--fuse); }
+.holder-block[data-state="you"] .holder-name { color: #ffb4a8; text-shadow: 0 0 18px rgba(225,59,50,.4); }
+@keyframes holder-you-pulse { 0%, 100% { box-shadow: inset 0 0 0 1px rgba(225,59,50,.6), 0 0 18px rgba(225,59,50,.18); } 50% { box-shadow: inset 0 0 0 1px rgba(225,59,50,.85), 0 0 28px rgba(225,59,50,.32); } }
+
+/* Rising danger — pressure bands driven by multiplier value, independent of who holds the bomb */
+.chamber[data-pressure="mid"] { box-shadow: inset 0 0 0 1px rgba(225,59,50,.54), inset 0 0 54px rgba(225,59,50,.15), 0 22px 46px rgba(0,0,0,.28); }
+.chamber[data-pressure="high"] .bomb-mascot { filter: brightness(1.12) saturate(1.08); }
+.chamber[data-pressure="high"] .multiplier { animation: multiplier-scale-pulse 1s var(--ease-in-out) infinite; }
+.chamber[data-pressure="critical"] { box-shadow: inset 0 0 0 2px rgba(225,59,50,.75), inset 0 0 70px rgba(225,59,50,.22), 0 22px 46px rgba(0,0,0,.32); }
+.chamber[data-pressure="critical"] .bomb-stage { animation: pressure-shake 260ms linear infinite; }
+.chamber[data-pressure="critical"] .multiplier { animation: multiplier-scale-pulse .6s var(--ease-in-out) infinite; }
+@keyframes multiplier-scale-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes pressure-shake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-1px, 1px); } 50% { transform: translate(1px, -1px); } 75% { transform: translate(-1px, -1px); } }
+
+/* Local holder scream state — strongest visual override in the app */
+.cabinet[data-local-holder="true"] .action-button { animation: action-urgent-pulse 1s var(--ease-in-out) infinite; box-shadow: 0 0 0 1px rgba(225,59,50,.7), 0 0 22px rgba(225,59,50,.4); }
+@keyframes action-urgent-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
 .match-ledger { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 12px 2px -4px; padding: 8px 10px; background: rgba(10,8,6,.76); color: var(--brass); box-shadow: inset 0 1px rgba(255,255,255,.05), inset 0 0 0 1px rgba(216,168,75,.15); font-size: 8px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .match-ledger span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .match-ledger span:first-child { color: var(--paper); }
