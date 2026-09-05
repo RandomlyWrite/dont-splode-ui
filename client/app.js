@@ -173,6 +173,7 @@ class SFXEngine {
           <div class="finance-instrument finance-pot" id="pot-instrument" data-phase="lobby"><span class="pot-credit" id="pot-credit" aria-hidden="true">+5 TO POT</span><div class="instrument-head"><span class="finance-label">GROUP POT</span><span class="instrument-lamp">ALL IN</span></div><strong class="finance-value finance-pot-value" id="pot-value" aria-live="polite">—</strong><span class="finance-note">WHAT THE CABINET OWES A SURVIVOR</span></div>
         </section>
         <section class="chamber" id="chamber" data-phase="lobby">
+          <canvas class="smoke-canvas" id="smoke-canvas" aria-hidden="true"></canvas>
           <div class="bomb-stage" id="bomb-stage" data-handoff-direction="right"><span class="detonation-flash" id="detonation-flash" aria-hidden="true"></span><span class="bomb-halo"></span><span class="reaction-burst" id="reaction-burst" aria-hidden="true"></span><span class="handoff-arc" aria-hidden="true"></span><span class="handoff-drop" aria-hidden="true"><span class="handoff-orb"><i></i><b></b></span><span class="handoff-catch"><i></i><i></i></span></span><div class="bomb-portrait" id="bomb-portrait"><img class="bomb-mascot" id="bomb-mascot" src="${ASSETS.mascot}" alt="A worried cartoon bomb with a lit fuse, cradled by distressed cartoon gloves" /><span class="eye-mask eye-mask-left" aria-hidden="true"><i></i></span><span class="eye-mask eye-mask-right" aria-hidden="true"><i></i></span></div><span class="bomb-fallback" aria-hidden="true"></span></div>
           <div class="holder-block" id="holder-block" data-state="none" hidden><span class="holder-kicker" id="holder-kicker">CURRENT FUSE</span><strong class="holder-name" id="holder-name">—</strong></div>
           <div class="multiplier-wrap"><span class="live-tag" id="live-tag" data-urgent="false">SAFE(ISH)</span><strong class="multiplier" id="multiplier">1.00×</strong><span class="multiplier-caption">Survival multiplier</span></div>
@@ -185,6 +186,11 @@ class SFXEngine {
         <aside class="side-docket" aria-label="Game information"></aside>
         <div class="action-bay"><button class="action-button is-neutral" id="action" type="button" disabled>CONNECTING TO DISASTER</button><button class="leave-lobby" id="leave-lobby" type="button" hidden>LEAVE — REFUND 100 ◉</button><section class="predict-survivor" id="predict-survivor" hidden aria-label="Predict the survivor"><span>🔮 PREDICT THE SURVIVOR</span><div class="predict-controls"><select id="predict-select" aria-label="Choose who you think will survive"></select><button id="predict-submit" type="button">LOCK IT IN</button></div><small id="predict-status" role="status"></small></section><button class="daily-claim" id="daily-claim" type="button" hidden>DAILY CHIP CACHE — +250 ◉</button><div class="secondary-actions" id="secondary-actions"><button class="lobby-invite" id="lobby-invite" type="button" hidden>SUMMON FRESH VICTIMS <span aria-hidden="true">↗</span></button></div><p class="invite-status" id="invite-status" role="status" hidden></p><section class="pit-boss" id="pit-boss" hidden aria-label="Pit Boss controls"><span>PIT BOSS CHIP DRAWER <small>LIVE LOBBY / +1–10,000 ◉</small></span><select id="pit-target" aria-label="Choose a live lobby player to receive virtual chips"></select><input id="pit-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Virtual chips to grant" /><button id="pit-grant" type="button">ISSUE</button></section><section class="pit-boss-admin" id="pit-boss-admin" hidden aria-label="Pit Boss persistent ledger"><header><span>CABINET LEDGER</span><button id="pit-ledger-refresh" type="button">REFRESH</button></header><div class="pit-admin-tools"><div class="pit-admin-search"><input id="pit-profile-search" type="search" placeholder="Search name or @handle" aria-label="Search persistent player profiles by name or public handle" aria-describedby="pit-profile-count" /><button id="pit-profile-search-button" type="button">FIND</button></div><label class="pit-sort-control" for="pit-profile-sort"><span>SORT FILES</span><select id="pit-profile-sort" aria-label="Sort persistent player profiles"><option value="balance_desc">MOST CHIPS</option><option value="balance_asc">LEAST CHIPS</option><option value="recent">RECENT ACTIVITY</option><option value="matches_desc">MOST MATCHES</option><option value="name_asc">NAME A–Z</option></select></label></div><p class="pit-profile-count" id="pit-profile-count" aria-live="polite">Awaiting cabinet files…</p><select id="pit-profile" aria-label="Choose a persistent player profile"></select><p class="pit-profile-summary" id="pit-profile-summary">Opening the cabinet files…</p><p class="pit-office-status" id="pit-office-status" role="status" aria-live="polite"></p><ol class="pit-ledger-list" id="pit-ledger-list"></ol><fieldset class="pit-adjustment"><legend>PERMANENT CHIP EDIT</legend><select id="pit-adjust-direction" aria-label="Choose whether to add or remove virtual chips"><option value="add">ADD CHIPS</option><option value="remove">REMOVE CHIPS</option></select><input id="pit-adjust-amount" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" aria-label="Whole virtual chip adjustment amount" /><input id="pit-adjust-reason" type="text" maxlength="96" placeholder="Reason for this edit" aria-label="Reason for persistent chip adjustment" /><button id="pit-adjust-submit" type="button">STAMP LEDGER</button></fieldset><fieldset class="pit-delete-player"><legend>ERASE PLAYER RECORD</legend><p>PERMANENTLY DELETES THIS PROFILE'S BALANCE, LEDGER, AND LEADERBOARD ENTRIES. CANNOT BE UNDONE.</p><input id="pit-delete-confirm" type="text" maxlength="32" placeholder="Type ERASE PLAYER RECORD" aria-label="Type ERASE PLAYER RECORD to confirm deletion" /><input id="pit-delete-reason" type="text" maxlength="96" placeholder="Audit reason for deletion" aria-label="Reason for player record deletion" /><button id="pit-delete-player" type="button">ERASE THIS PLAYER'S RECORD</button></fieldset><fieldset class="pit-delete-all"><legend>⚠ ERASE ALL PLAYER RECORDS</legend><p>PERMANENTLY DELETES EVERY PLAYER'S BALANCE, LEDGER, AND LEADERBOARD ENTRY. LOCKED UNTIL THE LOBBY IS EMPTY. CANNOT BE UNDONE.</p><input id="pit-delete-all-confirm" type="text" maxlength="32" placeholder="Type ERASE ALL PLAYER RECORDS" aria-label="Type ERASE ALL PLAYER RECORDS to confirm" /><input id="pit-delete-all-reason" type="text" maxlength="96" placeholder="Audit reason for full erasure" aria-label="Reason for erasing every player record" /><button id="pit-delete-all-players" type="button">ERASE EVERY PLAYER'S RECORD</button></fieldset><fieldset class="pit-master-reset"><legend>MASTER CHIP RESET</legend><p>RESTORES EVERY KNOWN STACK TO 500 ◉. SURVIVAL RECORDS STAY ON FILE.</p><input id="pit-master-confirm" type="text" maxlength="32" placeholder="Type RESET ALL CHIPS" aria-label="Type RESET ALL CHIPS to confirm master virtual-chip reset" /><input id="pit-master-reason" type="text" maxlength="96" placeholder="Audit reason for master reset" aria-label="Reason for master virtual-chip reset" /><button id="pit-master-reset" type="button">RESET ALL STACKS TO 500 ◉</button></fieldset><section class="pit-groups"><span>REGISTERED GROUPS</span><ul id="pit-group-list"></ul><small>Use <b>/register_dont_splode</b> inside a Telegram group to put it on file.</small></section></section><button class="reconnect" id="reconnect" type="button">Reconnect to the engine</button></div>
         <p class="safety-note"><strong>Virtual chips only.</strong> This is a theatrical exercise in probability, not financial advice.</p>
+      </section>
+      <section class="sploded-interstitial" id="sploded-interstitial" aria-hidden="true" hidden>
+        <img class="sploded-interstitial-art" id="sploded-interstitial-art" src="${ASSETS.sploded}" alt="" onerror="this.style.display='none'" />
+        <h2 class="sploded-interstitial-title">OPPPE.. YOU SPLODED</h2>
+        <p class="sploded-interstitial-copy">A couple of fingers did not make it.</p>
       </section>
       <section class="summary-overlay" id="summary-overlay" role="dialog" aria-modal="true" aria-labelledby="summary-title" aria-describedby="summary-copy" hidden>
         <div class="summary-ticket">
@@ -242,7 +248,7 @@ class SFXEngine {
     cabinet: root.querySelector(".cabinet"), chamber: root.querySelector("#chamber"), connection: root.querySelector("#connection"), balanceInstrument: root.querySelector("#balance-instrument"), potInstrument: root.querySelector("#pot-instrument"), potCredit: root.querySelector("#pot-credit"), stackDeduction: root.querySelector("#stack-deduction"),
     pot: root.querySelector("#pot-value"), balance: root.querySelector("#balance-value"), count: root.querySelector("#player-count"),
     liveTag: root.querySelector("#live-tag"), mascot: root.querySelector("#bomb-mascot"),
-    stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), reactionBurst: root.querySelector("#reaction-burst"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"), detonationFlash: root.querySelector("#detonation-flash"),
+    stage: root.querySelector("#bomb-stage"), portrait: root.querySelector("#bomb-portrait"), reactionBurst: root.querySelector("#reaction-burst"), multiplier: root.querySelector("#multiplier"), message: root.querySelector("#message"), detonationFlash: root.querySelector("#detonation-flash"), smokeCanvas: root.querySelector("#smoke-canvas"), splodedInterstitial: root.querySelector("#sploded-interstitial"),
     holderBlock: root.querySelector("#holder-block"), holderKicker: root.querySelector("#holder-kicker"), holderName: root.querySelector("#holder-name"),
     roster: root.querySelector("#roster"), rosterCount: root.querySelector("#roster-count"), roundCount: root.querySelector("#round-count"), eliminatedCount: root.querySelector("#eliminated-count"), latestTicket: root.querySelector("#latest-ticket"), latestMultiplier: root.querySelector("#latest-multiplier"), latestPayout: root.querySelector("#latest-payout"), latestSurvivors: root.querySelector("#latest-survivors"), leaderboard: root.querySelector("#leaderboard"), leaderboardCount: root.querySelector("#leaderboard-count"), leaderboardStamp: root.querySelector("#leaderboard-stamp"), leaderboardGlobal: root.querySelector("#leaderboard-global"), leaderboardGroup: root.querySelector("#leaderboard-group"), leaderboardCompetitive: root.querySelector("#leaderboard-competitive"), leaderboardChips: root.querySelector("#leaderboard-chips"), leaderboardCopy: root.querySelector("#leaderboard-copy"), leaderboardList: root.querySelector("#leaderboard-list"), leaderboardViewer: root.querySelector("#leaderboard-viewer"), seasonArchive: root.querySelector("#season-archive"), seasonWeek: root.querySelector("#season-week"), seasonCurrent: root.querySelector("#season-current"), seasonHistory: root.querySelector("#season-history"), seasonRefresh: root.querySelector("#season-refresh"), action: root.querySelector("#action"), dailyClaim: root.querySelector("#daily-claim"), pitBoss: root.querySelector("#pit-boss"), pitTarget: root.querySelector("#pit-target"), pitAmount: root.querySelector("#pit-amount"), pitGrant: root.querySelector("#pit-grant"), pitAdmin: root.querySelector("#pit-boss-admin"), pitLedgerRefresh: root.querySelector("#pit-ledger-refresh"), pitProfileSearch: root.querySelector("#pit-profile-search"), pitProfileSearchButton: root.querySelector("#pit-profile-search-button"), pitProfileSort: root.querySelector("#pit-profile-sort"), pitProfileCount: root.querySelector("#pit-profile-count"), pitProfile: root.querySelector("#pit-profile"), pitProfileSummary: root.querySelector("#pit-profile-summary"), pitLedgerList: root.querySelector("#pit-ledger-list"), pitAdjustDirection: root.querySelector("#pit-adjust-direction"), pitAdjustAmount: root.querySelector("#pit-adjust-amount"), pitAdjustReason: root.querySelector("#pit-adjust-reason"), pitAdjustSubmit: root.querySelector("#pit-adjust-submit"), pitMasterConfirm: root.querySelector("#pit-master-confirm"), pitMasterReason: root.querySelector("#pit-master-reason"), pitMasterReset: root.querySelector("#pit-master-reset"), pitGroupList: root.querySelector("#pit-group-list"), invite: root.querySelector("#lobby-invite"), inviteStatus: root.querySelector("#invite-status"), reconnect: root.querySelector("#reconnect"), soundToggle: root.querySelector("#sfx-toggle"), briefingToggle: root.querySelector("#briefing-toggle"), briefing: root.querySelector("#briefing-overlay"), briefingDismiss: root.querySelector("#briefing-dismiss"), summary: root.querySelector("#summary-overlay"), summaryTitle: root.querySelector("#summary-title"), summaryCopy: root.querySelector("#summary-copy"), summaryLoser: root.querySelector("#summary-loser"), summaryMultiplier: root.querySelector("#summary-multiplier"), summaryPayout: root.querySelector("#summary-payout"), summaryPayoutLabel: root.querySelector("#summary-payout-label"), summaryShare: root.querySelector("#summary-share"), summaryClose: root.querySelector("#summary-close"),
   };
@@ -1048,6 +1054,7 @@ class SFXEngine {
     ui.multiplier.className = `multiplier${phase === "running" && localHolder ? " is-danger" : ""}${phase === "ended" ? " is-ended" : ""}`;
     const pressure = multiplier >= 12 ? "critical" : multiplier >= 8 ? "high" : multiplier >= 4 ? "mid" : "low";
     ui.chamber.dataset.pressure = phase === "running" ? pressure : "low";
+    if (phase === "running" && (pressure === "high" || pressure === "critical")) SmokeField.startAmbient(); else SmokeField.stopAmbient();
     if (phase === "running") {
       const holder = players.find((player) => String(player.id) === String(state.current_holder));
       ui.holderBlock.hidden = false;
@@ -1213,6 +1220,92 @@ class SFXEngine {
     window.setTimeout(() => ui.stage.classList.remove("is-handoff"), 760);
   }
 
+  const SmokeField = (() => {
+    let canvas = null, ctx = null, particles = [], rafId = null, ambientTimer = null, running = false;
+    function init(canvasEl) {
+      canvas = canvasEl;
+      if (!canvas) return;
+      ctx = canvas.getContext("2d");
+      resize();
+      window.addEventListener("resize", resize);
+    }
+    function resize() {
+      if (!canvas) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+    function spawn(count, ambient) {
+      if (!canvas || !canvas.width) return;
+      const cx = canvas.width / 2;
+      const cy = canvas.height * 0.4;
+      for (let i = 0; i < count; i += 1) {
+        particles.push({
+          x: cx + (Math.random() - 0.5) * (ambient ? 70 : 34),
+          y: cy + (Math.random() - 0.5) * (ambient ? 34 : 22),
+          vx: (Math.random() - 0.5) * (ambient ? 0.35 : 2.2),
+          vy: -Math.random() * (ambient ? 0.35 : 1.6) - (ambient ? 0.1 : 0.4),
+          r: Math.random() * (ambient ? 9 : 15) + (ambient ? 4 : 6),
+          life: 1,
+          decay: Math.random() * 0.007 + (ambient ? 0.006 : 0.007),
+          rgb: ambient ? "150,140,120" : Math.random() < 0.5 ? "40,32,26" : "12,10,8",
+        });
+      }
+      loop();
+    }
+    function loop() {
+      if (running) return;
+      running = true;
+      step();
+    }
+    function step() {
+      if (!ctx) { running = false; return; }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p) => {
+        p.x += p.vx; p.y += p.vy; p.life -= p.decay;
+        ctx.globalAlpha = Math.max(0, p.life) * 0.5;
+        ctx.fillStyle = `rgba(${p.rgb},1)`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * (1.4 - p.life), 0, Math.PI * 2);
+        ctx.fill();
+      });
+      particles = particles.filter((p) => p.life > 0);
+      ctx.globalAlpha = 1;
+      if (particles.length) { rafId = window.requestAnimationFrame(step); } else { running = false; if (rafId) window.cancelAnimationFrame(rafId); }
+    }
+    function detonate() { spawn(30, false); }
+    function startAmbient() {
+      if (ambientTimer) return;
+      ambientTimer = window.setInterval(() => spawn(1, true), 420);
+    }
+    function stopAmbient() {
+      if (ambientTimer) { window.clearInterval(ambientTimer); ambientTimer = null; }
+    }
+    function stop() {
+      stopAmbient();
+      particles = [];
+      if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (rafId) window.cancelAnimationFrame(rafId);
+      running = false;
+    }
+    return { init, detonate, startAmbient, stopAmbient, stop };
+  })();
+
+  let splodedInterstitialTimer = null;
+  function showSplodedInterstitial() {
+    if (!ui.splodedInterstitial) return;
+    window.clearTimeout(splodedInterstitialTimer);
+    ui.splodedInterstitial.hidden = false;
+    ui.splodedInterstitial.setAttribute("aria-hidden", "false");
+    void ui.splodedInterstitial.offsetWidth;
+    ui.splodedInterstitial.classList.add("is-visible");
+    splodedInterstitialTimer = window.setTimeout(() => {
+      ui.splodedInterstitial.classList.remove("is-visible");
+      ui.splodedInterstitial.setAttribute("aria-hidden", "true");
+      window.setTimeout(() => { ui.splodedInterstitial.hidden = true; }, 260);
+    }, 1600);
+  }
+
   function triggerDetonation(isLocal) {
     ui.stage.classList.remove("is-detonating");
     void ui.stage.offsetWidth;
@@ -1235,7 +1328,13 @@ class SFXEngine {
       triggerHaptic("sploded");
       const localLoss = String(event.loser) === identity.id;
       triggerDetonation(localLoss);
-      window.setTimeout(() => showRoundSummary(event), 260);
+      SmokeField.detonate();
+      if (localLoss) {
+        showSplodedInterstitial();
+        window.setTimeout(() => showRoundSummary(event), 1400);
+      } else {
+        window.setTimeout(() => showRoundSummary(event), 260);
+      }
     }
     if (event.type === "update" && previousState?.phase === "running" && nextState.phase === "running" && String(previousState.current_holder) !== String(nextState.current_holder)) {
       triggerBombHandoff(previousState, nextState);
@@ -1275,6 +1374,12 @@ class SFXEngine {
     retryTimer = window.setTimeout(() => connect(), delay);
   }
 
+  SmokeField.init(ui.smokeCanvas);
   connect();
   showBriefingOnFirstOpen();
+
+  window.__dontSplodeClarity = {
+    detonate: () => { triggerDetonation(true); SmokeField.detonate(); showSplodedInterstitial(); },
+    smoke: { detonate: () => SmokeField.detonate(), startAmbient: () => SmokeField.startAmbient(), stop: () => SmokeField.stop() },
+  };
 })();
